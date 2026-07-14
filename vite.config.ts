@@ -50,10 +50,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
+          // Keep React in one place — @react-three/fiber & @react-three/drei
+          // must resolve the same React instance, so don't put them in a
+          // separate chunk from 'react'/'react-dom'.
           vendor:  ['react', 'react-dom', 'wouter', 'zustand', 'recharts'],
           motion:  ['framer-motion'],
           maps:    ['maplibre-gl'],
-          three:   ['three', '@react-three/fiber', '@react-three/drei'],
+          // three (base only) — fiber/drei are co-bundled with EarthGlobePage
+          // by Rollup's lazy-chunk splitting, keeping one React per page.
+          three:   ['three'],
           graph:   ['graphology', 'sigma'],
         },
       },
