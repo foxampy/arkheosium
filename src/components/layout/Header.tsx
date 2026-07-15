@@ -5,8 +5,9 @@ import {
   Phone, Settings, User, LogOut, Download,
   ChevronRight, ChevronDown, ArrowLeft, FlaskConical, BookOpen,
   LayoutDashboard, Users, MessageSquare, Briefcase,
-  BarChart2, Waves, FileText, Cpu, ShoppingCart, Leaf, QrCode, Activity,
-  Bell, Globe, Network, Database, Building2,
+  BarChart2, FileText, Cpu, ShoppingCart, Leaf, QrCode, Activity,
+  Bell, Globe, Database, Building2, Newspaper, Droplets, Network,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMessages } from '@/hooks/useMessages';
@@ -31,81 +32,64 @@ type NavGroup = {
   items: NavItem[];
 };
 
+// ── 5 логичных доменов (сокращено с 8 групп / ~30 пунктов) ──────
 const NAV_GROUPS: NavGroup[] = [
   {
-    id: 'core',
-    title: 'Планетарная ОС',
+    id: 'planet',
+    title: '🌍 Планета',
     items: [
-      { nameKey: 'nav.globe',     path: '/',       icon: Globe,          color: '#00d4ff', label: 'Глобус' },
-      { nameKey: 'nav.map',       path: '/map',    icon: Map,            color: '#00e6c8', label: 'Карта' },
-      { nameKey: 'nav.graph',     path: '/graph',  icon: Network,        color: '#7c3aed', label: 'Граф знаний' },
+      { nameKey: 'nav.globe',     path: '/',          icon: Globe,           color: '#00d4ff', label: 'Глобус' },
+      { nameKey: 'nav.map',       path: '/map',       icon: Map,             color: '#00e6c8', label: 'Карта' },
       { nameKey: 'nav.dashboard', path: '/dashboard', icon: LayoutDashboard, color: '#60a5fa', label: 'Дашборд' },
+      { nameKey: 'nav.analytics', path: '/analytics', icon: BarChart2,       color: '#00e6c8', label: 'Аналитика' },
+      { nameKey: 'nav.updates',   path: '/updates',   icon: Newspaper,       color: '#06b6d4', label: 'Обновления' },
     ],
   },
   {
     id: 'infra',
-    title: 'Инфраструктура',
+    title: '🏗 Инфраструктура',
     items: [
-      { nameKey: 'nav.projects',  path: '/hub',          icon: FolderOpen, color: '#4ade80', label: 'Проекты' },
       { nameKey: 'nav.objects',   path: '/hub/objects',  icon: Database,   color: '#00d4ff', label: 'Объекты' },
       { nameKey: 'nav.subjects',  path: '/hub/subjects', icon: Building2,  color: '#00e6c8', label: 'Субъекты' },
+      { nameKey: 'nav.projects',  path: '/hub',          icon: FolderOpen, color: '#4ade80', label: 'Проекты' },
       { nameKey: 'nav.iot',       path: '/iot',          icon: Activity,   color: '#4ade80', label: 'IoT-сеть' },
       { nameKey: 'nav.alerts',    path: '/alerts',       icon: Bell,       color: '#f87171', label: 'Алерты' },
+      { nameKey: 'nav.ecosystem', path: '/ecosystem',    icon: Leaf,       color: '#4ade80', label: 'Экосистема' },
     ],
   },
   {
-    id: 'analytics',
-    title: 'Аналитика и ИИ',
+    id: 'knowledge',
+    title: '🔬 Знания и разработки',
     items: [
-      { nameKey: 'nav.analytics', path: '/analytics', icon: BarChart2, color: '#00e6c8', label: 'Аналитика' },
-      { nameKey: 'nav.ecosystem', path: '/ecosystem', icon: Leaf,      color: '#4ade80', label: 'Экосистема' },
-    ],
-  },
-  {
-    id: 'catalog',
-    title: 'Каталог и R&D',
-    items: [
-      { nameKey: 'nav.catalog',     path: '/catalog',          icon: BookOpen,    color: '#a78bfa', label: 'Каталог' },
-      { nameKey: 'nav.rd',          path: '/rd',               icon: FlaskConical,color: '#f59e0b', label: 'R&D' },
-      { nameKey: 'nav.tech_market', path: '/tech-marketplace', icon: ShoppingCart,color: '#f59e0b', label: 'Тех. маркетплейс' },
+      { nameKey: 'nav.rd',          path: '/rd',               icon: FlaskConical, color: '#f59e0b', label: 'R&D / Методологии' },
+      { nameKey: 'nav.catalog',     path: '/catalog',          icon: BookOpen,     color: '#a78bfa', label: 'Каталог тех/оборуд.' },
+      { nameKey: 'nav.tech_market', path: '/tech-marketplace', icon: ShoppingCart, color: '#f59e0b', label: 'Тех-маркет' },
+      { nameKey: 'nav.documents',   path: '/documents',        icon: FileText,     color: '#00e6c8', label: 'Документы' },
+      { nameKey: 'nav.whitepaper',  path: '/whitepaper',       icon: BookOpen,     color: '#06b6d4', label: 'Whitepaper' },
+      { nameKey: 'nav.aral_nexus',  path: '/aral-nexus',       icon: Droplets,     color: '#00d4ff', label: '🌊 ARAL NEXUS' },
     ],
   },
   {
     id: 'invest',
-    title: 'Инвестиции и право',
+    title: '📈 Проекты и инвестиции',
     items: [
+      { nameKey: 'nav.constructor', path: '/constructor', icon: Briefcase,  color: '#4ade80', label: 'Конструктор проектов' },
       { nameKey: 'nav.invest',      path: '/invest',      icon: TrendingUp, color: '#fbbf24', label: 'Инвестиции' },
-      { nameKey: 'nav.marketplace', path: '/marketplace', icon: Waves,      color: '#4ade80', label: 'Права на воду' },
-      { nameKey: 'nav.blockchain',  path: '/blockchain',  icon: Cpu,        color: '#a78bfa', label: 'Блокчейн' },
+      { nameKey: 'nav.token',       path: '/token-sale',  icon: Cpu,        color: '#a78bfa', label: 'Токенсейл' },
+      { nameKey: 'nav.blockchain',  path: '/blockchain',  icon: Network,    color: '#a78bfa', label: 'Блокчейн / DAO' },
       { nameKey: 'nav.regulatory',  path: '/regulatory',  icon: FileText,   color: '#fbbf24', label: 'Регуляторика' },
     ],
   },
   {
-    id: 'community',
-    title: 'Сообщество',
-    items: [
-      { nameKey: 'nav.community', path: '/community', icon: Users,        color: '#f472b6', label: 'Сообщество' },
-      { nameKey: 'nav.messages',  path: '/messages',  icon: MessageSquare,color: '#60a5fa', label: 'Сообщения' },
-      { nameKey: 'nav.contacts',  path: '/contacts',  icon: Phone,        color: '#38bdf8', label: 'Контакты' },
-      { nameKey: 'nav.workspace', path: '/workspace', icon: Briefcase,    color: '#a78bfa', label: 'Рабочий стол' },
-    ],
-  },
-  {
-    id: 'materials',
-    title: 'Материалы',
-    items: [
-      { nameKey: 'nav.documents', path: '/documents',            icon: FileText, color: '#00e6c8', label: 'Материалы / Брошюры' },
-      { nameKey: 'nav.whitepaper',path: '/whitepaper',           icon: BookOpen, color: '#06b6d4', label: 'Whitepaper' },
-      { nameKey: 'nav.tiif',      path: '/conference/tiif-2026', icon: Map,      color: '#00e6c8', badge: '🇺🇿 TIIF 2026' },
-      { nameKey: 'nav.onboard',   path: '/onboard',              icon: QrCode,   color: '#00e6c8', label: 'Активация (QR)' },
-    ],
-  },
-  {
     id: 'account',
-    title: 'Аккаунт',
+    title: '👤 Аккаунт и сообщество',
     items: [
-      { nameKey: 'nav.account',  path: '/account',  icon: User,    color: '#00e6c8', label: 'Профиль' },
-      { nameKey: 'nav.settings', path: '/settings', icon: Settings,color: '#94a3b8', label: 'Настройки' },
+      { nameKey: 'nav.workspace', path: '/workspace', icon: Briefcase,     color: '#a78bfa', label: 'Рабочий стол' },
+      { nameKey: 'nav.community', path: '/community', icon: Users,         color: '#f472b6', label: 'Сообщество' },
+      { nameKey: 'nav.messages',  path: '/messages',  icon: MessageSquare, color: '#60a5fa', label: 'Сообщения' },
+      { nameKey: 'nav.contacts',  path: '/contacts',  icon: Phone,         color: '#38bdf8', label: 'Контакты' },
+      { nameKey: 'nav.account',   path: '/account',   icon: User,          color: '#00e6c8', label: 'Профиль' },
+      { nameKey: 'nav.settings',  path: '/settings',  icon: Settings,      color: '#94a3b8', label: 'Настройки' },
     ],
   },
 ];
@@ -148,7 +132,7 @@ export function Header() {
       return next;
     });
 
-  const isFullscreen = ['/', '/map', '/graph'].includes(location);
+  const isFullscreen = ['/', '/map'].includes(location);
   const isHome = isFullscreen;
   const showBack = !isHome;
 
@@ -201,6 +185,18 @@ export function Header() {
 
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* Command palette trigger (⌘K) */}
+      <button
+        onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+        className="hidden sm:flex items-center gap-2 h-8 pl-2.5 pr-2 rounded-xl transition-colors hover:bg-white/5 shrink-0"
+        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,200,230,0.12)' }}
+        title="Поиск по ОС (Ctrl+K)"
+      >
+        <Search className="w-3.5 h-3.5 text-white/40" />
+        <span className="text-xs text-white/35">Поиск</span>
+        <kbd className="text-[10px] px-1 py-0.5 rounded text-white/40" style={{ background: 'rgba(255,255,255,0.06)' }}>⌘K</kbd>
+      </button>
 
       {/* Language switcher */}
       <LanguageSwitcher />

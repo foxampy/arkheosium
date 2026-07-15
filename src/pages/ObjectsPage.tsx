@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
@@ -300,92 +300,47 @@ export default function ObjectsPage() {
   const [, setLocation] = useLocation();
   const { t } = useTranslation();
 
-  const [objects, setObjects] = useState<WaterObject[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-
-  // Supabase direct data
-  const { data: dbObjects, isLoading: dbLoading } = useWaterResources();
-  const [showAllDb, setShowAllDb] = useState(false);
-
   // Filters
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterRegion, setFilterRegion] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
-  const [regions, setRegions] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
 
-  // Load regions once
-  useEffect(() => {
-    fetch("/api/map/regions")
-      .then((r) => r.json())
-      .then((data: { name: string; count: number }[]) => {
-        setRegions(data.map((r) => r.name));
-      })
-      .catch(() => {});
-  }, []);
+  // Single Supabase source — no REST calls
+  const { data: allObjects = [], isLoading, error: dbError } = useWaterResources();
 
-  const load = useCallback(
-    async (pg: number) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams();
-        params.set("page", String(pg));
-        params.set("limit", String(PAGE_SIZE));
-        if (search) params.set("search", search);
-        if (filterStatus !== "all") params.set("status", filterStatus);
-        if (filterRegion !== "all") params.set("region", filterRegion);
-        if (filterCategory !== "all") params.set("category", filterCategory);
+  // Derive regions from actual data
+  const regions = useMemo(() => {
+    const set = new Set(allObjects.map(o => o.region).filter(Boolean) as string[]);
+    return Array.from(set).sort();
+  }, [allObjects]);
 
-        const resp = await fetch(`/api/water-objects/list?${params.toString()}`);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data: WaterObject[] = await resp.json();
-
-        // Client-side type filter (server doesn't support it yet)
-        const filtered =
-          filterType !== "all"
-            ? data.filter((o) => o.object_type === filterType)
-            : data;
-
-        setObjects(filtered);
-        // Estimate total from returned count
-        if (pg === 1 && filtered.length < PAGE_SIZE) {
-          setTotal(filtered.length);
-        } else {
-          setTotal(pg * PAGE_SIZE + (data.length === PAGE_SIZE ? 1 : 0));
-        }
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
+  // Client-side filtering
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return allObjects.filter(o => {
+      if (filterStatus !== "all" && o.status !== filterStatus) return false;
+      if (filterRegion !== "all" && o.region !== filterRegion) return false;
+      if (filterCategory !== "all" && o.category !== filterCategory) return false;
+      if (filterType !== "all" && o.object_type !== filterType) return false;
+      if (q) {
+        const name = localizedField(o, 'name').toLowerCase();
+        const desc = localizedField(o, 'description').toLowerCase();
+        const loc = ((o.region ?? "") + " " + (o.country ?? "")).toLowerCase();
+        if (!name.includes(q) && !desc.includes(q) && !loc.includes(q)) return false;
       }
-    },
-    [search, filterType, filterStatus, filterRegion, filterCategory]
-  );
+      return true;
+    });
+  }, [allObjects, search, filterType, filterStatus, filterRegion, filterCategory]);
 
-  // Initial and filter-based load
-  useEffect(() => {
-    setPage(1);
-    load(1);
-  }, [search, filterType, filterStatus, filterRegion, filterCategory]);
+  // Reset to page 1 when filters change
+  useEffect(() => { setPage(1); }, [search, filterType, filterStatus, filterRegion, filterCategory]);
 
-  // Page change
-  useEffect(() => {
-    load(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [page]);
-
-  const handleObjectClick = (obj: WaterObject) => {
-    setLocation(`/hub/object/${obj.id}`);
-  };
-
-  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
-  const hasMore = objects.length === PAGE_SIZE;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div
@@ -414,13 +369,12 @@ export default function ObjectsPage() {
               <div>
                 <h1 className="text-white font-black text-lg leading-tight">{t("objects.title")}</h1>
                 <p className="text-white/35 text-xs">
-                  {loading ? t("objects.loading") : t("objects.objects_on_page", { count: objects.length })}
+                  {isLoading ? t("objects.loading") : t("objects.objects_on_page", { count: filtered.length })}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 ml-auto">
-              {/* Завершённые проекты quick link */}
               <button
                 onClick={() => setLocation("/hub")}
                 className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all h-10"
@@ -434,7 +388,6 @@ export default function ObjectsPage() {
                 {t("objects.completed")}
               </button>
 
-              {/* Filter toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all h-10"
@@ -450,7 +403,7 @@ export default function ObjectsPage() {
             </div>
           </div>
 
-          {/* Search bar — full width on mobile */}
+          {/* Search bar */}
           <div className="mt-3">
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-xl"
@@ -472,7 +425,7 @@ export default function ObjectsPage() {
             </div>
           </div>
 
-          {/* Category quick chips row — horizontal scroll on mobile */}
+          {/* Category quick chips */}
           <div className="flex gap-2 mt-3 overflow-x-auto pb-0.5 flex-nowrap">
             {[
               { key: "all", label: t("objects.cat_all") },
@@ -494,7 +447,7 @@ export default function ObjectsPage() {
             ))}
           </div>
 
-          {/* ── Filters ───────────────────────────────────────────────────────── */}
+          {/* ── Filters panel ─────────────────────────────────────────────────── */}
           <AnimatePresence>
             {showFilters && (
               <motion.div
@@ -504,7 +457,7 @@ export default function ObjectsPage() {
                 className="mt-4 overflow-hidden"
               >
                 <div className="flex flex-wrap gap-3">
-                  {/* Type filter */}
+                  {/* Type */}
                   <div className="flex flex-col gap-1">
                     <span className="text-white/30 text-xs font-semibold uppercase tracking-wider">{t("objects.filter_type")}</span>
                     <select
@@ -515,14 +468,12 @@ export default function ObjectsPage() {
                     >
                       <option value="all">{t("objects.all_types")}</option>
                       {Object.entries(TYPE_LABEL_KEYS).map(([k, labelKey]) => (
-                        <option key={k} value={k} style={{ background: "#000c1e" }}>
-                          {t(labelKey)}
-                        </option>
+                        <option key={k} value={k} style={{ background: "#000c1e" }}>{t(labelKey)}</option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Status filter */}
+                  {/* Status */}
                   <div className="flex flex-col gap-1">
                     <span className="text-white/30 text-xs font-semibold uppercase tracking-wider">{t("objects.filter_status")}</span>
                     <select
@@ -533,14 +484,12 @@ export default function ObjectsPage() {
                     >
                       <option value="all">{t("objects.all_statuses")}</option>
                       {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-                        <option key={k} value={k} style={{ background: "#000c1e" }}>
-                          {t(v.labelKey)}
-                        </option>
+                        <option key={k} value={k} style={{ background: "#000c1e" }}>{t(v.labelKey)}</option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Region filter */}
+                  {/* Region — derived from data */}
                   {regions.length > 0 && (
                     <div className="flex flex-col gap-1">
                       <span className="text-white/30 text-xs font-semibold uppercase tracking-wider">{t("objects.filter_region")}</span>
@@ -552,15 +501,13 @@ export default function ObjectsPage() {
                       >
                         <option value="all">{t("objects.all_regions")}</option>
                         {regions.map((r) => (
-                          <option key={r} value={r} style={{ background: "#000c1e" }}>
-                            {r}
-                          </option>
+                          <option key={r} value={r} style={{ background: "#000c1e" }}>{r}</option>
                         ))}
                       </select>
                     </div>
                   )}
 
-                  {/* Category filter */}
+                  {/* Category */}
                   <div className="flex flex-col gap-1">
                     <span className="text-white/30 text-xs font-semibold uppercase tracking-wider">{t("objects.filter_category")}</span>
                     <select
@@ -571,9 +518,7 @@ export default function ObjectsPage() {
                     >
                       <option value="all">{t("objects.all_categories")}</option>
                       {Object.entries(CATEGORY_LABEL_KEYS).map(([k, labelKey]) => (
-                        <option key={k} value={k} style={{ background: "#000c1e" }}>
-                          {t(labelKey)}
-                        </option>
+                        <option key={k} value={k} style={{ background: "#000c1e" }}>{t(labelKey)}</option>
                       ))}
                     </select>
                   </div>
@@ -604,16 +549,13 @@ export default function ObjectsPage() {
       </div>
 
       {/* ── Stats bar ─────────────────────────────────────────────────────────── */}
-      <div
-        className="px-4 sm:px-6 py-3"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
-      >
+      <div className="px-4 sm:px-6 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
         <div className="max-w-7xl mx-auto w-full grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
           {[
             { icon: <Waves size={13} />, label: t("objects.stat_dams"), value: 68, color: "#1e40af" },
             { icon: <Droplets size={13} />, label: t("objects.stat_canals"), value: 25, color: "#06b6d4" },
             { icon: <Gauge size={13} />, label: t("objects.stat_treatment"), value: 22, color: "#10b981" },
-            { icon: <Globe size={13} />, label: t("objects.stat_total"), value: 458, color: "#00e6c8" },
+            { icon: <Globe size={13} />, label: t("objects.stat_total"), value: allObjects.length || 458, color: "#00e6c8" },
           ].map((s) => (
             <div key={s.label} className="flex items-center gap-2">
               <span style={{ color: s.color }}>{s.icon}</span>
@@ -626,91 +568,22 @@ export default function ObjectsPage() {
         </div>
       </div>
 
-      {/* ── Supabase DB Section ───────────────────────────────────────────────── */}
-      {(dbObjects && dbObjects.length > 0) && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-2">
-          {/* Section header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ background: "rgba(0,230,200,0.1)", border: "1px solid rgba(0,230,200,0.2)" }}
-              >
-                <Database size={14} style={{ color: "#00e6c8" }} />
-              </div>
-              <div>
-                <h2 className="text-white font-black text-base leading-tight flex items-center gap-2">
-                  {t("objects.db_title")}
-                  <span
-                    className="px-2 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: "rgba(0,230,200,0.15)", color: "#00e6c8", border: "1px solid rgba(0,230,200,0.3)" }}
-                  >
-                    {dbLoading ? "..." : t("objects.db_count", { count: dbObjects.length })}
-                  </span>
-                </h2>
-                <p className="text-white/30 text-xs">{t("objects.db_subtitle")}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowAllDb(v => !v)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
-              style={{
-                background: showAllDb ? "rgba(0,230,200,0.12)" : "rgba(255,255,255,0.05)",
-                border: showAllDb ? "1px solid rgba(0,230,200,0.3)" : "1px solid rgba(255,255,255,0.08)",
-                color: showAllDb ? "#00e6c8" : "rgba(255,255,255,0.5)",
-              }}
-            >
-              {showAllDb ? t("objects.db_collapse") : t("objects.db_load_all", { count: dbObjects.length })}
-            </button>
-          </div>
-
-          {dbLoading ? (
-            <div className="flex items-center gap-2 py-4">
-              <div className="w-5 h-5 rounded-full border-2 border-transparent animate-spin"
-                style={{ borderTopColor: "#00e6c8" }} />
-              <span className="text-white/40 text-sm">{t("objects.loading_db")}</span>
-            </div>
-          ) : (
-            <motion.div
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4"
-            >
-              <AnimatePresence mode="popLayout">
-                {(showAllDb ? dbObjects : dbObjects.slice(0, 20)).map((obj: WaterResource) => (
-                  <DbObjectCard key={`db-${obj.id}`} obj={obj} />
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
-
-          {/* Divider */}
-          <div className="border-t mb-6" style={{ borderColor: "rgba(255,255,255,0.05)" }} />
-        </div>
-      )}
-
       {/* ── Content ───────────────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {loading ? (
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
               style={{ borderTopColor: "#00e6c8", borderRightColor: "#60a5fa" }} />
             <span className="text-white/40 text-sm">{t("objects.loading_objects")}</span>
           </div>
-        ) : error ? (
+        ) : dbError ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="text-red-400 text-center">
               <div className="text-lg font-bold mb-2">{t("objects.error_title")}</div>
-              <div className="text-sm opacity-70">{error}</div>
+              <div className="text-sm opacity-70">{String(dbError)}</div>
             </div>
-            <button
-              onClick={() => load(page)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm"
-              style={{ background: "rgba(0,230,200,0.1)", border: "1px solid rgba(0,230,200,0.2)", color: "#00e6c8" }}
-            >
-              <RefreshCw size={14} /> {t("objects.retry")}
-            </button>
           </div>
-        ) : objects.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Database size={40} className="text-white/15" />
             <div className="text-white/40 text-center">
@@ -720,20 +593,18 @@ export default function ObjectsPage() {
           </div>
         ) : (
           <>
-            {/* Grid */}
             <motion.div
               layout
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             >
               <AnimatePresence mode="popLayout">
-                {objects.map((obj) => (
-                  <ObjectCard key={obj.id} obj={obj} onClick={() => handleObjectClick(obj)} />
+                {paginated.map((obj) => (
+                  <DbObjectCard key={obj.id} obj={obj} />
                 ))}
               </AnimatePresence>
             </motion.div>
 
-            {/* Pagination */}
-            {(page > 1 || hasMore) && (
+            {totalPages > 1 && (
               <div className="flex items-center justify-center gap-3 mt-8">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -748,11 +619,12 @@ export default function ObjectsPage() {
                   style={{ background: "rgba(0,230,200,0.08)", border: "1px solid rgba(0,230,200,0.15)" }}>
                   <span className="text-white/40 text-sm">{t("objects.page")}</span>
                   <span className="text-white font-black text-sm">{page}</span>
+                  <span className="text-white/40 text-sm">/ {totalPages}</span>
                 </div>
 
                 <button
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={!hasMore}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
                   className="flex items-center gap-1.5 px-4 h-10 rounded-xl text-sm transition-all disabled:opacity-30"
                   style={{ background: "rgba(0,230,200,0.08)", border: "1px solid rgba(0,230,200,0.15)", color: "#00e6c8" }}
                 >

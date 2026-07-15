@@ -40,7 +40,6 @@ const ALL_APPS: AppDef[] = [
   { id: 'workspace',   name: 'Рабочее место',   icon: '💼',  color: '#a78bfa', path: '/workspace',             category: 'tools',      description: 'Документы, контракты, задачи' },
   { id: 'settings',    name: 'Настройки',       icon: '⚙️',  color: '#94a3b8', path: '/settings',              category: 'tools',      description: 'Настройки системы' },
   { id: 'tiif',        name: 'TIIF 2026',       icon: '🇺🇿', color: '#00e6c8', path: '/conference/tiif-2026',  category: 'community',  description: 'Международный форум' },
-  { id: 'marketplace', name: 'Маркетплейс',     icon: '🌊',  color: '#4ade80', path: '/marketplace',           category: 'finance',    description: 'Рынок водных проектов' },
   { id: 'tech',        name: 'Тех.Рынок',       icon: '🛒',  color: '#f59e0b', path: '/tech-marketplace',      category: 'finance',    description: 'Рынок технологий' },
   { id: 'ecosystem',   name: 'Экосистема',      icon: '🌿',  color: '#4ade80', path: '/ecosystem',             category: 'analytics',  description: 'Экосистемные решения' },
   { id: 'regulatory',  name: 'Регуляторика',    icon: '📜',  color: '#fbbf24', path: '/regulatory',            category: 'management', description: 'Нормативно-правовая база' },

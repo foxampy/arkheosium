@@ -1,8 +1,10 @@
 import { useState, useCallback, lazy, Suspense } from 'react';
-import { Route, Switch } from 'wouter';
+import { Route, Switch, useLocation } from 'wouter';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { Header } from '@/components/layout/Header';
+import { MobileTabBar } from '@/components/layout/MobileTabBar';
+import { CommandPalette } from '@/components/CommandPalette';
 import { PWAInstallBanner } from '@/components/PWAInstallBanner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { NotificationPermissionBanner } from '@/components/NotificationPermissionBanner';
@@ -12,7 +14,6 @@ import NotFoundPage from '@/pages/NotFoundPage';
 
 // Lazy-loaded pages
 const GlobePage  = lazy(() => import('@/pages/EarthGlobePage'));
-const GraphPage  = lazy(() => import('@/pages/KnowledgeGraphPage'));
 const MapPage = lazy(() => import('@/pages/WorldMapPage'));
 const ProjectHubPage = lazy(() => import('@/pages/ProjectHubPage'));
 const InvestPage = lazy(() => import('@/pages/InvestFlowPage'));
@@ -47,7 +48,6 @@ const InvestApplyPage = lazy(() => import('@/pages/InvestApplicationPage'));
 const TIIFConferencePage = lazy(() => import('@/pages/TIIFConferencePage'));
 const DigitalTwinPage = lazy(() => import('@/pages/DigitalTwinPage'));
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage'));
-const MarketplacePage = lazy(() => import('@/pages/MarketplacePage'));
 const RegulatoryPage = lazy(() => import('@/pages/RegulatoryPage'));
 const BlockchainPage = lazy(() => import('@/pages/BlockchainPage'));
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage'));
@@ -57,6 +57,20 @@ const EcosystemPage = lazy(() => import('@/pages/EcosystemPage'));
 const IoTPage = lazy(() => import('@/pages/IoTPage'));
 const AlertsPage = lazy(() => import('@/pages/AlertsPage'));
 const DocumentsPage = lazy(() => import('@/pages/DocumentsPage'));
+const UpdatesPage = lazy(() => import('@/pages/UpdatesPage'));
+const AralNexusPage = lazy(() => import('@/pages/AralNexusPage'));
+const AralWhitepaperPage = lazy(() => import('@/pages/AralWhitepaperPage'));
+const ConstructorPage = lazy(() => import('@/pages/ConstructorPage'));
+const DAOPage = lazy(() => import('@/pages/DAOPage'));
+const DirectionsPage = lazy(() => import('@/pages/DirectionsPage'));
+const SimulatorPage = lazy(() => import('@/pages/SimulatorPage'));
+
+// UX/UI style prototypes (linked from /updates)
+const ObjectTwinHUD = lazy(() => import('@/pages/prototypes/ObjectTwinHUD'));
+const ProjectGlass = lazy(() => import('@/pages/prototypes/ProjectGlass'));
+const SubjectBI = lazy(() => import('@/pages/prototypes/SubjectBI'));
+const MonitorHeatmap = lazy(() => import('@/pages/prototypes/MonitorHeatmap'));
+const RDBento = lazy(() => import('@/pages/prototypes/RDBento'));
 
 function PageLoader() {
   return (
@@ -82,6 +96,7 @@ export default function App() {
   }, []);
 
   const { requestPermission } = useAlertNotifications(true);
+  const [location] = useLocation();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -92,9 +107,10 @@ export default function App() {
       {!showSplash && (
         <>
           <Header />
+          <CommandPalette />
           <PWAInstallBanner />
 
-          <ErrorBoundary>
+          <ErrorBoundary resetKey={location}>
           <Suspense fallback={<PageLoader />}>
             <Switch>
               <Route path="/">
@@ -102,9 +118,6 @@ export default function App() {
               </Route>
               <Route path="/map">
                 <MapPage />
-              </Route>
-              <Route path="/graph">
-                <GraphPage />
               </Route>
               <Route path="/whitepaper">
                 <ExplorePage />
@@ -208,9 +221,6 @@ export default function App() {
               <Route path="/analytics">
                 <AnalyticsPage />
               </Route>
-              <Route path="/marketplace">
-                <MarketplacePage />
-              </Route>
               <Route path="/regulatory">
                 <RegulatoryPage />
               </Route>
@@ -241,6 +251,42 @@ export default function App() {
               <Route path="/documents">
                 <DocumentsPage />
               </Route>
+              <Route path="/updates">
+                <UpdatesPage />
+              </Route>
+              <Route path="/aral-nexus">
+                <AralNexusPage />
+              </Route>
+              <Route path="/constructor">
+                <ConstructorPage />
+              </Route>
+              <Route path="/dao">
+                <DAOPage />
+              </Route>
+              <Route path="/directions">
+                <DirectionsPage />
+              </Route>
+              <Route path="/simulator">
+                <SimulatorPage />
+              </Route>
+              <Route path="/aral-whitepaper">
+                <AralWhitepaperPage />
+              </Route>
+              <Route path="/proto/object-hud">
+                <ObjectTwinHUD />
+              </Route>
+              <Route path="/proto/project-glass">
+                <ProjectGlass />
+              </Route>
+              <Route path="/proto/subject-bi">
+                <SubjectBI />
+              </Route>
+              <Route path="/proto/monitor-heatmap">
+                <MonitorHeatmap />
+              </Route>
+              <Route path="/proto/rd-bento">
+                <RDBento />
+              </Route>
               <Route>
                 <NotFoundPage />
               </Route>
@@ -248,6 +294,7 @@ export default function App() {
           </Suspense>
           </ErrorBoundary>
           <NotificationPermissionBanner onRequest={requestPermission} />
+          <MobileTabBar />
         </>
       )}
     </QueryClientProvider>

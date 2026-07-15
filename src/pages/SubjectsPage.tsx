@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
+import { supabase } from "@/lib/supabase";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -321,22 +322,21 @@ export default function SubjectsPage() {
   const [selectedSubj, setSelectedSubj] = useState<DBSubject | null>(null);
   const [page, setPage] = useState(1);
 
-  // Fetch all subjects from API
+  // Fetch all subjects directly from Supabase (no REST API)
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch("/api/subjects?limit=200")
-      .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setSubjects(data);
-        } else {
-          setSubjects([]);
-        }
+    supabase
+      .from("partnerships")
+      .select("*")
+      .order("organization_name")
+      .limit(500)
+      .then(({ data, error: err }) => {
+        if (err) throw err;
+        setSubjects(Array.isArray(data) ? data : []);
         setLoading(false);
       })
-      .catch(err => {
-        console.error("Failed to load subjects:", err);
+      .catch(() => {
         setError(t("subjects.load_error"));
         setLoading(false);
       });

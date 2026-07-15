@@ -56,9 +56,8 @@ export default defineConfig({
           vendor:  ['react', 'react-dom', 'wouter', 'zustand', 'recharts'],
           motion:  ['framer-motion'],
           maps:    ['maplibre-gl'],
-          // three (base only) — fiber/drei are co-bundled with EarthGlobePage
-          // by Rollup's lazy-chunk splitting, keeping one React per page.
-          three:   ['three'],
+          // three + fiber/drei are NOT manually chunked — Rollup co-bundles them
+          // with the EarthGlobePage lazy chunk, ensuring one React instance.
           graph:   ['graphology', 'sigma'],
         },
       },

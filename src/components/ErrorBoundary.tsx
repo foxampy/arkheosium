@@ -2,6 +2,8 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
+  /** When this value changes (e.g. the current route), a caught error is cleared. */
+  resetKey?: string;
 }
 
 interface State {
@@ -21,6 +23,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    // Recover automatically when the user navigates to a different route
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false, error: null });
+    }
   }
 
   handleGoHome = () => {

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, Smartphone } from 'lucide-react';
 import { usePWA } from '@/hooks/usePWA';
+import { BRAND } from '@/lib/branding';
 
 export function PWAInstallBanner() {
   const { showBanner, install, dismissBanner } = usePWA();
@@ -31,7 +32,7 @@ export function PWAInstallBanner() {
                 <Smartphone className="w-5 h-5 text-cyan-400" />
               </div>
               <div className="flex-1">
-                <h3 className="text-sm font-bold text-white mb-0.5">Установить VODPROM</h3>
+                <h3 className="text-sm font-bold text-white mb-0.5">Установить {BRAND.name}</h3>
                 <p className="text-xs text-white/40 leading-relaxed">
                   Добавьте на главный экран для быстрого доступа и работы без интернета
                 </p>
