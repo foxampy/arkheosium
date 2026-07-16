@@ -14,6 +14,7 @@ import {
   ExternalLink,
   X,
 } from 'lucide-react';
+import TeamPartners from '@/components/TeamPartners';
 
 // ─── Dev Progress Banner ──────────────────────────────────────────
 
@@ -412,6 +413,11 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════════
+          TEAM & PARTNERS
+      ══════════════════════════════════════════════ */}
+      <TeamPartners />
 
       {/* ══════════════════════════════════════════════
           PARTNERS STRIP

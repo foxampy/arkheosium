@@ -87,6 +87,18 @@
 
   "landing.partners.label": "Partners & Supporters",
 
+  "teamPartners.badge": "Team & Partners",
+  "teamPartners.title": "Who is behind the ecosystem",
+  "teamPartners.subtitle": "The research lab that built the platform, and the investment partner backing its growth.",
+  "teamPartners.team.label": "Team",
+  "teamPartners.team.name": "FoxampyForge",
+  "teamPartners.team.desc": "The research and creative lab that designed and built the ArkheOSium ecosystem — from architecture to digital twins.",
+  "teamPartners.team.cta": "Visit website",
+  "teamPartners.partner.label": "Partner",
+  "teamPartners.partner.name": "UnicapInvest",
+  "teamPartners.partner.desc": "The investment partner providing capital and strategic support for the planetary infrastructure.",
+  "teamPartners.partner.cta": "Visit website",
+
   "landing.final_cta.title": "Get Started",
   "landing.final_cta.subtitle": "Join the growing Central Asia water investment ecosystem.",
   "landing.final_cta.email_placeholder": "your@email.com",
