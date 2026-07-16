@@ -42,6 +42,7 @@ const SubjectsPage = lazy(() => import('@/pages/SubjectsPage'));
 const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'));
 const PresentationPage = lazy(() => import('@/pages/PresentationPage'));
 const WhitepaperPage = lazy(() => import('@/pages/WhitepaperPage'));
+const WhitepaperFullPage = lazy(() => import('@/pages/WhitepaperFullPage'));
 const LandingPage = lazy(() => import('@/pages/LandingPage'));
 const TokenSalePage = lazy(() => import('@/pages/TokenSalePage'));
 const InvestApplyPage = lazy(() => import('@/pages/InvestApplicationPage'));
@@ -121,6 +122,9 @@ export default function App() {
               </Route>
               <Route path="/whitepaper">
                 <ExplorePage />
+              </Route>
+              <Route path="/whitepaper-full">
+                <WhitepaperFullPage />
               </Route>
               <Route path="/hub">
                 <ProjectHubPage />
