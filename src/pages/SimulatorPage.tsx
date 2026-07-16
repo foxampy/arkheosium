@@ -1,23 +1,25 @@
 /**
- * SimulatorPage — Симулятор водного баланса бассейна
- * Интерактивная механика: пользователь двигает ползунки входных параметров
- * (осадки, забор на ирригацию, эффективность каналов, испарение, опреснение,
- * горизонт прогноза) и вживую видит расчётные KPI и графики.
- * Модель иллюстративная, не научная. Тема — Аральский бассейн / Центральная Азия.
+ * SimulatorPage — «Живая модель региона»
+ * Интерактивная модель водной инфраструктуры на реальной карте местности (maplibre).
+ * Никаких ползунков: пользователь кликает объекты / проекты / инициативы на карте и
+ * модернизирует их. В ответ вживую растут индексы Благополучия, Экологии и Водного
+ * баланса, а система подсказывает, какие объекты и ресурсы обновить следующими.
+ * Модель иллюстративная. Тема — Аральский бассейн и Узбекистан.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import {
-  ArrowLeft, Droplets, Waves, Gauge, TrendingUp, TrendingDown,
-  AlertTriangle, SlidersHorizontal, RotateCcw, Sun, CloudRain,
-  Factory, Ship, CheckCircle2,
+  ArrowLeft, Gauge, Leaf, Droplets, TrendingUp, Coins, Zap,
+  Sparkles, RotateCcw, ArrowUpCircle, Lightbulb, CheckCircle2,
+  Lock, Waves, AlertTriangle, Target,
 } from 'lucide-react';
 import {
-  ResponsiveContainer, AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, Tooltip, CartesianGrid, Cell,
+  ResponsiveContainer, LineChart, Line, YAxis, Tooltip as RTooltip,
 } from 'recharts';
+import { WaterMap } from '@/components/map/WaterMap';
+import type { MapMarker } from '@/components/map/types';
 
 // ── Palette ──────────────────────────────────────────────────────────────────
 
@@ -30,471 +32,481 @@ const C = {
   sky: '#38bdf8',
 };
 
-// ── Model constants ──────────────────────────────────────────────────────────
+// ── Tiers ────────────────────────────────────────────────────────────────────
 
-const BASE_RIVER_FLOW = 78;      // км³/год — базовый приток рек (Амударья+Сырдарья, норма)
-const BASE_EVAPORATION = 42;     // км³/год — базовое испарение с зеркала бассейна
-const ARAL_START_AREA = 8.5;     // тыс. км² — стартовая площадь зеркала
+const TIERS = [
+  { label: 'Критическое', color: C.red },
+  { label: 'Устаревшее', color: C.amber },
+  { label: 'Модернизировано', color: C.sky },
+  { label: 'Оптимальное', color: C.green },
+] as const;
+const MAX_TIER = TIERS.length - 1; // 3
 
-// ── Inputs ───────────────────────────────────────────────────────────────────
+// ── Node model ───────────────────────────────────────────────────────────────
 
-interface Inputs {
-  precip: number;      // % от нормы, 40–160
-  irrigation: number;  // км³/год, 20–120
-  efficiency: number;  // %, 40–95
-  evaporation: number; // % модификатор, 70–150
-  transfer: number;    // км³/год, 0–30
-  horizon: number;     // год, 2026–2040
+type NodeKind =
+  | 'dam' | 'reservoir' | 'irrigation_canal' | 'pumping_station'
+  | 'water_treatment_facility' | 'river' | 'lake_crisis' | 'mountain_lake';
+
+interface ModelNode {
+  id: string;
+  name: string;
+  kind: NodeKind;
+  typeLabel: string;
+  zone: string;
+  lat: number;
+  lng: number;
+  tier0: number;          // стартовый уровень 0..3
+  wb: number;             // прирост благополучия за уровень
+  eco: number;            // прирост экологии за уровень
+  water: number;          // прирост водного баланса за уровень
+  baseCost: number;       // стоимость первого апгрейда (растёт с уровнем)
 }
 
-const DEFAULT_INPUTS: Inputs = {
-  precip: 100,
-  irrigation: 60,
-  efficiency: 65,
-  evaporation: 100,
-  transfer: 5,
-  horizon: 2035,
+// Реальные координаты по бассейну Арала и Узбекистану
+const NODES: ModelNode[] = [
+  { id: 'kokaral', name: 'Дамба Кокарал (Северный Арал)', kind: 'dam', typeLabel: 'Дамба', zone: 'Приаралье', lat: 46.05, lng: 60.65, tier0: 1, wb: 3, eco: 4, water: 4, baseCost: 22 },
+  { id: 'muynak', name: 'Муйнак — бывший порт', kind: 'lake_crisis', typeLabel: 'Кризисная зона', zone: 'Приаралье', lat: 43.77, lng: 59.02, tier0: 0, wb: 2, eco: 4, water: 2, baseCost: 18 },
+  { id: 'delta-canal', name: 'Канал дельты Амударьи', kind: 'irrigation_canal', typeLabel: 'Ирриг. канал', zone: 'Приаралье', lat: 42.90, lng: 59.60, tier0: 0, wb: 3, eco: 3, water: 4, baseCost: 16 },
+  { id: 'nukus-wtf', name: 'Очистные Нукуса', kind: 'water_treatment_facility', typeLabel: 'Очистные', zone: 'Каракалпакстан', lat: 42.46, lng: 59.61, tier0: 1, wb: 4, eco: 3, water: 2, baseCost: 14 },
+  { id: 'tuyamuyun', name: 'Водохранилище Туямуюн', kind: 'reservoir', typeLabel: 'Водохранилище', zone: 'Хорезм', lat: 41.20, lng: 61.40, tier0: 1, wb: 3, eco: 2, water: 4, baseCost: 20 },
+  { id: 'khorezm-ps', name: 'Насосная станция Хорезма', kind: 'pumping_station', typeLabel: 'Насосная станция', zone: 'Хорезм', lat: 41.55, lng: 60.63, tier0: 1, wb: 3, eco: 1, water: 3, baseCost: 12 },
+  { id: 'amu-bukhara', name: 'Аму-Бухарский канал', kind: 'irrigation_canal', typeLabel: 'Ирриг. канал', zone: 'Бухара', lat: 40.00, lng: 63.50, tier0: 1, wb: 3, eco: 2, water: 3, baseCost: 15 },
+  { id: 'bukhara-wtf', name: 'Очистные Бухары', kind: 'water_treatment_facility', typeLabel: 'Очистные', zone: 'Бухара', lat: 39.77, lng: 64.42, tier0: 1, wb: 4, eco: 2, water: 1, baseCost: 13 },
+  { id: 'kattakurgan', name: 'Водохранилище Каттакурган', kind: 'reservoir', typeLabel: 'Водохранилище', zone: 'Самарканд', lat: 39.90, lng: 66.25, tier0: 2, wb: 2, eco: 2, water: 3, baseCost: 18 },
+  { id: 'charvak', name: 'Чарвакское водохранилище', kind: 'reservoir', typeLabel: 'Водохранилище', zone: 'Ташкент', lat: 41.62, lng: 70.05, tier0: 2, wb: 3, eco: 2, water: 3, baseCost: 19 },
+  { id: 'tashkent-ps', name: 'Водоузел Ташкента', kind: 'pumping_station', typeLabel: 'Насосная станция', zone: 'Ташкент', lat: 41.31, lng: 69.28, tier0: 2, wb: 4, eco: 1, water: 2, baseCost: 14 },
+  { id: 'syrdarya', name: 'Река Сырдарья', kind: 'river', typeLabel: 'Река', zone: 'Сырдарья', lat: 40.50, lng: 68.70, tier0: 1, wb: 2, eco: 3, water: 4, baseCost: 17 },
+  { id: 'fedchenko', name: 'Ледник Федченко (исток)', kind: 'mountain_lake', typeLabel: 'Ледник / исток', zone: 'Памир', lat: 38.70, lng: 72.20, tier0: 1, wb: 1, eco: 4, water: 4, baseCost: 21 },
+];
+
+// ── Initiatives (region-wide, unlock by prerequisites) ───────────────────────
+
+interface Initiative {
+  id: string;
+  name: string;
+  desc: string;
+  requires: string[];    // node ids that must be tier>=2
+  cost: number;
+  wb: number; eco: number; water: number;
+  lat: number; lng: number;
+}
+
+const INITIATIVES: Initiative[] = [
+  {
+    id: 'delta-restore', name: 'Восстановление дельты Амударьи',
+    desc: 'Обводнение дельты, водно-болотные угодья, возврат рыболовства в Приаралье.',
+    requires: ['delta-canal', 'nukus-wtf', 'muynak'], cost: 40,
+    wb: 6, eco: 10, water: 6, lat: 43.3, lng: 59.3,
+  },
+  {
+    id: 'green-belt', name: 'Зелёный пояс Приаралья',
+    desc: 'Саксауловые лесопосадки на осушённом дне — против пыле-солевых бурь.',
+    requires: ['kokaral', 'delta-canal'], cost: 30,
+    wb: 5, eco: 9, water: 3, lat: 45.0, lng: 60.0,
+  },
+  {
+    id: 'smart-metering', name: 'Умный водоучёт ЦА',
+    desc: 'IoT-телеметрия и цифровой двойник по всем каналам и насосным станциям.',
+    requires: ['khorezm-ps', 'tashkent-ps', 'amu-bukhara'], cost: 34,
+    wb: 8, eco: 4, water: 7, lat: 40.8, lng: 65.0,
+  },
+];
+
+// ── Kind → label ─────────────────────────────────────────────────────────────
+
+const KIND_LABEL: Record<NodeKind, string> = {
+  dam: 'Дамба', reservoir: 'Водохранилище', irrigation_canal: 'Канал',
+  pumping_station: 'Насосная', water_treatment_facility: 'Очистные',
+  river: 'Река', lake_crisis: 'Кризис', mountain_lake: 'Ледник',
 };
 
-// ── Presets ──────────────────────────────────────────────────────────────────
+// ── Index card ───────────────────────────────────────────────────────────────
 
-type PresetKey = 'base' | 'drought' | 'recovery';
-
-const PRESETS: Record<PresetKey, { label: string; icon: typeof Droplets; color: string; values: Inputs }> = {
-  base: {
-    label: 'Базовый', icon: Droplets, color: C.sky,
-    values: { ...DEFAULT_INPUTS },
-  },
-  drought: {
-    label: 'Засуха', icon: Sun, color: C.red,
-    values: { precip: 55, irrigation: 105, efficiency: 50, evaporation: 140, transfer: 2, horizon: 2035 },
-  },
-  recovery: {
-    label: 'Восстановление', icon: Waves, color: C.green,
-    values: { precip: 120, irrigation: 45, efficiency: 90, evaporation: 90, transfer: 22, horizon: 2035 },
-  },
-};
-
-// ── Core balance formula (illustrative) ──────────────────────────────────────
-
-interface Balance {
-  inflow: number;              // км³/год
-  irrigationEffective: number; // км³/год — эффективные потери на ирригацию
-  evaporationComp: number;     // км³/год
-  net: number;                 // км³/год — чистый баланс
-}
-
-function computeBalance(inp: Inputs): Balance {
-  const inflow = BASE_RIVER_FLOW * (inp.precip / 100) + inp.transfer;
-  // Выше эффективность каналов → меньше эффективный забор (меньше потерь).
-  const irrigationEffective = inp.irrigation * (1 - (inp.efficiency / 100) * 0.5);
-  const evaporationComp = BASE_EVAPORATION * (inp.evaporation / 100);
-  const net = inflow - irrigationEffective - evaporationComp;
-  return { inflow, irrigationEffective, evaporationComp, net };
-}
-
-// Индекс уровня водохранилища 0–100% как функция чистого баланса.
-function reservoirIndex(net: number): number {
-  // net ∈ [-40, +40] маппим в [0, 100], центр 50 при net = 0.
-  return Math.max(0, Math.min(100, 50 + net * 1.25));
-}
-
-// Статус риска по чистому балансу.
-function riskStatus(net: number): { key: 'green' | 'amber' | 'red'; label: string; color: string } {
-  if (net >= 6) return { key: 'green', label: 'Устойчивый', color: C.green };
-  if (net >= -6) return { key: 'amber', label: 'Напряжённый', color: C.amber };
-  return { key: 'red', label: 'Критический', color: C.red };
-}
-
-// ── Number helpers ───────────────────────────────────────────────────────────
-
-const fmt = (n: number, d = 1) => n.toFixed(d);
-const fmtSigned = (n: number, d = 1) => `${n >= 0 ? '+' : ''}${n.toFixed(d)}`;
-
-// ── Animated KPI value ───────────────────────────────────────────────────────
-
-function AnimatedValue({ value, suffix, decimals = 1, color }: { value: number; suffix?: string; decimals?: number; color: string }) {
+function IndexCard({
+  icon, label, value, color, delta,
+}: { icon: React.ReactNode; label: string; value: number; color: string; delta: number }) {
   return (
-    <AnimatePresence mode="popLayout">
-      <motion.span
-        key={value.toFixed(decimals)}
-        initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
-        transition={{ duration: 0.25 }}
-        className="inline-block tabular-nums"
-        style={{ color }}
-      >
-        {value.toFixed(decimals)}{suffix}
-      </motion.span>
-    </AnimatePresence>
-  );
-}
-
-// ── Slider row ───────────────────────────────────────────────────────────────
-
-function Slider({
-  label, icon: Icon, value, min, max, step = 1, unit, accent, display, onChange,
-}: {
-  label: string;
-  icon: typeof Droplets;
-  value: number;
-  min: number;
-  max: number;
-  step?: number;
-  unit: string;
-  accent: string;
-  display?: string;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div>
+    <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
       <div className="flex items-center justify-between mb-2">
-        <span className="flex items-center gap-2 text-xs text-white/60">
-          <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
-          {label}
+        <span className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-white/50">
+          <span style={{ color }}>{icon}</span>{label}
         </span>
-        <span className="text-xs font-mono font-semibold" style={{ color: accent }}>
-          {display ?? value}<span className="text-white/30 ml-1">{unit}</span>
-        </span>
+        <AnimatePresence mode="popLayout">
+          {delta !== 0 && (
+            <motion.span
+              key={value}
+              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+              className="text-[11px] font-semibold" style={{ color: delta > 0 ? C.green : C.red }}
+            >
+              {delta > 0 ? '+' : ''}{delta.toFixed(0)}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-white/10 outline-none"
-        style={{
-          accentColor: accent,
-          background: `linear-gradient(to right, ${accent} 0%, ${accent} ${((value - min) / (max - min)) * 100}%, rgba(255,255,255,0.08) ${((value - min) / (max - min)) * 100}%, rgba(255,255,255,0.08) 100%)`,
-        }}
-      />
+      <div className="flex items-end gap-1 mb-2">
+        <motion.span key={value} initial={{ scale: 0.85, opacity: 0.5 }} animate={{ scale: 1, opacity: 1 }}
+          className="text-3xl font-bold tabular-nums" style={{ color }}>{Math.round(value)}</motion.span>
+        <span className="text-white/40 text-sm mb-1">/ 100</span>
+      </div>
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <motion.div className="h-full rounded-full" style={{ background: color }}
+          animate={{ width: `${Math.min(100, value)}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
+      </div>
     </div>
   );
 }
 
-// ── Main page ────────────────────────────────────────────────────────────────
+// ── Main ─────────────────────────────────────────────────────────────────────
+
+const START_BUDGET = 90;
 
 export default function SimulatorPage() {
   const [, setLocation] = useLocation();
-  const [inputs, setInputs] = useState<Inputs>(DEFAULT_INPUTS);
-  const [activePreset, setActivePreset] = useState<PresetKey | null>('base');
+  const mapRef = useRef<any>(null);
 
-  const set = <K extends keyof Inputs>(key: K, v: Inputs[K]) => {
-    setInputs((prev) => ({ ...prev, [key]: v }));
-    setActivePreset(null);
-  };
+  const [tiers, setTiers] = useState<Record<string, number>>(
+    () => Object.fromEntries(NODES.map((n) => [n.id, n.tier0])),
+  );
+  const [budget, setBudget] = useState(START_BUDGET);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [activeInitiatives, setActiveInitiatives] = useState<string[]>([]);
+  const [cycle, setCycle] = useState(0);
+  const [history, setHistory] = useState<{ t: number; wb: number }[]>([]);
+  const [lastDelta, setLastDelta] = useState({ wb: 0, eco: 0, water: 0 });
+  const [flash, setFlash] = useState<string | null>(null);
 
-  const applyPreset = (key: PresetKey) => {
-    setInputs({ ...PRESETS[key].values });
-    setActivePreset(key);
-  };
+  // ── Derived indices ──────────────────────────────────────────────────────
+  const indices = useMemo(() => {
+    let wb = 18, eco = 12, water = 20;
+    NODES.forEach((n) => {
+      const t = tiers[n.id] ?? 0;
+      wb += n.wb * t; eco += n.eco * t; water += n.water * t;
+    });
+    INITIATIVES.forEach((i) => {
+      if (activeInitiatives.includes(i.id)) { wb += i.wb; eco += i.eco; water += i.water; }
+    });
+    const clamp = (v: number) => Math.max(0, Math.min(100, v));
+    return { wb: clamp(wb), eco: clamp(eco), water: clamp(water) };
+  }, [tiers, activeInitiatives]);
 
-  // ── Derived outputs (recompute on every input change) ──
-  const balance = useMemo(() => computeBalance(inputs), [inputs]);
-  const level = useMemo(() => reservoirIndex(balance.net), [balance.net]);
-  const risk = useMemo(() => riskStatus(balance.net), [balance.net]);
+  const overall = Math.round((indices.wb + indices.eco + indices.water) / 3);
 
-  // Проекция площади Арала на горизонт: чистый баланс год за годом двигает зеркало.
-  const aralProjected = useMemo(() => {
-    const years = inputs.horizon - 2026;
-    // на каждый км³ чистого баланса ~0.04 тыс. км² зеркала в год
-    const area = ARAL_START_AREA + balance.net * 0.04 * years;
-    return Math.max(1.5, area);
-  }, [inputs.horizon, balance.net]);
+  const costFor = useCallback((n: ModelNode, tier: number) => Math.round(n.baseCost * (1 + tier * 0.6)), []);
 
-  // Многолетний ряд для графика (2026 → горизонт).
-  const series = useMemo(() => {
-    const rows: { year: number; level: number; aral: number }[] = [];
-    let lvl = 50;               // старт индекса уровня
-    let aral = ARAL_START_AREA; // старт площади
-    for (let y = 2026; y <= inputs.horizon; y++) {
-      // уровень стремится к целевому индексу баланса, площадь дрейфует по net
-      lvl += (reservoirIndex(balance.net) - lvl) * 0.4;
-      aral = Math.max(1.5, aral + balance.net * 0.04);
-      rows.push({ year: y, level: +lvl.toFixed(1), aral: +aral.toFixed(2) });
-    }
-    return rows;
-  }, [inputs.horizon, balance.net]);
+  // ── Recommendations ──────────────────────────────────────────────────────
+  const recommendations = useMemo(() => {
+    return NODES
+      .filter((n) => (tiers[n.id] ?? 0) < MAX_TIER)
+      .map((n) => {
+        const t = tiers[n.id] ?? 0;
+        const gain = n.wb + n.eco + n.water;
+        const cost = costFor(n, t);
+        const score = (gain / cost) * (MAX_TIER - t + 1);
+        return { node: n, tier: t, cost, gain, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }, [tiers, costFor]);
+  const recIds = useMemo(() => new Set(recommendations.map((r) => r.node.id)), [recommendations]);
 
-  // Разбивка баланса: приток vs расход.
-  const breakdown = useMemo(() => ([
-    { name: 'Приток рек', value: +(BASE_RIVER_FLOW * (inputs.precip / 100)).toFixed(1), color: C.sky },
-    { name: 'Опреснение', value: +inputs.transfer.toFixed(1), color: C.cyan },
-    { name: 'Ирригация', value: -+balance.irrigationEffective.toFixed(1), color: C.violet },
-    { name: 'Испарение', value: -+balance.evaporationComp.toFixed(1), color: C.amber },
-  ]), [inputs.precip, inputs.transfer, balance.irrigationEffective, balance.evaporationComp]);
+  // ── Initiatives state ────────────────────────────────────────────────────
+  const initiativeState = useMemo(() => INITIATIVES.map((i) => {
+    const unlocked = i.requires.every((rid) => (tiers[rid] ?? 0) >= 2);
+    const active = activeInitiatives.includes(i.id);
+    return { init: i, unlocked, active };
+  }), [tiers, activeInitiatives]);
 
-  const RiskIcon = risk.key === 'green' ? CheckCircle2 : risk.key === 'amber' ? AlertTriangle : AlertTriangle;
-  const NetIcon = balance.net >= 0 ? TrendingUp : TrendingDown;
+  // ── Map markers ──────────────────────────────────────────────────────────
+  const markers: MapMarker[] = useMemo(() => {
+    const nodeMarkers: MapMarker[] = NODES.map((n) => ({
+      id: n.id,
+      type: 'object',
+      objectType: n.kind,
+      lat: n.lat, lng: n.lng,
+      title: `${n.name} — ${TIERS[tiers[n.id] ?? 0].label}`,
+      description: n.typeLabel,
+      isHighlighted: recIds.has(n.id) || selectedId === n.id,
+    }));
+    const initMarkers: MapMarker[] = initiativeState
+      .filter((s) => s.active)
+      .map((s) => ({
+        id: `init-${s.init.id}`, type: 'project', objectType: 'reservoir',
+        lat: s.init.lat, lng: s.init.lng, title: s.init.name,
+        description: 'Инициатива активна', isHighlighted: true,
+      }));
+    return [...nodeMarkers, ...initMarkers];
+  }, [tiers, recIds, selectedId, initiativeState]);
 
-  // ── KPI cards config ──
-  const kpis = [
-    {
-      label: 'Чистый баланс',
-      value: balance.net, suffix: ' км³/год', decimals: 1, signed: true,
-      icon: NetIcon, color: risk.color,
-      sub: `Приток ${fmt(balance.inflow)} − расход ${fmt(balance.irrigationEffective + balance.evaporationComp)}`,
-    },
-    {
-      label: 'Уровень водохранилища',
-      value: level, suffix: '%', decimals: 0, signed: false,
-      icon: Gauge, color: level >= 55 ? C.green : level >= 35 ? C.amber : C.red,
-      sub: level >= 55 ? 'Наполнение стабильно' : level >= 35 ? 'Ниже целевого' : 'Дефицит запасов',
-    },
-    {
-      label: `Площадь Арала · ${inputs.horizon}`,
-      value: aralProjected, suffix: ' тыс. км²', decimals: 2, signed: false,
-      icon: Waves, color: aralProjected >= ARAL_START_AREA ? C.cyan : aralProjected >= 6 ? C.amber : C.red,
-      sub: `${fmtSigned(aralProjected - ARAL_START_AREA, 2)} к старту (${ARAL_START_AREA})`,
-    },
-    {
-      label: 'Статус риска',
-      value: null, textValue: risk.label,
-      icon: RiskIcon, color: risk.color,
-      sub: risk.key === 'green' ? 'Баланс ≥ +6 км³' : risk.key === 'amber' ? 'Баланс −6…+6 км³' : 'Баланс < −6 км³',
-    },
-  ];
+  const onMarkerClick = useCallback((m: MapMarker) => {
+    if (m.id.startsWith('init-')) return;
+    setSelectedId(m.id);
+    const n = NODES.find((x) => x.id === m.id);
+    if (n && mapRef.current) mapRef.current.flyTo([n.lng, n.lat], 6.5);
+  }, []);
+
+  // ── Actions ──────────────────────────────────────────────────────────────
+  const doUpgrade = useCallback((n: ModelNode) => {
+    const t = tiers[n.id] ?? 0;
+    if (t >= MAX_TIER) return;
+    const cost = costFor(n, t);
+    if (budget < cost) { setFlash('Недостаточно бюджета — запусти годовой цикл, чтобы накопить средства.'); return; }
+    setBudget((b) => b - cost);
+    setTiers((prev) => ({ ...prev, [n.id]: t + 1 }));
+    setLastDelta({ wb: n.wb, eco: n.eco, water: n.water });
+    setHistory((h) => [...h, { t: h.length, wb: indices.wb + n.wb }].slice(-24));
+    setFlash(null);
+  }, [tiers, budget, costFor, indices.wb]);
+
+  const activateInitiative = useCallback((i: Initiative) => {
+    if (activeInitiatives.includes(i.id)) return;
+    if (budget < i.cost) { setFlash('Недостаточно бюджета для инициативы.'); return; }
+    setBudget((b) => b - i.cost);
+    setActiveInitiatives((a) => [...a, i.id]);
+    setLastDelta({ wb: i.wb, eco: i.eco, water: i.water });
+    setHistory((h) => [...h, { t: h.length, wb: indices.wb + i.wb }].slice(-24));
+    setFlash(null);
+  }, [activeInitiatives, budget, indices.wb]);
+
+  const nextCycle = useCallback(() => {
+    const income = NODES.reduce((s, n) => s + (tiers[n.id] ?? 0) * 3, 15);
+    setBudget((b) => b + income);
+    setCycle((c) => c + 1);
+    setHistory((h) => [...h, { t: h.length, wb: indices.wb }].slice(-24));
+    setFlash(`Годовой цикл ${cycle + 1}: инфраструктура принесла +${income} у.е. в бюджет развития.`);
+  }, [tiers, cycle, indices.wb]);
+
+  const reset = useCallback(() => {
+    setTiers(Object.fromEntries(NODES.map((n) => [n.id, n.tier0])));
+    setBudget(START_BUDGET); setSelectedId(null); setActiveInitiatives([]);
+    setCycle(0); setHistory([]); setLastDelta({ wb: 0, eco: 0, water: 0 }); setFlash(null);
+  }, []);
+
+  const selected = selectedId ? NODES.find((n) => n.id === selectedId) ?? null : null;
+  const verdict = overall >= 75 ? { t: 'Регион восстановлен', c: C.green }
+    : overall >= 50 ? { t: 'Устойчивое развитие', c: C.sky }
+    : overall >= 32 ? { t: 'Стабилизация', c: C.amber }
+    : { t: 'Кризис — нужны действия', c: C.red };
 
   return (
-    <div className="min-h-screen pt-14 pb-8" style={{ background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)' }}>
-      <div className="max-w-6xl mx-auto px-4 pt-6">
-        {/* Back */}
-        <button
-          onClick={() => setLocation('/')}
-          className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 transition-colors mb-4 cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          На главную
-        </button>
-
-        {/* Title */}
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,230,200,0.12)', border: '1px solid rgba(0,230,200,0.25)' }}>
-            <SlidersHorizontal className="w-5 h-5 text-cyan-400" />
+    <div className="min-h-screen text-white" style={{ background: 'radial-gradient(1200px 700px at 70% -10%, rgba(0,60,80,0.35), #04070f 60%)' }}>
+      {/* Header */}
+      <div className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(4,7,15,0.75)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">
+          <button onClick={() => setLocation('/')} className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm cursor-pointer transition-colors">
+            <ArrowLeft size={16} /> Назад
+          </button>
+          <div className="h-4 w-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
+          <div className="flex items-center gap-2">
+            <Waves size={18} style={{ color: C.cyan }} />
+            <h1 className="text-base font-semibold">Живая модель региона</h1>
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white leading-none">Симулятор водного баланса</h1>
-            <p className="text-white/35 text-xs mt-1">Сценарное моделирование бассейна Арала — двигайте параметры и смотрите прогноз</p>
-          </div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,340px)_1fr] gap-4">
-          {/* ── LEFT: controls ── */}
-          <motion.div
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.05 }}
-            className="rounded-2xl p-5 h-fit"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-          >
-            {/* Presets */}
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-white/60">Сценарии</span>
-              <button
-                onClick={() => applyPreset('base')}
-                className="flex items-center gap-1 text-[10px] text-white/40 hover:text-white/70 transition-colors cursor-pointer"
-              >
-                <RotateCcw className="w-3 h-3" />
-                Сброс
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mb-5">
-              {(Object.keys(PRESETS) as PresetKey[]).map((key) => {
-                const p = PRESETS[key];
-                const Icon = p.icon;
-                const isActive = activePreset === key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => applyPreset(key)}
-                    className="flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl transition-all cursor-pointer"
-                    style={{
-                      background: isActive ? `${p.color}18` : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${isActive ? `${p.color}55` : 'rgba(255,255,255,0.06)'}`,
-                    }}
-                  >
-                    <Icon className="w-4 h-4" style={{ color: isActive ? p.color : 'rgba(255,255,255,0.5)' }} />
-                    <span className="text-[10px] font-semibold leading-tight text-center" style={{ color: isActive ? p.color : 'rgba(255,255,255,0.55)' }}>
-                      {p.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Sliders */}
-            <div className="space-y-5">
-              <Slider
-                label="Осадки" icon={CloudRain} value={inputs.precip} min={40} max={160}
-                unit="% нормы" accent={C.sky} onChange={(v) => set('precip', v)}
-              />
-              <Slider
-                label="Забор на ирригацию" icon={Droplets} value={inputs.irrigation} min={20} max={120}
-                unit="км³/год" accent={C.violet} onChange={(v) => set('irrigation', v)}
-              />
-              <Slider
-                label="Эффективность каналов" icon={Gauge} value={inputs.efficiency} min={40} max={95}
-                unit="%" accent={C.cyan} onChange={(v) => set('efficiency', v)}
-              />
-              <Slider
-                label="Испарение" icon={Sun} value={inputs.evaporation} min={70} max={150}
-                unit="% базы" accent={C.amber} onChange={(v) => set('evaporation', v)}
-              />
-              <Slider
-                label="Опреснение / переброска" icon={Ship} value={inputs.transfer} min={0} max={30}
-                unit="км³/год" accent={C.green} onChange={(v) => set('transfer', v)}
-              />
-              <Slider
-                label="Горизонт прогноза" icon={Factory} value={inputs.horizon} min={2026} max={2040}
-                unit="год" accent="#60a5fa" display={String(inputs.horizon)} onChange={(v) => set('horizon', v)}
-              />
-            </div>
-          </motion.div>
-
-          {/* ── RIGHT: KPIs + charts ── */}
-          <div className="space-y-4">
-            {/* KPI cards */}
-            <div className="grid grid-cols-2 gap-3">
-              {kpis.map((k, i) => {
-                const Icon = k.icon;
-                return (
-                  <motion.div
-                    key={k.label}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.08 + i * 0.05 }}
-                    className="rounded-2xl p-4 relative overflow-hidden"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${k.color}22` }}
-                  >
-                    <div
-                      className="absolute inset-0 pointer-events-none"
-                      style={{ background: `radial-gradient(circle at top right, ${k.color}12, transparent 60%)` }}
-                    />
-                    <div className="relative">
-                      <div className="flex items-center gap-2 mb-2" style={{ color: k.color }}>
-                        <Icon className="w-4 h-4" />
-                        <span className="text-[11px] text-white/45 leading-tight">{k.label}</span>
-                      </div>
-                      <div className="text-2xl font-black">
-                        {k.value !== null ? (
-                          k.signed ? (
-                            <span style={{ color: k.color }}>
-                              {k.value >= 0 ? '+' : ''}<AnimatedValue value={k.value} suffix={k.suffix} decimals={k.decimals} color={k.color} />
-                            </span>
-                          ) : (
-                            <AnimatedValue value={k.value} suffix={k.suffix} decimals={k.decimals} color={k.color} />
-                          )
-                        ) : (
-                          <AnimatePresence mode="popLayout">
-                            <motion.span
-                              key={k.textValue}
-                              initial={{ opacity: 0, y: 8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -8 }}
-                              transition={{ duration: 0.25 }}
-                              className="inline-block"
-                              style={{ color: k.color }}
-                            >
-                              {k.textValue}
-                            </motion.span>
-                          </AnimatePresence>
-                        )}
-                      </div>
-                      <div className="text-[10px] text-white/35 mt-1.5 leading-tight">{k.sub}</div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Multi-year projection */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.28 }}
-              className="rounded-2xl p-5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-            >
-              <div className="flex items-center gap-2 mb-1 text-white/40 text-xs">
-                <TrendingUp className="w-4 h-4 text-cyan-400" />
-                Многолетний прогноз · 2026 → {inputs.horizon}
-              </div>
-              <div className="flex items-center gap-4 mb-3 text-[10px]">
-                <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-0.5 rounded" style={{ background: C.cyan }} />Уровень вдхр., %</span>
-                <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-0.5 rounded" style={{ background: C.sky }} />Площадь Арала, тыс. км²</span>
-              </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={series} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="simLevelGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={C.cyan} stopOpacity={0.3} />
-                      <stop offset="100%" stopColor={C.cyan} stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="simAralGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={C.sky} stopOpacity={0.25} />
-                      <stop offset="100%" stopColor={C.sky} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                  <XAxis dataKey="year" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} interval="preserveStartEnd" />
-                  <YAxis yAxisId="l" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} width={30} domain={[0, 100]} />
-                  <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} width={30} domain={[0, 14]} />
-                  <Tooltip
-                    contentStyle={{ background: '#0a1628', border: '1px solid rgba(0,230,200,0.2)', borderRadius: 8, fontSize: 11 }}
-                    labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
-                    formatter={(v: number, n: string) => [v, n === 'level' ? 'Уровень, %' : 'Арал, тыс. км²']}
-                  />
-                  <Area yAxisId="l" type="monotone" dataKey="level" stroke={C.cyan} strokeWidth={2} fill="url(#simLevelGrad)" dot={false} />
-                  <Area yAxisId="r" type="monotone" dataKey="aral" stroke={C.sky} strokeWidth={2} fill="url(#simAralGrad)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </motion.div>
-
-            {/* Balance breakdown */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.34 }}
-              className="rounded-2xl p-5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-white/40 text-xs">
-                  <Waves className="w-4 h-4 text-violet-400" />
-                  Компоненты баланса · км³/год
-                </div>
-                <span className="text-xs font-mono font-semibold" style={{ color: risk.color }}>
-                  Итог {fmtSigned(balance.net)}
-                </span>
-              </div>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={breakdown} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} />
-                  <YAxis tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} width={34} />
-                  <Tooltip
-                    cursor={{ fill: 'rgba(255,255,255,0.04)' }}
-                    contentStyle={{ background: '#0a1628', border: '1px solid rgba(167,139,250,0.2)', borderRadius: 8, fontSize: 11 }}
-                    labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
-                    formatter={(v: number) => [`${v >= 0 ? '+' : ''}${v} км³`, 'Вклад']}
-                  />
-                  <Bar dataKey="value" radius={[4, 4, 4, 4]}>
-                    {breakdown.map((d, i) => (
-                      <Cell key={i} fill={d.color} fillOpacity={0.85} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              <p className="text-[10px] text-white/30 leading-relaxed mt-2">
-                Положительные столбцы — приток (реки + опреснение), отрицательные — расход (ирригация + испарение).
-                Эффективность каналов снижает потери ирригации, испарение зависит от климата.
-              </p>
-            </motion.div>
+          <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: `${verdict.c}18`, color: verdict.c, border: `1px solid ${verdict.c}40` }}>
+            {verdict.t}
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <span className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl tabular-nums"
+              style={{ background: `${C.amber}12`, color: C.amber, border: `1px solid ${C.amber}30` }}>
+              <Coins size={15} /> {Math.round(budget)} <span className="text-white/40 text-xs">у.е.</span>
+            </span>
+            <button onClick={nextCycle} className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl cursor-pointer transition-colors"
+              style={{ background: `${C.cyan}15`, color: C.cyan, border: `1px solid ${C.cyan}35` }}>
+              <Zap size={15} /> Годовой цикл
+            </button>
+            <button onClick={reset} className="flex items-center justify-center w-9 h-9 rounded-xl text-white/50 hover:text-white cursor-pointer transition-colors"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} title="Сбросить">
+              <RotateCcw size={15} />
+            </button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-5">
+        {/* Index cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <IndexCard icon={<Gauge size={13} />} label="Благополучие" value={indices.wb} color={C.cyan} delta={lastDelta.wb} />
+          <IndexCard icon={<Leaf size={13} />} label="Экология" value={indices.eco} color={C.green} delta={lastDelta.eco} />
+          <IndexCard icon={<Droplets size={13} />} label="Водный баланс" value={indices.water} color={C.sky} delta={lastDelta.water} />
+          <div className="rounded-2xl p-4 flex flex-col justify-between" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <span className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-white/50">
+              <Target size={13} style={{ color: C.violet }} /> Индекс региона
+            </span>
+            <div className="flex items-end gap-1">
+              <span className="text-3xl font-bold tabular-nums" style={{ color: verdict.c }}>{overall}</span>
+              <span className="text-white/40 text-sm mb-1">· цикл {cycle}</span>
+            </div>
+            <div className="h-10 -mb-1 -mx-1">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={history.length ? history : [{ t: 0, wb: indices.wb }]}>
+                  <YAxis hide domain={[0, 100]} />
+                  <RTooltip contentStyle={{ background: '#0a1628', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }}
+                    labelStyle={{ color: 'rgba(255,255,255,0.5)' }} formatter={(v: any) => [Math.round(v), 'Благополучие']} labelFormatter={() => ''} />
+                  <Line type="monotone" dataKey="wb" stroke={C.violet} strokeWidth={2} dot={false} isAnimationActive={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* flash */}
+        <AnimatePresence>
+          {flash && (
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="mb-4 flex items-center gap-2 text-sm px-4 py-2.5 rounded-xl"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)' }}>
+              <Sparkles size={15} style={{ color: C.amber }} /> {flash}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Map + side panel */}
+        <div className="grid lg:grid-cols-[1fr_370px] gap-4">
+          {/* Map */}
+          <div className="rounded-2xl overflow-hidden relative" style={{ border: '1px solid rgba(255,255,255,0.09)', height: '58vh', minHeight: 420 }}>
+            <WaterMap
+              markers={markers}
+              onMarkerClick={onMarkerClick}
+              center={[63.5, 43.0]}
+              zoom={4.4}
+              height="100%"
+              mapRef={mapRef}
+              layers={['rivers', 'lakes', 'glaciers', 'borders', 'cities']}
+            />
+            <div className="absolute left-3 bottom-3 flex items-center gap-2 text-[11px] px-3 py-1.5 rounded-lg pointer-events-none"
+              style={{ background: 'rgba(4,7,15,0.8)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>
+              <Lightbulb size={13} style={{ color: C.amber }} /> Пульсирующие точки — приоритет к обновлению
+            </div>
+          </div>
+
+          {/* Side panel */}
+          <div className="space-y-4">
+            {/* Selected node OR hint */}
+            <AnimatePresence mode="wait">
+              {selected ? (
+                <motion.div key={selected.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}
+                  className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
+                  {(() => {
+                    const t = tiers[selected.id] ?? 0;
+                    const maxed = t >= MAX_TIER;
+                    const cost = costFor(selected, t);
+                    const canAfford = budget >= cost;
+                    return (
+                      <>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div>
+                            <div className="text-[11px] uppercase tracking-widest text-white/40">{selected.typeLabel} · {selected.zone}</div>
+                            <div className="font-semibold leading-tight">{selected.name}</div>
+                          </div>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${TIERS[t].color}18`, color: TIERS[t].color, border: `1px solid ${TIERS[t].color}40` }}>
+                            {TIERS[t].label}
+                          </span>
+                        </div>
+                        <div className="flex gap-1 my-3">
+                          {TIERS.map((tt, i) => (
+                            <div key={i} className="flex-1 h-1.5 rounded-full" style={{ background: i <= t ? tt.color : 'rgba(255,255,255,0.08)' }} />
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 mb-3 text-center">
+                          {([['Благополучие', selected.wb, C.cyan], ['Экология', selected.eco, C.green], ['Вода', selected.water, C.sky]] as [string, number, string][]).map(([l, v, c]) => (
+                            <div key={l} className="rounded-lg py-2" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                              <div className="text-sm font-semibold" style={{ color: c }}>+{v}</div>
+                              <div className="text-[10px] text-white/40">{l}/ур.</div>
+                            </div>
+                          ))}
+                        </div>
+                        {maxed ? (
+                          <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm" style={{ background: `${C.green}15`, color: C.green }}>
+                            <CheckCircle2 size={16} /> Достигнут оптимальный уровень
+                          </div>
+                        ) : (
+                          <button onClick={() => doUpgrade(selected)} disabled={!canAfford}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed"
+                            style={{ background: canAfford ? `${C.cyan}1a` : 'rgba(255,255,255,0.04)', color: canAfford ? C.cyan : 'rgba(255,255,255,0.35)', border: `1px solid ${canAfford ? C.cyan + '45' : 'rgba(255,255,255,0.08)'}` }}>
+                            <ArrowUpCircle size={16} /> Модернизировать · {cost} у.е.
+                          </button>
+                        )}
+                      </>
+                    );
+                  })()}
+                </motion.div>
+              ) : (
+                <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="rounded-2xl p-4 text-sm text-white/55" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.12)' }}>
+                  Кликни объект на карте, чтобы увидеть его состояние и модернизировать. Бюджет пополняется через «Годовой цикл».
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Recommendations */}
+            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
+              <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-white/50 mb-3">
+                <Lightbulb size={13} style={{ color: C.amber }} /> Что обновить дальше
+              </div>
+              <div className="space-y-2">
+                {recommendations.map((r) => (
+                  <button key={r.node.id} onClick={() => onMarkerClick(markers.find((m) => m.id === r.node.id)!)}
+                    className="w-full flex items-center gap-3 p-2 rounded-xl text-left cursor-pointer transition-colors hover:bg-white/5">
+                    <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${TIERS[r.tier].color}18`, color: TIERS[r.tier].color }}>
+                      <AlertTriangle size={15} />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-sm truncate">{r.node.name}</span>
+                      <span className="block text-[11px] text-white/40">{KIND_LABEL[r.node.kind]} · {TIERS[r.tier].label}</span>
+                    </span>
+                    <span className="text-xs tabular-nums" style={{ color: C.amber }}>{r.cost} у.е.</span>
+                  </button>
+                ))}
+                {recommendations.length === 0 && (
+                  <div className="flex items-center gap-2 text-sm py-2" style={{ color: C.green }}>
+                    <CheckCircle2 size={16} /> Вся инфраструктура на оптимуме
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Initiatives */}
+            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
+              <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-white/50 mb-3">
+                <Sparkles size={13} style={{ color: C.violet }} /> Инициативы
+              </div>
+              <div className="space-y-2.5">
+                {initiativeState.map(({ init, unlocked, active }) => (
+                  <div key={init.id} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${active ? C.green + '40' : 'rgba(255,255,255,0.07)'}` }}>
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-sm font-medium">{init.name}</span>
+                      {active ? <CheckCircle2 size={15} style={{ color: C.green }} />
+                        : unlocked ? <span className="text-[10px]" style={{ color: C.violet }}>доступно</span>
+                        : <Lock size={13} className="text-white/30" />}
+                    </div>
+                    <p className="text-[11px] text-white/45 leading-snug mb-2">{init.desc}</p>
+                    <div className="flex items-center gap-2 text-[10px] text-white/40 mb-2 flex-wrap">
+                      <span style={{ color: C.cyan }}>+{init.wb} благ.</span>
+                      <span style={{ color: C.green }}>+{init.eco} экол.</span>
+                      <span style={{ color: C.sky }}>+{init.water} вода</span>
+                    </div>
+                    {active ? (
+                      <div className="text-[11px]" style={{ color: C.green }}>Активна</div>
+                    ) : unlocked ? (
+                      <button onClick={() => activateInitiative(init)}
+                        className="w-full py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors"
+                        style={{ background: `${C.violet}1a`, color: C.violet, border: `1px solid ${C.violet}45` }}>
+                        Запустить · {init.cost} у.е.
+                      </button>
+                    ) : (
+                      <div className="text-[10px] text-white/35">
+                        Нужно: {init.requires.map((rid) => NODES.find((n) => n.id === rid)?.name.split(' ')[0]).join(', ')} — уровень «Модернизировано»
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-5 text-center text-[11px] text-white/30 flex items-center justify-center gap-1.5">
+          <TrendingUp size={12} /> Модель иллюстративная: показывает логику каскадного восстановления бассейна, а не точный прогноз.
+        </p>
       </div>
     </div>
   );

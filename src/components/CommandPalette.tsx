@@ -32,7 +32,7 @@ const COMMANDS: Cmd[] = [
   { label: 'IoT-сеть', path: '/iot', group: 'Инфраструктура', icon: Activity, keywords: 'датчики сенсоры' },
   { label: 'Алерты', path: '/alerts', group: 'Инфраструктура', icon: Bell, keywords: 'предупреждения тревоги' },
   { label: 'Экосистема', path: '/ecosystem', group: 'Инфраструктура', icon: Leaf, keywords: 'связи граф' },
-  { label: 'Симулятор водного баланса', path: '/simulator', group: 'Инфраструктура', icon: Waves, keywords: 'модель сценарий прогноз арал баланс вода simulator ползунки' },
+  { label: 'Живая модель региона', path: '/simulator', group: 'Инфраструктура', icon: Waves, keywords: 'модель карта объекты проекты инициативы благополучие экология восстановление арал simulator' },
   // Знания
   { label: 'R&D / Методологии', path: '/rd', group: 'Знания', icon: FlaskConical, keywords: 'исследования разработки наука' },
   { label: 'Каталог тех/оборуд.', path: '/catalog', group: 'Знания', icon: BookOpen, keywords: 'технологии оборудование' },
