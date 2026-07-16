@@ -7,6 +7,7 @@ import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import { CommandPalette } from '@/components/CommandPalette';
 import { PWAInstallBanner } from '@/components/PWAInstallBanner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import NetworkMeshBackground from '@/components/NetworkMeshBackground';
 import { NotificationPermissionBanner } from '@/components/NotificationPermissionBanner';
 import { useAlertNotifications } from '@/hooks/useAlertNotifications';
 import SplashScreen from '@/pages/SplashScreen';
@@ -104,9 +105,12 @@ export default function App() {
       {/* Splash screen (first visit only) */}
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
+      {/* Animated network-mesh background (behind all content) */}
+      {!showSplash && <NetworkMeshBackground />}
+
       {/* Main app */}
       {!showSplash && (
-        <>
+        <div className="relative z-10">
           <Header />
           <CommandPalette />
           <PWAInstallBanner />
@@ -299,7 +303,7 @@ export default function App() {
           </ErrorBoundary>
           <NotificationPermissionBanner onRequest={requestPermission} />
           <MobileTabBar />
-        </>
+        </div>
       )}
     </QueryClientProvider>
   );

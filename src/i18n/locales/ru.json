@@ -87,6 +87,18 @@
 
   "landing.partners.label": "Партнёры и поддержка",
 
+  "teamPartners.badge": "Команда и партнёры",
+  "teamPartners.title": "Кто стоит за экосистемой",
+  "teamPartners.subtitle": "Исследовательская лаборатория, создавшая платформу, и инвестиционный партнёр, поддерживающий её развитие.",
+  "teamPartners.team.label": "Команда",
+  "teamPartners.team.name": "FoxampyForge",
+  "teamPartners.team.desc": "Исследовательская и креативная лаборатория, спроектировавшая и построившая экосистему ArkheOSium — от архитектуры до цифровых двойников.",
+  "teamPartners.team.cta": "Перейти на сайт",
+  "teamPartners.partner.label": "Партнёр",
+  "teamPartners.partner.name": "UnicapInvest",
+  "teamPartners.partner.desc": "Инвестиционный партнёр, обеспечивающий капитал и стратегическую поддержку планетарной инфраструктуры.",
+  "teamPartners.partner.cta": "Перейти на сайт",
+
   "landing.final_cta.title": "Начните сейчас",
   "landing.final_cta.subtitle": "Присоединяйтесь к растущей экосистеме водных инвестиций Центральной Азии.",
   "landing.final_cta.email_placeholder": "ваш@email.com",
