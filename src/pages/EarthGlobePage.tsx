@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Map, BarChart2, Droplets, Building2, FolderOpen,
+  Map as MapIcon, BarChart2, Droplets, Building2, FolderOpen,
   FlaskConical, ShoppingCart, Activity, Bell, TrendingUp,
   FileText, Newspaper, X, ArrowRight,
 } from 'lucide-react';
@@ -14,7 +14,7 @@ import type { MapMarker } from '@/components/map/types';
 
 // ── OS modules grid ────────────────────────────────────────────
 const OS_MODULES = [
-  { Icon: Map,          label: 'Карта',       path: '/map',           color: '#00e6c8' },
+  { Icon: MapIcon,      label: 'Карта',       path: '/map',           color: '#00e6c8' },
   { Icon: BarChart2,    label: 'Аналитика',   path: '/analytics',     color: '#60a5fa' },
   { Icon: Droplets,     label: 'Объекты',     path: '/hub/objects',   color: '#00d4ff' },
   { Icon: Building2,    label: 'Субъекты',    path: '/hub/subjects',  color: '#fbbf24' },

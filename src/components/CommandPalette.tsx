@@ -7,7 +7,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, Globe, Map, LayoutDashboard, BarChart2, Newspaper,
+  Search, Globe, Map as MapIcon, LayoutDashboard, BarChart2, Newspaper,
   Database, Building2, FolderOpen, Activity, Bell, Leaf,
   FlaskConical, BookOpen, ShoppingCart, FileText, Droplets,
   Briefcase, TrendingUp, Cpu, Network, Users, MessageSquare,
@@ -20,7 +20,7 @@ type Cmd = { label: string; path: string; group: string; icon: typeof Search; ke
 const COMMANDS: Cmd[] = [
   // Планета
   { label: 'Глобус', path: '/', group: 'Планета', icon: Globe, keywords: 'earth 3d карта мира' },
-  { label: 'Карта', path: '/map', group: 'Планета', icon: Map, keywords: 'world map регионы' },
+  { label: 'Карта', path: '/map', group: 'Планета', icon: MapIcon, keywords: 'world map регионы' },
   { label: 'Дашборд', path: '/dashboard', group: 'Планета', icon: LayoutDashboard, keywords: 'метрики kpi' },
   { label: 'Аналитика', path: '/analytics', group: 'Планета', icon: BarChart2, keywords: 'графики данные' },
   { label: 'Обновления', path: '/updates', group: 'Планета', icon: Newspaper, keywords: 'новости лента' },
