@@ -10,6 +10,7 @@ import {
   FileText, Newspaper, X, ArrowRight,
 } from 'lucide-react';
 import { useSupabaseMarkers } from '@/hooks/useSupabaseMarkers';
+import { getAllMapMarkers } from '@/data/map-markers';
 import type { MapMarker } from '@/components/map/types';
 
 // ── OS modules grid ────────────────────────────────────────────
@@ -280,7 +281,25 @@ export default function EarthGlobePage() {
   const [selected, setSelected] = useState<MapMarker | null>(null);
   const controlsRef = useRef<any>(null);
 
-  const { markers } = useSupabaseMarkers();
+  const { markers: supabaseMarkers } = useSupabaseMarkers();
+
+  // Feed the globe from the local aggregator (all objects/subjects/projects)
+  // merged with Supabase rows. Deduped by `${type}:${id}` via a Set so the
+  // same entity never renders twice. The globe's existing clustering
+  // (see Scene) consumes this combined array unchanged.
+  const markers: MapMarker[] = useMemo(() => {
+    const seen = new Set<string>();
+    const out: MapMarker[] = [];
+    const push = (m: MapMarker) => {
+      const key = `${m.type}:${m.id}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(m);
+    };
+    getAllMapMarkers().forEach(push);
+    supabaseMarkers.forEach(push);
+    return out;
+  }, [supabaseMarkers]);
 
   // Live clock
   const [now, setNow] = useState(new Date());

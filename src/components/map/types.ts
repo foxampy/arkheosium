@@ -53,6 +53,17 @@ export interface WaterMapProps {
   markers?: MapMarker[];
   onMarkerClick?: (m: MapMarker) => void;
   onGroupClick?: (groupId: GroupId) => void;
+  /**
+   * Enable proximity clustering of markers. When true, markers that are
+   * geographically close are grouped into a count bubble that expands
+   * (zooms in) on click. Defaults to false = render every marker directly.
+   */
+  cluster?: boolean;
+  /**
+   * Screen-space radius (px) used to group markers into a cluster.
+   * Only used when `cluster` is true. Defaults to 48.
+   */
+  clusterRadius?: number;
   /** Called when map viewport changes — receives bounds [west, south, east, north] */
   onBoundsChange?: (bounds: [number, number, number, number]) => void;
   height?: string;

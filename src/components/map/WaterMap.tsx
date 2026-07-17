@@ -10,7 +10,7 @@ import {
 } from '@/data/geo/layer-styles';
 import { PROJECT_GROUPS } from '@/data/project-groups';
 import type { GroupId, LayerKey, MapMarker, WaterMapProps, WaterMapHandle } from './types';
-import { createMarkerElement } from './MapIcons';
+import { createMarkerElement, createClusterElement } from './MapIcons';
 
 const DEFAULT_LAYERS: LayerKey[] = ['rivers', 'lakes', 'glaciers', 'borders', 'cities'];
 
@@ -28,6 +28,8 @@ export function WaterMap({
   showPopups = true,
   className = '',
   mapRef: externalMapRef,
+  cluster = false,
+  clusterRadius = 48,
 }: WaterMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -321,7 +323,7 @@ export function WaterMap({
     else map.once('load', apply);
   }, [layers]);
 
-  // ── Render markers from prop (direct — no clustering) ────────
+  // ── Render markers from prop (optional proximity clustering) ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -365,6 +367,78 @@ export function WaterMap({
       return { iconColor, iconType };
     }
 
+    // Build a single premium DOM dot marker for `m`.
+    const renderSingle = (m: MapMarker) => {
+      const { iconColor, iconType } = getMarkerMeta(m);
+      const isHighlighted = (m as any).isHighlighted === true;
+      // highlighted markers (water bodies) get 14px; regular get 10px
+      const dotSize = isHighlighted ? 14 : 10;
+      const el = createMarkerElement(iconType, iconColor, dotSize);
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([m.lng, m.lat])
+        .addTo(map);
+
+      if (showPopups) {
+        const popup = new maplibregl.Popup({
+          offset: 10,
+          closeButton: true,
+          className: 'wm-popup',
+          maxWidth: '300px',
+        }).setHTML(buildPopupHtml(m));
+        marker.setPopup(popup);
+        el.addEventListener('click', () => {
+          onMarkerClickRef.current?.(m);
+        });
+      } else {
+        el.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          onMarkerClickRef.current?.(m);
+        });
+      }
+
+      markerInstancesRef.current.push(marker);
+    };
+
+    // Build a cluster bubble that zooms in on click.
+    const renderCluster = (
+      lng: number,
+      lat: number,
+      count: number,
+      color: string,
+    ) => {
+      const el = createClusterElement(count, color);
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([lng, lat])
+        .addTo(map);
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        // Zoom in toward the cluster; maplibre re-buckets on moveend.
+        const targetZoom = Math.min(
+          MAP_DEFAULTS.maxZoom,
+          Math.round(map.getZoom()) + 2,
+        );
+        map.easeTo({ center: [lng, lat], zoom: targetZoom, duration: 500 });
+      });
+      markerInstancesRef.current.push(marker);
+    };
+
+    // Group markers by screen-space proximity at the current zoom.
+    // A cell is `clusterRadius` px wide; each marker falls into one cell.
+    const buildClusters = (list: MapMarker[]) => {
+      const cell = Math.max(16, clusterRadius);
+      const buckets = new Map<string, MapMarker[]>();
+      for (const m of list) {
+        if (typeof m.lat !== 'number' || typeof m.lng !== 'number') continue;
+        const p = map.project([m.lng, m.lat]);
+        const key = Math.round(p.x / cell) + ':' + Math.round(p.y / cell);
+        const arr = buckets.get(key);
+        if (arr) arr.push(m);
+        else buckets.set(key, [m]);
+      }
+      return buckets;
+    };
+
     const apply = () => {
       // Clear previous DOM markers
       markerInstancesRef.current.forEach((m) => m.remove());
@@ -372,50 +446,53 @@ export function WaterMap({
 
       if (!markers || markers.length === 0) return;
 
-      // Render every marker as a premium DOM dot — no clustering
-      markers.forEach((m) => {
-        const { iconColor, iconType } = getMarkerMeta(m);
-        const isHighlighted = (m as any).isHighlighted === true;
-        // highlighted markers (water bodies) get 14px; regular get 10px
-        const dotSize = isHighlighted ? 14 : 10;
-        const el = createMarkerElement(iconType, iconColor, dotSize);
+      if (!cluster) {
+        // Render every marker directly (legacy behaviour).
+        markers.forEach(renderSingle);
+        return;
+      }
 
-        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([m.lng, m.lat])
-          .addTo(map);
-
-        if (showPopups) {
-          const popup = new maplibregl.Popup({
-            offset: 10,
-            closeButton: true,
-            className: 'wm-popup',
-            maxWidth: '300px',
-          }).setHTML(buildPopupHtml(m));
-          marker.setPopup(popup);
-          el.addEventListener('click', () => {
-            onMarkerClickRef.current?.(m);
-          });
-        } else {
-          el.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            onMarkerClickRef.current?.(m);
-          });
+      // Proximity clustering: single-marker cells render as dots,
+      // multi-marker cells render as an expandable count bubble.
+      const buckets = buildClusters(markers);
+      buckets.forEach((items) => {
+        if (items.length === 1) {
+          renderSingle(items[0]);
+          return;
         }
-
-        markerInstancesRef.current.push(marker);
+        let lat = 0;
+        let lng = 0;
+        const typeCount: Record<string, number> = {};
+        for (const it of items) {
+          lat += it.lat;
+          lng += it.lng;
+          const meta = getMarkerMeta(it);
+          typeCount[meta.iconColor] = (typeCount[meta.iconColor] || 0) + 1;
+        }
+        const domColor =
+          Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0]?.[0] ??
+          '#00e6c8';
+        renderCluster(
+          lng / items.length,
+          lat / items.length,
+          items.length,
+          domColor,
+        );
       });
     };
+
+    // Recompute clusters when the viewport changes (only when clustering).
+    const onMove = () => apply();
 
     if (loadedRef.current) apply();
     else map.once('load', apply);
 
+    if (cluster) map.on('moveend', onMove);
+
     return () => {
-      const map2 = mapRef.current;
-      if (map2) {
-        // Cleanup will be handled by the main useEffect cleanup
-      }
+      if (cluster) map.off('moveend', onMove);
     };
-  }, [markers, showPopups]);
+  }, [markers, showPopups, cluster, clusterRadius]);
 
   return (
     <div

@@ -68,6 +68,74 @@ export function createMarkerElement(
 }
 
 /**
+ * Creates an HTML element for a cluster bubble — a glowing circle with a
+ * marker count. Used by WaterMap when proximity clustering is enabled.
+ * Clicking is wired up by the caller (zooms the map in).
+ *
+ * @param count - Number of markers grouped into this cluster
+ * @param color - Dominant type color for the bubble
+ */
+export function createClusterElement(
+  count: number,
+  color: string,
+): HTMLDivElement {
+  // Scale bubble size with count (log) so dense clusters read bigger.
+  const size = Math.round(
+    Math.min(52, 26 + Math.log10(Math.max(count, 1)) * 16),
+  );
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'wm-cluster';
+  // Must be absolute — same reasoning as createMarkerElement (MapLibre
+  // positions markers via inline transform on an absolutely-positioned node).
+  wrapper.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: ${size}px;
+    height: ${size}px;
+    cursor: pointer;
+    pointer-events: auto;
+  `;
+
+  const bubble = document.createElement('div');
+  bubble.style.cssText = `
+    width: ${size}px;
+    height: ${size}px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: ${color}2b;
+    border: 2px solid ${color};
+    color: #ffffff;
+    font-family: Inter, system-ui, sans-serif;
+    font-weight: 800;
+    font-size: ${size < 34 ? 12 : 13}px;
+    line-height: 1;
+    box-shadow: 0 0 ${size}px ${color}55, 0 2px 8px rgba(0,0,0,0.55);
+    box-sizing: border-box;
+    transition: transform 0.13s ease, box-shadow 0.13s ease;
+    will-change: transform;
+    backdrop-filter: blur(2px);
+  `;
+  bubble.textContent = count > 999 ? '999+' : String(count);
+
+  wrapper.appendChild(bubble);
+
+  wrapper.addEventListener('mouseenter', () => {
+    bubble.style.transform = 'scale(1.12)';
+    bubble.style.boxShadow = `0 0 ${size * 1.6}px ${color}88, 0 2px 10px rgba(0,0,0,0.6)`;
+  });
+  wrapper.addEventListener('mouseleave', () => {
+    bubble.style.transform = 'scale(1)';
+    bubble.style.boxShadow = `0 0 ${size}px ${color}55, 0 2px 8px rgba(0,0,0,0.55)`;
+  });
+
+  return wrapper;
+}
+
+/**
  * Returns a CSS color string for a given entity type.
  * Used when building markers without a pre-computed color.
  */

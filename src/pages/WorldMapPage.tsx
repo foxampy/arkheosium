@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,6 +16,7 @@ import { WaterMap } from "@/components/map/WaterMap";
 import type { MapMarker, LayerKey, WaterMapHandle } from "@/components/map/types";
 import { ALL_REGIONS } from "@/data/regions-data";
 import { useSupabaseMarkers } from "@/hooks/useSupabaseMarkers";
+import { getAllMapMarkers } from "@/data/map-markers";
 // useWaterResources removed — map now uses supabaseMarkers directly
 import { COMPLETED_PROJECTS, getCompletedProjectColor } from "@/data/completed-projects-data";
 import { CheckCircle } from "lucide-react";
@@ -634,13 +635,30 @@ export default function WorldMapPage() {
     objectType: wb.type,
   }));
 
-  // All markers combined — no proximity dedup (clustering disabled)
-  const mapMarkers: MapMarker[] = [
-    ...hardcodedMarkers,
-    ...completedMarkers,
-    ...waterBodyMarkers,
-    ...supabaseMarkers,
-  ];
+  // All markers combined — local aggregator (getAllMapMarkers) guarantees
+  // every object/subject/project renders, then toggle-gated hardcoded markers
+  // (with neon highlight/objectType), completed + water-body overlays, and
+  // Supabase rows are merged in. Deduped by `${type}:${id}` via a Set so the
+  // same entity never appears twice. NB: `Map` here is a lucide icon import —
+  // dedup intentionally uses a Set, never `new Map()`.
+  const mapMarkers: MapMarker[] = useMemo(() => {
+    const seen = new Set<string>();
+    const out: MapMarker[] = [];
+    const push = (m: MapMarker) => {
+      const key = `${m.type}:${m.id}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(m);
+    };
+    // Order matters: richer hardcoded markers win over the plain aggregator
+    // entries (first-seen wins), and both win over Supabase duplicates.
+    hardcodedMarkers.forEach(push);
+    completedMarkers.forEach(push);
+    waterBodyMarkers.forEach(push);
+    getAllMapMarkers().forEach(push);
+    supabaseMarkers.forEach(push);
+    return out;
+  }, [hardcodedMarkers, completedMarkers, waterBodyMarkers, supabaseMarkers]);
 
   const handleMapMarkerClick = useCallback((m: MapMarker) => {
     // Check if this is a water body marker (wb- prefix)
@@ -868,10 +886,11 @@ export default function WorldMapPage() {
       <div className="relative flex-shrink-0" style={{ height: "calc(100vh - 52px - 80px)" }}>
         <div className="absolute inset-0 z-0" style={{ bottom: "100px" }}>
           <WaterMap
-            center={[63.0, 41.5]}
-            zoom={5}
+            center={[10, 25]}
+            zoom={1.4}
             layers={geoLayers}
             markers={mapMarkers}
+            cluster={true}
             onMarkerClick={handleMapMarkerClick}
             onBoundsChange={setMapBounds}
             highlightGroups={['aral', 'samarkand-water', 'tashkent-metro', 'central-asia-rivers']}

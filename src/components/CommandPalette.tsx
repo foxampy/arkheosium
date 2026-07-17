@@ -3,7 +3,7 @@
 //  Единая точка входа в ОС: страницы, разделы, действия.
 // ═══════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, memo, useDeferredValue } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -66,6 +66,39 @@ const COMMANDS: Cmd[] = [
   { label: 'Прототип: R&D (Bento)', path: '/proto/rd-bento', group: 'Прототипы', icon: Sparkles },
 ];
 
+// Precompute the lowercased haystack once per command (module scope) so filtering
+// never rebuilds/​lowercases these strings on each keystroke.
+type IndexedCmd = Cmd & { search: string };
+const INDEXED: IndexedCmd[] = COMMANDS.map((c) => ({
+  ...c,
+  search: (c.label + ' ' + c.group + ' ' + (c.keywords ?? '')).toLowerCase(),
+}));
+
+// Memoized result row: only re-renders when its own props change (active/onEnter/onSelect),
+// not when a sibling row's hover/selection changes. Handlers are passed stable via useCallback.
+type RowProps = {
+  cmd: Cmd;
+  idx: number;
+  active: boolean;
+  onEnter: (idx: number) => void;
+  onSelect: (path: string) => void;
+};
+const ResultRow = memo(function ResultRow({ cmd, idx, active, onEnter, onSelect }: RowProps) {
+  const Icon = cmd.icon;
+  return (
+    <button
+      onMouseEnter={() => onEnter(idx)}
+      onClick={() => onSelect(cmd.path)}
+      className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors cursor-pointer"
+      style={{ background: active ? 'rgba(0,200,230,0.1)' : 'transparent' }}
+    >
+      <Icon size={16} className="shrink-0" style={{ color: active ? '#00e6c8' : 'rgba(255,255,255,0.5)' }} />
+      <span className={`flex-1 text-sm ${active ? 'text-white' : 'text-white/70'}`}>{cmd.label}</span>
+      {active && <CornerDownLeft size={13} className="text-cyan-400/60 shrink-0" />}
+    </button>
+  );
+});
+
 export function CommandPalette() {
   const [, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
@@ -90,17 +123,23 @@ export function CommandPalette() {
     if (open) { setQ(''); setSel(0); setTimeout(() => inputRef.current?.focus(), 30); }
   }, [open]);
 
-  const results = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s) return COMMANDS;
-    return COMMANDS.filter((c) =>
-      (c.label + ' ' + c.group + ' ' + (c.keywords ?? '')).toLowerCase().includes(s),
-    );
-  }, [q]);
+  // Deferred query: keeps the <input> responsive (high-priority) while the list
+  // filters/re-renders at a lower priority. On a fast keystroke burst React skips
+  // intermediate list renders and only commits the latest.
+  const deferredQ = useDeferredValue(q);
 
-  useEffect(() => { setSel(0); }, [q]);
+  const results = useMemo(() => {
+    const s = deferredQ.trim().toLowerCase();
+    if (!s) return INDEXED;
+    return INDEXED.filter((c) => c.search.includes(s));
+  }, [deferredQ]);
+
+  useEffect(() => { setSel(0); }, [deferredQ]);
 
   const go = useCallback((path: string) => { setLocation(path); setOpen(false); }, [setLocation]);
+
+  // Stable hover handler so memoized rows don't re-render just because the parent re-rendered.
+  const onEnter = useCallback((idx: number) => setSel(idx), []);
 
   const onListKey = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setSel((s) => Math.min(s + 1, results.length - 1)); }
@@ -108,15 +147,16 @@ export function CommandPalette() {
     if (e.key === 'Enter' && results[sel]) { e.preventDefault(); go(results[sel].path); }
   };
 
-  // group results preserving order
+  // Group results preserving order, and assign each command its flat keyboard-nav
+  // index up front — no mutable `let` counter threaded through render.
   const grouped = useMemo(() => {
-    const map = new Map<string, Cmd[]>();
-    results.forEach((c) => { if (!map.has(c.group)) map.set(c.group, []); map.get(c.group)!.push(c); });
+    const map = new Map<string, { cmd: IndexedCmd; idx: number }[]>();
+    results.forEach((c, idx) => {
+      if (!map.has(c.group)) map.set(c.group, []);
+      map.get(c.group)!.push({ cmd: c, idx });
+    });
     return Array.from(map.entries());
   }, [results]);
-
-  // flat index for keyboard nav
-  let flatIdx = -1;
 
   return (
     <AnimatePresence>
@@ -156,25 +196,16 @@ export function CommandPalette() {
               {grouped.map(([group, items]) => (
                 <div key={group} className="mb-1">
                   <div className="px-4 py-1 text-[10px] uppercase tracking-widest text-white/25 font-semibold">{group}</div>
-                  {items.map((c) => {
-                    flatIdx++;
-                    const idx = flatIdx;
-                    const Icon = c.icon;
-                    const active = idx === sel;
-                    return (
-                      <button
-                        key={c.path}
-                        onMouseEnter={() => setSel(idx)}
-                        onClick={() => go(c.path)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors cursor-pointer"
-                        style={{ background: active ? 'rgba(0,200,230,0.1)' : 'transparent' }}
-                      >
-                        <Icon size={16} className="shrink-0" style={{ color: active ? '#00e6c8' : 'rgba(255,255,255,0.5)' }} />
-                        <span className={`flex-1 text-sm ${active ? 'text-white' : 'text-white/70'}`}>{c.label}</span>
-                        {active && <CornerDownLeft size={13} className="text-cyan-400/60 shrink-0" />}
-                      </button>
-                    );
-                  })}
+                  {items.map(({ cmd, idx }) => (
+                    <ResultRow
+                      key={cmd.path}
+                      cmd={cmd}
+                      idx={idx}
+                      active={idx === sel}
+                      onEnter={onEnter}
+                      onSelect={go}
+                    />
+                  ))}
                 </div>
               ))}
             </div>
