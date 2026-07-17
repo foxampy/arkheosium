@@ -67,6 +67,7 @@ const DAOPage = lazy(() => import('@/pages/DAOPage'));
 const DirectionsPage = lazy(() => import('@/pages/DirectionsPage'));
 const SimulatorPage = lazy(() => import('@/pages/SimulatorPage'));
 const GenesisPage = lazy(() => import('@/pages/GenesisPage'));
+const RoadmapPage = lazy(() => import('@/pages/RoadmapPage'));
 
 // UX/UI style prototypes (linked from /updates)
 const ObjectTwinHUD = lazy(() => import('@/pages/prototypes/ObjectTwinHUD'));
@@ -280,6 +281,9 @@ export default function App() {
               </Route>
               <Route path="/genesis">
                 <GenesisPage />
+              </Route>
+              <Route path="/roadmap">
+                <RoadmapPage />
               </Route>
               <Route path="/aral-whitepaper">
                 <AralWhitepaperPage />
