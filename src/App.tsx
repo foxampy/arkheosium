@@ -68,6 +68,10 @@ const DirectionsPage = lazy(() => import('@/pages/DirectionsPage'));
 const SimulatorPage = lazy(() => import('@/pages/SimulatorPage'));
 const GenesisPage = lazy(() => import('@/pages/GenesisPage'));
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage'));
+const SatellitePage = lazy(() => import('@/pages/SatellitePage'));
+const SensorsPage = lazy(() => import('@/pages/SensorsPage'));
+const WaterRecoveryPage = lazy(() => import('@/pages/WaterRecoveryPage'));
+const ClimatePage = lazy(() => import('@/pages/ClimatePage'));
 
 // UX/UI style prototypes (linked from /updates)
 const ObjectTwinHUD = lazy(() => import('@/pages/prototypes/ObjectTwinHUD'));
@@ -284,6 +288,18 @@ export default function App() {
               </Route>
               <Route path="/roadmap">
                 <RoadmapPage />
+              </Route>
+              <Route path="/satellite">
+                <SatellitePage />
+              </Route>
+              <Route path="/sensors">
+                <SensorsPage />
+              </Route>
+              <Route path="/water-recovery">
+                <WaterRecoveryPage />
+              </Route>
+              <Route path="/climate">
+                <ClimatePage />
               </Route>
               <Route path="/aral-whitepaper">
                 <AralWhitepaperPage />
