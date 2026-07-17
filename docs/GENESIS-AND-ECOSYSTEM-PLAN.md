@@ -129,3 +129,4 @@
 ## 5. Журнал изменений
 
 - **2026-07-16** — заведён план. Агенты C, D закоммичены (`f70bf0b`, `0e5bd0b`). A, B в работе. Genesis Engine спроектирован (§3). Бэклог whitepaper-модулей зафиксирован (§4).
+- **2026-07-17** — A/C/D/E смёржены в master (`dc31ed9`). Genesis Engine закоммичен (`a7da0ad`). Добавлена страница **Дорожная карта** `/roadmap` (`3b195a4`) — статус-борд done/in-progress/planned + пре-рендер мокапы модулей. Волна субагентов G-SAT/G-SEN/G-WR/G-CL: интерактивные демо-страницы **`/satellite`, `/sensors`, `/water-recovery`, `/climate`** (`ed469de`) — self-contained i18n (ru/en), mock live-дашборды. Исправлен `vercel.json` (невалидный runtime функции → `3f422f5`). **Задеплоено в прод: https://arkheosium.vercel.app** (dpl_3uY1sxbMfc8mdLci3uihN6c2Uzab, READY). Осталось из §4.1: G-EN/G-OS/G-TR/G-RB/G-AG/G-CT/G-CE/G-WO + образы каталога (B).
