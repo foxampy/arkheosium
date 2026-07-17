@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, MessageSquare, Briefcase,
   BarChart2, FileText, Cpu, ShoppingCart, Leaf, QrCode, Activity,
   Bell, Globe, Database, Building2, Newspaper, Droplets, Network,
-  Search,
+  Search, Milestone, ScrollText,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMessages } from '@/hooks/useMessages';
@@ -43,6 +43,7 @@ const NAV_GROUPS: NavGroup[] = [
       { nameKey: 'nav.dashboard', path: '/dashboard', icon: LayoutDashboard, color: '#60a5fa', label: 'Дашборд' },
       { nameKey: 'nav.analytics', path: '/analytics', icon: BarChart2,       color: '#00e6c8', label: 'Аналитика' },
       { nameKey: 'nav.updates',   path: '/updates',   icon: Newspaper,       color: '#06b6d4', label: 'Обновления' },
+      { nameKey: 'nav.roadmap',   path: '/roadmap',   icon: Milestone,       color: '#f59e0b', label: 'Дорожная карта' },
     ],
   },
   {
@@ -65,7 +66,8 @@ const NAV_GROUPS: NavGroup[] = [
       { nameKey: 'nav.catalog',     path: '/catalog',          icon: BookOpen,     color: '#a78bfa', label: 'Каталог тех/оборуд.' },
       { nameKey: 'nav.tech_market', path: '/tech-marketplace', icon: ShoppingCart, color: '#f59e0b', label: 'Тех-маркет' },
       { nameKey: 'nav.documents',   path: '/documents',        icon: FileText,     color: '#00e6c8', label: 'Документы' },
-      { nameKey: 'nav.whitepaper',  path: '/whitepaper',       icon: BookOpen,     color: '#06b6d4', label: 'Whitepaper' },
+      { nameKey: 'nav.whitepaper',  path: '/whitepaper',       icon: BookOpen,     color: '#06b6d4', label: 'Обзор платформы' },
+      { nameKey: 'nav.whitepaper_full', path: '/whitepaper-full', icon: ScrollText, color: '#a78bfa', label: 'Whitepaper (полный)' },
       { nameKey: 'nav.aral_nexus',  path: '/aral-nexus',       icon: Droplets,     color: '#00d4ff', label: '🌊 ARAL NEXUS' },
     ],
   },

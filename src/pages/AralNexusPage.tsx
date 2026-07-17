@@ -296,7 +296,7 @@ export default function AralNexusPage() {
     : COMPONENTS.filter(c => c.category === catFilter);
 
   return (
-    <div className="min-h-screen bg-[#000818] text-gray-200 overflow-x-hidden">
+    <div className="min-h-screen text-gray-200 overflow-x-hidden">
 
       {/* ── Animated Hero ── */}
       <div className="relative min-h-[520px] flex flex-col justify-end overflow-hidden">

@@ -300,7 +300,7 @@ export default function SatellitePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000818] text-gray-200">
+    <div className="min-h-screen text-gray-200">
 
       {/* ── Sticky top bar ── */}
       <div className="sticky top-0 z-40 bg-[#000818]/95 backdrop-blur border-b border-white/5 px-4 py-3 flex items-center gap-3">

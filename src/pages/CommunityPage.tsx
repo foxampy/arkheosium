@@ -387,7 +387,6 @@ export default function CommunityPage() {
   return (
     <div
       className="min-h-screen flex flex-col"
-      style={{ background: 'linear-gradient(180deg, #000818 0%, #000c22 100%)' }}
     >
       {/* ── Header ─────────────────────────────────────────── */}
       <div

@@ -129,7 +129,7 @@ export default function StakeholderDetailPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000818' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin" />
       </div>
     );
@@ -138,7 +138,7 @@ export default function StakeholderDetailPage() {
   // Not found
   if (!stakeholder) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000818' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/40 text-lg mb-4">Стейкхолдер не найден</p>
           <button
@@ -154,7 +154,7 @@ export default function StakeholderDetailPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg,#000818 0%,#000c20 100%)' }}>
+    <div className="min-h-screen">
       {/* Hero */}
       <div className="relative">
         <div

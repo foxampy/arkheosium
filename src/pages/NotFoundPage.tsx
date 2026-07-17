@@ -6,8 +6,7 @@ export default function NotFoundPage() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: '#000c20' }}>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Ripples */}

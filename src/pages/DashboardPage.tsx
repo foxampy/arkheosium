@@ -836,7 +836,7 @@ export default function DashboardPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen" style={{ background: '#000818' }}>
+    <div className="min-h-screen">
       <BgComponent />
 
       {/* Drag ghost */}

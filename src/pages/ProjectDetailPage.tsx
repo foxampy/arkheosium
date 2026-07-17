@@ -511,7 +511,7 @@ export default function ProjectDetailPage() {
 
   if (apiLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#000818" }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
       </div>
     );
@@ -520,7 +520,7 @@ export default function ProjectDetailPage() {
   // ─── Detailed project view (rich sections from VODecology) ─────────────────
   if (detailedProject) {
     return (
-      <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#000818 0%,#000c22 100%)" }}>
+      <div className="min-h-screen">
         <ProjectHero project={detailedProject} onBack={() => setLocation("/hub")} />
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-10">
@@ -560,7 +560,7 @@ export default function ProjectDetailPage() {
 
   if (!proj) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#000818" }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/40 text-lg mb-4">Проект не найден</p>
           <button onClick={() => setLocation("/hub")}
@@ -589,7 +589,7 @@ export default function ProjectDetailPage() {
   const hasCoords = !!(proj.coordinates?.lat && proj.coordinates?.lng);
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#000818 0%,#000c22 100%)" }}>
+    <div className="min-h-screen">
 
       {/* ═══════════════════════════════════════════════════════
           HERO — branded cover poster

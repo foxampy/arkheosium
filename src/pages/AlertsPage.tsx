@@ -679,7 +679,7 @@ export default function AlertsPage() {
   const infoCount = alerts.filter((a) => a.severity === 'info' && !a.resolved).length;
 
   return (
-    <div className="min-h-screen pt-14" style={{ background: '#000818' }}>
+    <div className="min-h-screen pt-14">
       <style>{`
         @keyframes bellPulse {
           0%, 100% { transform: scale(1); }

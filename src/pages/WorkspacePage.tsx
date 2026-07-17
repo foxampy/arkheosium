@@ -795,7 +795,6 @@ export default function WorkspacePage() {
   return (
     <div
       className="min-h-screen pb-20"
-      style={{ background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)' }}
     >
       {/* ─── Header bar ─────────────────────────────────────── */}
       <div

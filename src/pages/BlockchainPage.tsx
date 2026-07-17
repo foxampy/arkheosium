@@ -269,7 +269,6 @@ export default function BlockchainPage() {
   return (
     <div
       className="min-h-screen pt-16 pb-10 px-4"
-      style={{ background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)' }}
     >
       <div className="max-w-7xl mx-auto space-y-6">
 

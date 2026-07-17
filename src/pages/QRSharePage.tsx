@@ -180,9 +180,6 @@ export default function QRSharePage() {
 
       <div
         className="min-h-screen flex flex-col items-center justify-center px-6 py-10 relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)',
-        }}
       >
         {/* Ambient glow */}
         <div

@@ -419,8 +419,7 @@ export default function ProjectsPage() {
   }, [filtered]);
 
   return (
-    <div className="min-h-screen flex flex-col"
-      style={{ background: "linear-gradient(180deg,#000818 0%,#000c22 100%)" }}>
+    <div className="min-h-screen flex flex-col">
 
       {/* Header */}
       <div className="sticky top-0 z-30 border-b"

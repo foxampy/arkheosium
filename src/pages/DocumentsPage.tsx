@@ -36,7 +36,6 @@ interface CardPrefs {
 const ACCENT = '#00e6c8';
 const CARD_BG = 'rgba(0,8,30,0.8)';
 const CARD_BORDER = '1px solid rgba(0,230,200,0.12)';
-const PAGE_BG = 'linear-gradient(180deg,#000818 0%,#001030 40%,#000c24 100%)';
 
 const ROLE_PRESETS = [
   'CEO / Генеральный директор',
@@ -689,7 +688,7 @@ export default function DocumentsPage() {
   ];
 
   return (
-    <div className="min-h-screen pt-16 pb-12 px-4" style={{ background: PAGE_BG }}>
+    <div className="min-h-screen pt-16 pb-12 px-4">
 
       {/* Hidden print divs */}
       <PrintInvest innerRef={refInvest} />

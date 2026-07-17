@@ -908,7 +908,7 @@ export default function InvestApplicationPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(180deg,#000818 0%,#000c20 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-lg">
           <SuccessScreen refCode={refCode} onHome={() => setLocation('/')} onProfile={() => setLocation('/profile')} />
         </div>
@@ -917,7 +917,7 @@ export default function InvestApplicationPage() {
   }
 
   return (
-    <div className="min-h-screen pb-12 px-4 pt-16" style={{ background: 'linear-gradient(180deg,#000818 0%,#000c20 100%)' }}>
+    <div className="min-h-screen pb-12 px-4 pt-16">
       <div className="max-w-xl mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8 pt-4">

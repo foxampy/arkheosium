@@ -101,7 +101,7 @@ export default function SubjectDetailPage() {
 
   if (apiLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#000818" }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin" />
       </div>
     );
@@ -109,7 +109,7 @@ export default function SubjectDetailPage() {
 
   if (!subj) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#000818" }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/40 text-lg mb-4">Субъект не найден</p>
           <button onClick={() => setLocation("/hub")}
@@ -123,7 +123,7 @@ export default function SubjectDetailPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#000818 0%,#000c22 100%)" }}>
+    <div className="min-h-screen">
 
       {/* Hero */}
       <div className="relative">

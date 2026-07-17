@@ -144,7 +144,7 @@ export default function WhitepaperPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#000818] text-gray-200">
+    <div className="min-h-screen text-gray-200">
       {/* ── Top bar ── */}
       <div className="sticky top-0 z-30 bg-[#000818]/90 backdrop-blur border-b border-white/5 px-4 py-3 flex items-center gap-4">
         <button

@@ -151,7 +151,7 @@ export default function ExplorePage() {
   const featuredProjects = COMPLETED_PROJECTS.slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-[#000c20] text-white overflow-x-hidden">
+    <div className="min-h-screen text-white overflow-x-hidden">
       {/* ═══ HERO ═══ */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         {/* Animated background */}

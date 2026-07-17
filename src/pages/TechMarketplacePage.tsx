@@ -1340,7 +1340,6 @@ export default function TechMarketplacePage() {
   return (
     <div
       className="min-h-screen text-white"
-      style={{ background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)' }}
     >
       <div className="max-w-screen-xl mx-auto px-4 py-8 space-y-8">
 

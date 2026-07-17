@@ -345,7 +345,6 @@ export default function ObjectsPage() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: "linear-gradient(135deg, rgba(0,4,12,1) 0%, rgba(0,8,24,0.98) 50%, rgba(0,4,16,1) 100%)" }}
     >
       {/* ── Header ─────────────────────────────────────────────────────────────── */}
       <div

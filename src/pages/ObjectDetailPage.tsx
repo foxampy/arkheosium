@@ -155,7 +155,7 @@ function StatCard({
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg,#000818 0%,#001030 40%,#000c24 100%)' }}>
+    <div className="min-h-screen">
       <div className="h-80 animate-pulse" style={{ background: 'rgba(255,255,255,0.03)' }} />
       <div className="max-w-5xl mx-auto px-5 py-8 space-y-4">
         {[1,2,3].map(i => (
@@ -170,8 +170,7 @@ function LoadingSkeleton() {
 
 function NotFound({ onBack }: { onBack: () => void }) {
   return (
-    <div className="min-h-screen flex items-center justify-center"
-      style={{ background: 'linear-gradient(180deg,#000818 0%,#001030 40%,#000c24 100%)' }}>
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <p className="text-white/40 text-lg mb-4">Object not found</p>
         <button onClick={onBack}
@@ -1428,8 +1427,7 @@ export default function ObjectDetailPage() {
   if (!object) return <NotFound onBack={() => setLocation('/hub')} />;
 
   return (
-    <div className="min-h-screen"
-      style={{ background: 'linear-gradient(180deg,#000818 0%,#001030 40%,#000c24 100%)' }}>
+    <div className="min-h-screen">
 
       {/* Hero */}
       <HeroSection object={object} />

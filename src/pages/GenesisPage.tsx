@@ -112,7 +112,7 @@ export default function GenesisPage() {
   }, [project]);
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#050d1a' }}>
+    <div className="min-h-screen pb-24">
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-white/5">
         <div

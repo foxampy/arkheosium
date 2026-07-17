@@ -742,7 +742,7 @@ export default function IoTPage() {
     useWaterAlerts();
 
   return (
-    <div className="min-h-screen" style={{ background: '#000818', color: 'white' }}>
+    <div className="min-h-screen" style={{ color: 'white' }}>
 
       {/* ── Sticky Header ── */}
       <header

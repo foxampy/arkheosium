@@ -449,7 +449,7 @@ export default function DigitalTwinPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000818' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-4"
             style={{ borderColor: `${color}60`, borderTopColor: color }} />
@@ -460,7 +460,7 @@ export default function DigitalTwinPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#000818', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div className="min-h-screen" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
 
       {/* ─── Header ───────────────────────────────────────────── */}
       <div className="sticky top-0 z-30 px-4 py-3 flex items-center gap-3"

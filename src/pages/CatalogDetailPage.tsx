@@ -210,7 +210,7 @@ export default function CatalogDetailPage({ type, id }: CatalogDetailPageProps) 
   const nextDelay = () => { sectionDelay += 0.06; return sectionDelay; };
 
   return (
-    <div className="min-h-screen pt-14 pb-8" style={{ background: '#000c20' }}>
+    <div className="min-h-screen pt-14 pb-8">
       {/* Header */}
       <div className="px-4 pt-6">
         {backButton}

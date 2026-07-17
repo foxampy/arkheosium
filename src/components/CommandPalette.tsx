@@ -12,7 +12,7 @@ import {
   FlaskConical, BookOpen, ShoppingCart, FileText, Droplets,
   Briefcase, TrendingUp, Cpu, Network, Users, MessageSquare,
   Phone, User, Settings, CornerDownLeft, Sparkles, Gavel,
-  Compass, Waves,
+  Compass, Waves, Milestone, ScrollText,
 } from 'lucide-react';
 
 type Cmd = { label: string; path: string; group: string; icon: typeof Search; keywords?: string };
@@ -24,6 +24,7 @@ const COMMANDS: Cmd[] = [
   { label: 'Дашборд', path: '/dashboard', group: 'Планета', icon: LayoutDashboard, keywords: 'метрики kpi' },
   { label: 'Аналитика', path: '/analytics', group: 'Планета', icon: BarChart2, keywords: 'графики данные' },
   { label: 'Обновления', path: '/updates', group: 'Планета', icon: Newspaper, keywords: 'новости лента' },
+  { label: 'Дорожная карта', path: '/roadmap', group: 'Планета', icon: Milestone, keywords: 'roadmap развитие план фазы модули пре-рендер' },
   { label: 'Направления', path: '/directions', group: 'Планета', icon: Compass, keywords: 'темы разделы навигация хаб оглавление directions' },
   // Инфраструктура
   { label: 'Объекты', path: '/hub/objects', group: 'Инфраструктура', icon: Database, keywords: 'водохранилище дамба канал 473' },
@@ -41,6 +42,7 @@ const COMMANDS: Cmd[] = [
   { label: 'Whitepaper (VOD)', path: '/vod-whitepaper', group: 'Знания', icon: BookOpen, keywords: 'вайтпейпер токеномика dao роадмап' },
   { label: 'Whitepaper Арал', path: '/aral-whitepaper', group: 'Знания', icon: Droplets, keywords: 'вайтпейпер арал мегапроект' },
   { label: 'Обзор платформы', path: '/whitepaper', group: 'Знания', icon: BookOpen, keywords: 'explore обзор регионы проекты' },
+  { label: 'Whitepaper (полный)', path: '/whitepaper-full', group: 'Знания', icon: ScrollText, keywords: 'вайтпейпер полный модули aral nexus ai core дорожная карта' },
   { label: 'ARAL NEXUS', path: '/aral-nexus', group: 'Знания', icon: Droplets, keywords: 'арал море' },
   // Инвестиции
   { label: 'Конструктор проектов', path: '/constructor', group: 'Инвестиции', icon: Briefcase, keywords: 'создать проект новый' },

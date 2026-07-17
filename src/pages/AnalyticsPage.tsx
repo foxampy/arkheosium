@@ -144,7 +144,7 @@ export default function AnalyticsPage() {
   ] as const;
 
   return (
-    <div className="min-h-screen" style={{ background: '#000818', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div className="min-h-screen" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
 
       {/* Header */}
       <div className="sticky top-0 z-30 px-4 py-3 flex items-center gap-3"

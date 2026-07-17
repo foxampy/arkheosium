@@ -149,7 +149,7 @@ export default function TIIFConferencePage() {
   const { data: uzObjects } = useWaterResources({ country: 'Uzbekistan' });
 
   return (
-    <div className="min-h-screen bg-[#000818] text-white pb-20">
+    <div className="min-h-screen text-white pb-20">
 
       {/* Top bar */}
       <div className="sticky top-16 z-30 flex items-center justify-between px-6 py-3

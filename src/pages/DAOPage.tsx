@@ -302,7 +302,7 @@ export default function DAOPage() {
   ];
 
   return (
-    <div className="min-h-screen pt-14 pb-8" style={{ background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)' }}>
+    <div className="min-h-screen pt-14 pb-8">
       <div className="max-w-5xl mx-auto px-4 pt-6">
         {/* Back */}
         <button

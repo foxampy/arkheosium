@@ -401,7 +401,7 @@ export default function AdminInvitePage() {
   // Loading state
   if (authLoading || stakeholdersLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000818' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 text-cyan-400/50 animate-spin" />
           <span className="text-sm text-white/30">Загрузка...</span>
@@ -416,7 +416,7 @@ export default function AdminInvitePage() {
   }
 
   return (
-    <div className="min-h-screen pt-14 pb-16" style={{ background: 'linear-gradient(180deg, #000818 0%, #000c22 50%, #000818 100%)' }}>
+    <div className="min-h-screen pt-14 pb-16">
       {/* Decorative bg elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
         <div

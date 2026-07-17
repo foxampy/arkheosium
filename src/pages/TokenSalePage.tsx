@@ -243,7 +243,6 @@ export default function TokenSalePage() {
   return (
     <div
       className="min-h-screen pb-10"
-      style={{ background: 'linear-gradient(160deg,#000818 0%,#000c20 60%,#001018 100%)' }}
     >
       {/* ── Dev Progress Banner ──────────────────────────────── */}
       <DevProgressBanner />

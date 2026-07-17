@@ -556,9 +556,6 @@ export default function OnboardingPage() {
 
       <div
         className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)',
-        }}
       >
         {/* Radial ambient glow */}
         <div

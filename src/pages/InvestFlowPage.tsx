@@ -517,9 +517,6 @@ export default function InvestFlowPage() {
   return (
     <div
       className="min-h-screen pt-14 pb-8 px-4"
-      style={{
-        background: "linear-gradient(180deg,#000818 0%,#000c20 100%)",
-      }}
     >
       <div className="max-w-2xl mx-auto">
         {/* ── Header ─────────────────────────────────────────── */}

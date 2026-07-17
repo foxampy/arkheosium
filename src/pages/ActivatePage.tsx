@@ -292,7 +292,7 @@ export default function ActivatePage({ id: propId }: { id?: string }) {
   /* ── Loading state ── */
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#000c1a' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           className="flex flex-col items-center gap-4"
           initial={{ opacity: 0 }}
@@ -311,7 +311,7 @@ export default function ActivatePage({ id: propId }: { id?: string }) {
   /* ── Not found state ── */
   if (notFound || !stakeholder) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#000c1a' }}>
+      <div className="min-h-screen flex items-center justify-center px-4">
         <motion.div
           className="text-center max-w-sm"
           initial={{ opacity: 0, y: 20 }}
@@ -343,7 +343,7 @@ export default function ActivatePage({ id: propId }: { id?: string }) {
   /* ── Auth success state ── */
   if (authSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#000c1a' }}>
+      <div className="min-h-screen flex items-center justify-center px-4">
         <Particles />
         <motion.div
           className="text-center max-w-sm relative z-10"
@@ -378,7 +378,6 @@ export default function ActivatePage({ id: propId }: { id?: string }) {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-8 relative"
-      style={{ background: 'linear-gradient(180deg, #000c1a 0%, #001020 50%, #000c18 100%)' }}
     >
       <Particles />
 

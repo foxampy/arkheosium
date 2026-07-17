@@ -265,7 +265,6 @@ export default function DirectionsPage() {
   return (
     <div
       className="min-h-screen pt-14 pb-10"
-      style={{ background: 'linear-gradient(135deg, #000818 0%, #000d1f 100%)' }}
     >
       <div className="max-w-6xl mx-auto px-4 pt-6">
         {/* Back */}

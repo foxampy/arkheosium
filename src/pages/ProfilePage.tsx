@@ -103,7 +103,7 @@ export default function ProfilePage() {
   const proposalsReceived = inbox.filter((m) => m.message_type === 'proposal').length;
 
   return (
-    <div className="min-h-screen pt-14 pb-12" style={{ background: 'linear-gradient(180deg, #000818 0%, #000c22 100%)' }}>
+    <div className="min-h-screen pt-14 pb-12">
       <div className="max-w-xl mx-auto px-4 pt-6 space-y-5">
 
         {/* Avatar + Name + Role */}

@@ -100,7 +100,7 @@ export default function ConstructorPage() {
   const stepKey = STEPS[step].key;
 
   return (
-    <div className="min-h-screen pb-24 sm:pb-8" style={{ background: 'linear-gradient(135deg, #04070f 0%, #060c1c 60%, #04060f 100%)' }}>
+    <div className="min-h-screen pb-24 sm:pb-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5">
         {/* header */}
         <button onClick={() => setLocation('/hub')} className="flex items-center gap-1.5 text-sm text-white/50 hover:text-white mb-4 transition-colors">

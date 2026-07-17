@@ -289,7 +289,7 @@ export default function SimulatorPage() {
     : { t: 'Кризис — нужны действия', c: C.red };
 
   return (
-    <div className="min-h-screen text-white" style={{ background: 'radial-gradient(1200px 700px at 70% -10%, rgba(0,60,80,0.35), #04070f 60%)' }}>
+    <div className="min-h-screen text-white">
       {/* Header */}
       <div className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(4,7,15,0.75)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">

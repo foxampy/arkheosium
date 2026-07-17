@@ -495,7 +495,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen pt-14 flex flex-col" style={{ background: 'linear-gradient(180deg, #000818 0%, #000c22 100%)' }}>
+    <div className="min-h-screen pt-14 flex flex-col">
 
       {selectedMessage ? (
         <ThreadView
