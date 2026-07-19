@@ -72,6 +72,10 @@ const SatellitePage = lazy(() => import('@/pages/SatellitePage'));
 const SensorsPage = lazy(() => import('@/pages/SensorsPage'));
 const WaterRecoveryPage = lazy(() => import('@/pages/WaterRecoveryPage'));
 const ClimatePage = lazy(() => import('@/pages/ClimatePage'));
+const RoboticsPage = lazy(() => import('@/pages/RoboticsPage'));
+const OpenSciencePage = lazy(() => import('@/pages/OpenSciencePage'));
+const EnergyPage = lazy(() => import('@/pages/EnergyPage'));
+const TransportPage = lazy(() => import('@/pages/TransportPage'));
 
 // UX/UI style prototypes (linked from /updates)
 const ObjectTwinHUD = lazy(() => import('@/pages/prototypes/ObjectTwinHUD'));
@@ -300,6 +304,18 @@ export default function App() {
               </Route>
               <Route path="/climate">
                 <ClimatePage />
+              </Route>
+              <Route path="/robotics">
+                <RoboticsPage />
+              </Route>
+              <Route path="/open-science">
+                <OpenSciencePage />
+              </Route>
+              <Route path="/energy">
+                <EnergyPage />
+              </Route>
+              <Route path="/transport">
+                <TransportPage />
               </Route>
               <Route path="/aral-whitepaper">
                 <AralWhitepaperPage />
