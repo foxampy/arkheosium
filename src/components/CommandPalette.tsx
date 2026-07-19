@@ -13,6 +13,7 @@ import {
   Briefcase, TrendingUp, Cpu, Network, Users, MessageSquare,
   Phone, User, Settings, CornerDownLeft, Sparkles, Gavel,
   Compass, Waves, Milestone, ScrollText,
+  Satellite, Radio, Cloud, Zap, Truck, Bot, Sprout, Recycle, Telescope,
 } from 'lucide-react';
 
 type Cmd = { label: string; path: string; group: string; icon: typeof Search; keywords?: string };
@@ -44,6 +45,20 @@ const COMMANDS: Cmd[] = [
   { label: 'Обзор платформы', path: '/whitepaper', group: 'Знания', icon: BookOpen, keywords: 'explore обзор регионы проекты' },
   { label: 'Whitepaper (полный)', path: '/whitepaper-full', group: 'Знания', icon: ScrollText, keywords: 'вайтпейпер полный модули aral nexus ai core дорожная карта' },
   { label: 'ARAL NEXUS', path: '/aral-nexus', group: 'Знания', icon: Droplets, keywords: 'арал море' },
+
+  { label: 'Genesis Engine', path: '/genesis', group: 'Модули', icon: Sparkles, keywords: 'генезис ии генерация модуль' },
+  { label: 'Спутниковый мониторинг', path: '/satellite', group: 'Модули', icon: Satellite, keywords: 'спутник снимки слои море satellite' },
+  { label: 'Сеть датчиков воды', path: '/sensors', group: 'Модули', icon: Radio, keywords: 'датчики сенсоры качество воды телеметрия sensors' },
+  { label: 'Восстановление моря', path: '/water-recovery', group: 'Модули', icon: Waves, keywords: 'восстановление уровень приток испарение water recovery' },
+  { label: 'Климат-инженерия', path: '/climate', group: 'Модули', icon: Cloud, keywords: 'климат опустынивание аралкум climate' },
+  { label: 'Энергокольцо / H₂', path: '/energy', group: 'Модули', icon: Zap, keywords: 'энергия водород гидро солнце ветер energy hydrogen' },
+  { label: 'Автономный транспорт', path: '/transport', group: 'Модули', icon: Truck, keywords: 'транспорт коридоры логистика маршруты transport' },
+  { label: 'Роботы и дроны', path: '/robotics', group: 'Модули', icon: Bot, keywords: 'роботы дроны флот миссии robotics drones' },
+  { label: 'Агротехнологии', path: '/agritech', group: 'Модули', icon: Sprout, keywords: 'агро земледелие культуры орошение agritech farming' },
+  { label: 'Умный город-остров', path: '/city', group: 'Модули', icon: Building2, keywords: 'город остров кварталы инфраструктура city' },
+  { label: 'Циркулярная экономика', path: '/circular', group: 'Модули', icon: Recycle, keywords: 'циркулярная переработка ресурсы циклы circular' },
+  { label: 'Мировая обсерватория воды', path: '/observatory', group: 'Модули', icon: Telescope, keywords: 'обсерватория мониторинг воды страны observatory' },
+  { label: 'Открытая наука', path: '/open-science', group: 'Модули', icon: FlaskConical, keywords: 'датасеты api открытые данные open science' },
   // Инвестиции
   { label: 'Конструктор проектов', path: '/constructor', group: 'Инвестиции', icon: Briefcase, keywords: 'создать проект новый' },
   { label: 'Инвестиции', path: '/invest', group: 'Инвестиции', icon: TrendingUp, keywords: 'вложить финансирование' },

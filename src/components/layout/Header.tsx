@@ -8,6 +8,7 @@ import {
   BarChart2, FileText, Cpu, ShoppingCart, Leaf, QrCode, Activity,
   Bell, Globe, Database, Building2, Newspaper, Droplets, Network,
   Search, Milestone, ScrollText,
+  Zap, Cloud, Satellite, Radio, Waves, Truck, Bot, Sprout, Recycle, Telescope, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMessages } from '@/hooks/useMessages';
@@ -56,6 +57,25 @@ const NAV_GROUPS: NavGroup[] = [
       { nameKey: 'nav.iot',       path: '/iot',          icon: Activity,   color: '#4ade80', label: 'IoT-сеть' },
       { nameKey: 'nav.alerts',    path: '/alerts',       icon: Bell,       color: '#f87171', label: 'Алерты' },
       { nameKey: 'nav.ecosystem', path: '/ecosystem',    icon: Leaf,       color: '#4ade80', label: 'Экосистема' },
+    ],
+  },
+  {
+    id: 'modules',
+    title: '🧩 Модули экосистемы',
+    items: [
+      { nameKey: 'nav.genesis',     path: '/genesis',       icon: Sparkles,   color: '#a78bfa', label: 'Genesis Engine' },
+      { nameKey: 'nav.satellite',   path: '/satellite',     icon: Satellite,  color: '#60a5fa', label: 'Спутниковый мониторинг' },
+      { nameKey: 'nav.sensors',     path: '/sensors',       icon: Radio,      color: '#00e6c8', label: 'Сеть датчиков воды' },
+      { nameKey: 'nav.water_rec',   path: '/water-recovery',icon: Waves,      color: '#00d4ff', label: 'Восстановление моря' },
+      { nameKey: 'nav.climate',     path: '/climate',       icon: Cloud,      color: '#22d3ee', label: 'Климат-инженерия' },
+      { nameKey: 'nav.energy',      path: '/energy',        icon: Zap,        color: '#fbbf24', label: 'Энергокольцо / H₂' },
+      { nameKey: 'nav.transport',   path: '/transport',     icon: Truck,      color: '#00d4ff', label: 'Автономный транспорт' },
+      { nameKey: 'nav.robotics',    path: '/robotics',      icon: Bot,        color: '#b6ff2e', label: 'Роботы и дроны' },
+      { nameKey: 'nav.agritech',    path: '/agritech',      icon: Sprout,     color: '#84cc16', label: 'Агротехнологии' },
+      { nameKey: 'nav.city',        path: '/city',          icon: Building2,  color: '#60a5fa', label: 'Умный город-остров' },
+      { nameKey: 'nav.circular',    path: '/circular',      icon: Recycle,    color: '#4ade80', label: 'Циркулярная экономика' },
+      { nameKey: 'nav.observatory', path: '/observatory',   icon: Telescope,  color: '#818cf8', label: 'Мировая обсерватория воды' },
+      { nameKey: 'nav.open_science',path: '/open-science',  icon: FlaskConical,color: '#8b7cff', label: 'Открытая наука' },
     ],
   },
   {
