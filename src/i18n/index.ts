@@ -36,4 +36,17 @@ i18n
     interpolation: { escapeValue: false },
   });
 
+// Apply text direction + lang attribute on initial load AND on every language change.
+// Fixes RTL for Arabic when it is restored from localStorage on boot (previously
+// dir was only set inside the LanguageSwitcher click handler).
+const applyDocumentDir = (lng?: string) => {
+  if (typeof document === 'undefined') return;
+  const code = (lng || i18n.language || 'ru').slice(0, 2);
+  const meta = SUPPORTED_LANGUAGES.find(l => l.code === code);
+  document.documentElement.dir = meta?.dir ?? 'ltr';
+  document.documentElement.lang = code;
+};
+applyDocumentDir();
+i18n.on('languageChanged', applyDocumentDir);
+
 export default i18n;
