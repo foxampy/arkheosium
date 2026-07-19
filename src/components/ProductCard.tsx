@@ -76,35 +76,27 @@ export default function ProductCard({
         className="relative w-full overflow-hidden"
         style={{ aspectRatio: '16 / 10' }}
       >
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{
-              background: `linear-gradient(135deg, ${placeholderColor}18 0%, ${placeholderColor}08 50%, rgba(0,14,40,0.95) 100%)`,
-            }}
-          >
-            {Icon && (
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{
-                  background: `${placeholderColor}15`,
-                  border: `1px solid ${placeholderColor}25`,
-                }}
-              >
-                <Icon
-                  size={28}
-                  style={{ color: placeholderColor, opacity: 0.7 }}
-                />
-              </div>
-            )}
-          </div>
-        )}
+        <div
+          className="w-full h-full flex items-center justify-center"
+          style={{
+            background: `linear-gradient(135deg, ${placeholderColor}18 0%, ${placeholderColor}08 50%, rgba(0,14,40,0.95) 100%)`,
+          }}
+        >
+          {Icon && (
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              style={{
+                background: `${placeholderColor}15`,
+                border: `1px solid ${placeholderColor}25`,
+              }}
+            >
+              <Icon
+                size={28}
+                style={{ color: placeholderColor, opacity: 0.7 }}
+              />
+            </div>
+          )}
+        </div>
         {/* Optional overlay in top-right (e.g. DB badge) */}
         {imageOverlay && (
           <div className="absolute top-2 right-2">{imageOverlay}</div>

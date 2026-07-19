@@ -13,13 +13,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onInvest }) => {
   return (
     <div className="glassmorphism rounded-xl overflow-hidden relative hex-border">
       <div className="h-48 bg-gradient-to-b from-background/50 to-background/50 relative">
-        {project.imageUrl && (
-          <img 
-            src={project.imageUrl} 
-            alt={project.name} 
-            className="w-full h-full object-cover mix-blend-overlay"
-          />
-        )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
         <div className="absolute top-4 right-4 bg-accent/90 text-white font-space font-bold px-3 py-1 rounded-full text-xs">
           {project.irr}% IRR

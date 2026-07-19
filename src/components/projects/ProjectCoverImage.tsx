@@ -94,52 +94,7 @@ export default function ProjectCoverImage({
   const theme = PORTFOLIO_THEMES[project.portfolio ?? ''] ?? DEFAULT_THEME;
   const status = STATUS_LABELS[project.status] ?? { ru: project.status, color: '#94a3b8' };
 
-  // Real photo available — use it with a dark overlay
-  if (project.image_url && !project.image_url.includes('placeholder')) {
-    return (
-      <div
-        className={`relative overflow-hidden rounded-2xl ${className}`}
-        style={{ minHeight: 280 }}
-      >
-        <img
-          src={project.image_url}
-          alt={project.name_ru}
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
-        {/* Dark overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(160deg, rgba(0,6,20,0.88) 0%, rgba(0,6,20,0.50) 45%, rgba(0,6,20,0.94) 100%)',
-          }}
-        />
-        {/* Neon top line */}
-        <div
-          className="absolute top-0 left-0 right-0 h-[1px]"
-          style={{
-            background: `linear-gradient(90deg, transparent 0%, ${theme.primary} 50%, transparent 100%)`,
-          }}
-        />
-        {/* Neon bottom line */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-[1px]"
-          style={{
-            background: `linear-gradient(90deg, transparent 0%, ${theme.primary}60 50%, transparent 100%)`,
-          }}
-        />
-        <CoverContent
-          project={project}
-          theme={theme}
-          status={status}
-          showStats={showStats}
-        />
-      </div>
-    );
-  }
-
-  // Fully generated poster (no photo)
+  // Fully generated poster (always)
   const gridId = `grid-${project.id}`;
   return (
     <div
