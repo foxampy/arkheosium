@@ -332,6 +332,9 @@ interface NodeDef {
   kind: 'port' | 'hub' | 'site';
   label_ru: string;
   label_en: string;
+  label_kk?: string;
+  label_uz?: string;
+  label_ar?: string;
 }
 
 interface EdgeDef {
@@ -370,14 +373,14 @@ const MODE_COLOR: Record<Mode, string> = {
 // ─── Network topology (self-contained mock data) ────────────────────────────────
 
 const NODES: NodeDef[] = [
-  { id: 'port', x: 90, y: 300, kind: 'port', label_ru: 'Морской порт', label_en: 'Seaport' },
-  { id: 'aralport', x: 250, y: 130, kind: 'port', label_ru: 'Аральский порт', label_en: 'Aral port' },
-  { id: 'hubA', x: 380, y: 300, kind: 'hub', label_ru: 'Хаб «Запад»', label_en: 'West hub' },
-  { id: 'samarkand', x: 560, y: 200, kind: 'hub', label_ru: 'Самарканд', label_en: 'Samarkand' },
-  { id: 'railyard', x: 620, y: 400, kind: 'hub', label_ru: 'Ж/д узел', label_en: 'Rail yard' },
-  { id: 'aralsite', x: 470, y: 90, kind: 'site', label_ru: 'Аралкум', label_en: 'Aralkum site' },
-  { id: 'siteE', x: 830, y: 150, kind: 'site', label_ru: 'Восточный фронт', label_en: 'East front' },
-  { id: 'siteS', x: 850, y: 420, kind: 'site', label_ru: 'Южный фронт', label_en: 'South front' },
+  { id: 'port', x: 90, y: 300, kind: 'port', label_ru: 'Морской порт', label_en: 'Seaport', label_kk: 'Теңіз порты', label_uz: 'Dengiz porti', label_ar: 'ميناء بحري' },
+  { id: 'aralport', x: 250, y: 130, kind: 'port', label_ru: 'Аральский порт', label_en: 'Aral port', label_kk: 'Арал порты', label_uz: 'Orol porti', label_ar: 'ميناء آرال' },
+  { id: 'hubA', x: 380, y: 300, kind: 'hub', label_ru: 'Хаб «Запад»', label_en: 'West hub', label_kk: '«Батыс» хабы', label_uz: '«Gʻarb» xabi', label_ar: 'محور «الغرب»' },
+  { id: 'samarkand', x: 560, y: 200, kind: 'hub', label_ru: 'Самарканд', label_en: 'Samarkand', label_kk: 'Самарқанд', label_uz: 'Samarqand', label_ar: 'سمرقند' },
+  { id: 'railyard', x: 620, y: 400, kind: 'hub', label_ru: 'Ж/д узел', label_en: 'Rail yard', label_kk: 'Теміржол торабы', label_uz: 'Temir yoʻl tuguni', label_ar: 'مفرق السكك الحديدية' },
+  { id: 'aralsite', x: 470, y: 90, kind: 'site', label_ru: 'Аралкум', label_en: 'Aralkum site', label_kk: 'Аралқұм', label_uz: 'Orolqum', label_ar: 'أرالكوم' },
+  { id: 'siteE', x: 830, y: 150, kind: 'site', label_ru: 'Восточный фронт', label_en: 'East front', label_kk: 'Шығыс майданы', label_uz: 'Sharqiy front', label_ar: 'الجبهة الشرقية' },
+  { id: 'siteS', x: 850, y: 420, kind: 'site', label_ru: 'Южный фронт', label_en: 'South front', label_kk: 'Оңтүстік майданы', label_uz: 'Janubiy front', label_ar: 'الجبهة الجنوبية' },
 ];
 
 const EDGES: EdgeDef[] = [
@@ -547,7 +550,6 @@ export default function TransportPage() {
   const reduce = useReducedMotion() ?? false;
   const lang = (i18n.language || 'ru').slice(0, 2);
   const s = (STRINGS as Record<string, typeof STRINGS.ru>)[lang] ?? STRINGS.ru;
-  const isEn = lang === 'en';
 
   const [activeModes, setActiveModes] = useState<Record<Mode, boolean>>({
     rail: true, road: true, water: true, air: true,
@@ -612,7 +614,7 @@ export default function TransportPage() {
   // Node label lookup
   const nodeLabel = (id: string) => {
     const n = NODE_MAP[id];
-    return n ? (isEn ? n.label_en : n.label_ru) : id;
+    return n ? (({ ru: n.label_ru, en: n.label_en, kk: n.label_kk, uz: n.label_uz, ar: n.label_ar } as Record<string, string | undefined>)[lang] ?? n.label_ru) : id;
   };
   const modeLabel = (m: Mode) =>
     m === 'rail' ? s.mode_rail : m === 'road' ? s.mode_road : m === 'water' ? s.mode_water : s.mode_air;

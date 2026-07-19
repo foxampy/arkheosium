@@ -290,6 +290,9 @@ interface Dataset {
   id: string;
   title_ru: string;
   title_en: string;
+  title_kk?: string;
+  title_uz?: string;
+  title_ar?: string;
   author: string;
   doi: string;
   domain: DomainKey;
@@ -333,50 +336,62 @@ const DOMAIN_MAP: Record<DomainKey, DomainMeta> = DOMAINS.reduce(
 const DATASETS: Dataset[] = [
   {
     id: 'ds-001', title_ru: 'Уровень грунтовых вод дельты Амударьи', title_en: 'Amu Darya delta groundwater levels',
+    title_kk: 'Амудария атырауының жерасты су деңгейі', title_uz: 'Amudaryo deltasi yer osti suvlari sathi', title_ar: 'مناسيب المياه الجوفية في دلتا آمو داريا',
     author: 'A. Nazarov', doi: '10.5281/arkhe.1042', domain: 'hydrology', sizeGb: 12.4, downloads: 8420, citations: 61, year: 2026,
   },
   {
     id: 'ds-002', title_ru: 'Спутниковый индекс NDVI Аралкум 2020–2026', title_en: 'Aralkum NDVI index 2020–2026',
+    title_kk: 'Аралқұм NDVI спутниктік индексі 2020–2026', title_uz: 'Orolqum NDVI sunʼiy yoʻldosh indeksi 2020–2026', title_ar: 'مؤشر NDVI الفضائي لأرالكوم 2020–2026',
     author: 'L. Chen', doi: '10.5281/arkhe.1077', domain: 'remote', sizeGb: 48.9, downloads: 15230, citations: 142, year: 2026,
   },
   {
     id: 'ds-003', title_ru: 'Засолённость почв обнажённого дна', title_en: 'Soil salinity of the exposed seabed',
+    title_kk: 'Ашылған теңіз түбі топырағының тұздылығы', title_uz: 'Ochilgan dengiz tubi tuproqlarining shoʻrlanishi', title_ar: 'ملوحة تربة قاع البحر المكشوف',
     author: 'M. Yusupova', doi: '10.5281/arkhe.1103', domain: 'soil', sizeGb: 6.1, downloads: 4310, citations: 38, year: 2027,
   },
   {
     id: 'ds-004', title_ru: 'Реанализ температуры приземного слоя', title_en: 'Surface-layer temperature reanalysis',
+    title_kk: 'Жерге жақын қабат температурасының қайта талдауы', title_uz: 'Yer yuzasi qatlami haroratini qayta tahlil qilish', title_ar: 'إعادة تحليل درجة حرارة الطبقة السطحية',
     author: 'R. Okafor', doi: '10.5281/arkhe.1158', domain: 'climate', sizeGb: 91.2, downloads: 20140, citations: 210, year: 2027,
   },
   {
     id: 'ds-005', title_ru: 'Речной сток Сырдарьи: суточные ряды', title_en: 'Syr Darya river discharge: daily series',
+    title_kk: 'Сырдария өзен ағыны: тәуліктік қатарлар', title_uz: 'Sirdaryo daryo oqimi: kunlik qatorlar', title_ar: 'تصريف نهر سير داريا: سلاسل يومية',
     author: 'A. Nazarov', doi: '10.5281/arkhe.1190', domain: 'hydrology', sizeGb: 3.8, downloads: 6720, citations: 55, year: 2027,
   },
   {
     id: 'ds-006', title_ru: 'Гиперспектральные снимки пылевых очагов', title_en: 'Hyperspectral imagery of dust hotspots',
+    title_kk: 'Шаң ошақтарының гиперспектрлік суреттері', title_uz: 'Chang oʻchoqlarining giperspektral tasvirlari', title_ar: 'صور فرط طيفية لبؤر الغبار',
     author: 'K. Ivanov', doi: '10.5281/arkhe.1224', domain: 'remote', sizeGb: 130.5, downloads: 9180, citations: 74, year: 2028,
   },
   {
     id: 'ds-007', title_ru: 'Профили влажности и органики почв', title_en: 'Soil moisture & organic-carbon profiles',
+    title_kk: 'Топырақ ылғалдылығы мен органикасының профильдері', title_uz: 'Tuproq namligi va organik uglerod profillari', title_ar: 'مقاطع رطوبة التربة والكربون العضوي',
     author: 'M. Yusupova', doi: '10.5281/arkhe.1261', domain: 'soil', sizeGb: 9.7, downloads: 5040, citations: 47, year: 2028,
   },
   {
     id: 'ds-008', title_ru: 'Ансамбль климатических проекций до 2050', title_en: 'Climate projection ensemble to 2050',
+    title_kk: '2050 жылға дейінгі климаттық проекциялар ансамблі', title_uz: '2050-yilgacha iqlim proyeksiyalari ansambli', title_ar: 'مجموعة الإسقاطات المناخية حتى 2050',
     author: 'R. Okafor', doi: '10.5281/arkhe.1299', domain: 'climate', sizeGb: 210.0, downloads: 27890, citations: 305, year: 2028,
   },
   {
     id: 'ds-009', title_ru: 'Батиметрия остаточных водоёмов', title_en: 'Bathymetry of residual water bodies',
+    title_kk: 'Қалдық су айдындарының батиметриясы', title_uz: 'Qoldiq suv havzalari batimetriyasi', title_ar: 'قياس أعماق المسطحات المائية المتبقية',
     author: 'S. Petrova', doi: '10.5281/arkhe.1334', domain: 'hydrology', sizeGb: 22.3, downloads: 3910, citations: 29, year: 2029,
   },
   {
     id: 'ds-010', title_ru: 'Радарная интерферометрия просадки грунта', title_en: 'Radar interferometry of land subsidence',
+    title_kk: 'Жер шөгуінің радарлық интерферометриясы', title_uz: 'Yer choʻkishining radar interferometriyasi', title_ar: 'قياس التداخل الراداري لهبوط الأرض',
     author: 'L. Chen', doi: '10.5281/arkhe.1371', domain: 'remote', sizeGb: 74.6, downloads: 11260, citations: 96, year: 2029,
   },
   {
     id: 'ds-011', title_ru: 'Микробиом ризосферы саксаула', title_en: 'Saxaul rhizosphere microbiome',
+    title_kk: 'Сексеуіл ризосферасының микробиомы', title_uz: 'Saksovul rizosferasi mikrobiomi', title_ar: 'ميكروبيوم منطقة جذور الساكسول',
     author: 'D. Karimov', doi: '10.5281/arkhe.1408', domain: 'soil', sizeGb: 15.2, downloads: 2870, citations: 33, year: 2029,
   },
   {
     id: 'ds-012', title_ru: 'Индексы пыльных бурь и ветрового режима', title_en: 'Dust-storm & wind-regime indices',
+    title_kk: 'Шаңды дауылдар мен жел режимінің индекстері', title_uz: 'Chang boʻronlari va shamol rejimi indekslari', title_ar: 'مؤشرات العواصف الترابية ونظام الرياح',
     author: 'R. Okafor', doi: '10.5281/arkhe.1445', domain: 'climate', sizeGb: 5.4, downloads: 8630, citations: 68, year: 2030,
   },
 ];
@@ -521,7 +536,6 @@ export default function OpenSciencePage() {
   const reduce = useReducedMotion() ?? false;
   const lang = (i18n.language || 'ru').slice(0, 2);
   const s = (STRINGS as Record<string, typeof STRINGS.ru>)[lang] ?? STRINGS.ru;
-  const isEn = lang === 'en';
 
   const [query, setQuery] = useState('');
   const [domainFilter, setDomainFilter] = useState<DomainKey | null>(null);
@@ -532,7 +546,7 @@ export default function OpenSciencePage() {
     return DATASETS.filter((d) => {
       if (domainFilter && d.domain !== domainFilter) return false;
       if (!q) return true;
-      const hay = `${d.title_ru} ${d.title_en} ${d.author} ${d.doi}`.toLowerCase();
+      const hay = `${d.title_ru} ${d.title_en} ${d.title_kk ?? ''} ${d.title_uz ?? ''} ${d.title_ar ?? ''} ${d.author} ${d.doi}`.toLowerCase();
       return hay.includes(q);
     });
   }, [query, domainFilter]);
@@ -753,7 +767,7 @@ export default function OpenSciencePage() {
                     <dm.Icon size={16} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold text-white truncate">{isEn ? d.title_en : d.title_ru}</div>
+                    <div className="text-sm font-semibold text-white truncate">{({ ru: d.title_ru, en: d.title_en, kk: d.title_kk, uz: d.title_uz, ar: d.title_ar } as Record<string, string | undefined>)[lang] ?? d.title_ru}</div>
                     <div className="flex items-center gap-2 flex-wrap text-[11px] text-gray-500 mt-0.5">
                       <span>{d.author}</span>
                       <span className="text-gray-700">·</span>

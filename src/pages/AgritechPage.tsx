@@ -352,6 +352,9 @@ interface Intervention {
   Icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
   label_ru: string;
   label_en: string;
+  label_kk?: string;
+  label_uz?: string;
+  label_ar?: string;
   color: string;
   yieldBoost: number; // additive yield boost (0..1)
   waterCut: number;   // additive water reduction (0..1)
@@ -376,10 +379,10 @@ function hash(n: number): number {
 // ─── Interventions ──────────────────────────────────────────────────────────────
 
 const INTERVENTIONS: Intervention[] = [
-  { id: 'drip', Icon: Droplets, label_ru: 'Капельное орошение', label_en: 'Drip irrigation', color: ACCENT2, yieldBoost: 0.10, waterCut: 0.22 },
-  { id: 'halophyte', Icon: Leaf, label_ru: 'Галофиты', label_en: 'Halophyte cultivation', color: '#22c55e', yieldBoost: 0.14, waterCut: 0.08 },
-  { id: 'sensors', Icon: Cpu, label_ru: 'Почвенные сенсоры', label_en: 'Soil sensors', color: ACCENT, yieldBoost: 0.09, waterCut: 0.12 },
-  { id: 'greenhouse', Icon: Sun, label_ru: 'Теплицы', label_en: 'Greenhouses', color: '#fbbf24', yieldBoost: 0.16, waterCut: 0.10 },
+  { id: 'drip', Icon: Droplets, label_ru: 'Капельное орошение', label_en: 'Drip irrigation', label_kk: 'Тамшылатып суару', label_uz: 'Tomchilatib sugorish', label_ar: 'الري بالتنقيط', color: ACCENT2, yieldBoost: 0.10, waterCut: 0.22 },
+  { id: 'halophyte', Icon: Leaf, label_ru: 'Галофиты', label_en: 'Halophyte cultivation', label_kk: 'Галофиттер', label_uz: 'Galofitlar yetishtirish', label_ar: 'زراعة النباتات الملحية', color: '#22c55e', yieldBoost: 0.14, waterCut: 0.08 },
+  { id: 'sensors', Icon: Cpu, label_ru: 'Почвенные сенсоры', label_en: 'Soil sensors', label_kk: 'Топырақ сенсорлары', label_uz: 'Tuproq sensorlari', label_ar: 'مستشعرات التربة', color: ACCENT, yieldBoost: 0.09, waterCut: 0.12 },
+  { id: 'greenhouse', Icon: Sun, label_ru: 'Теплицы', label_en: 'Greenhouses', label_kk: 'Жылыжайлар', label_uz: 'Issiqxonalar', label_ar: 'البيوت الزجاجية', color: '#fbbf24', yieldBoost: 0.16, waterCut: 0.10 },
 ];
 
 // ─── Reusable animated section ──────────────────────────────────────────────────
@@ -964,7 +967,7 @@ export default function AgritechPage() {
                     <span className="w-4 h-4 rounded-full bg-white block" />
                   </span>
                 </div>
-                <div className="text-sm font-semibold text-white">{lang === 'en' ? it.label_en : it.label_ru}</div>
+                <div className="text-sm font-semibold text-white">{({ ru: it.label_ru, en: it.label_en, kk: it.label_kk, uz: it.label_uz, ar: it.label_ar } as Record<string, string | undefined>)[lang] ?? it.label_ru}</div>
                 <div className="flex gap-3 mt-1">
                   <span className="text-[11px] font-mono" style={{ color: ACCENT }}>+{Math.round(it.yieldBoost * 100)}% t/ha</span>
                   <span className="text-[11px] font-mono" style={{ color: ACCENT2 }}>-{Math.round(it.waterCut * 100)}% H₂O</span>
