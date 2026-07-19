@@ -219,6 +219,9 @@ export default function App() {
               <Route path="/account">
                 <AuthPage />
               </Route>
+              <Route path="/auth">
+                <AuthPage />
+              </Route>
               <Route path="/presentation">
                 <PresentationPage />
               </Route>
