@@ -8,6 +8,8 @@ import {
   Map as MapIcon, BarChart2, Droplets, Building2, FolderOpen,
   FlaskConical, ShoppingCart, Activity, Bell, TrendingUp,
   FileText, Newspaper, X, ArrowRight,
+  Sparkles, Satellite, Radio, Waves, Cloud, Zap, Truck, Bot,
+  Sprout, Recycle, Telescope,
 } from 'lucide-react';
 import { useSupabaseMarkers } from '@/hooks/useSupabaseMarkers';
 import { getAllMapMarkers } from '@/data/map-markers';
@@ -27,6 +29,20 @@ const OS_MODULES = [
   { Icon: TrendingUp,   label: 'Инвестиции',  path: '/invest',        color: '#fbbf24' },
   { Icon: FileText,     label: 'Документы',   path: '/documents',     color: '#00e6c8' },
   { Icon: Newspaper,    label: 'Обновления',  path: '/updates',       color: '#06b6d4' },
+  // ── Ecosystem modules ──
+  { Icon: Sparkles,     label: 'Genesis',     path: '/genesis',       color: '#a78bfa' },
+  { Icon: Satellite,    label: 'Спутники',    path: '/satellite',     color: '#60a5fa' },
+  { Icon: Radio,        label: 'Датчики',     path: '/sensors',       color: '#00e6c8' },
+  { Icon: Waves,        label: 'Море',        path: '/water-recovery',color: '#00d4ff' },
+  { Icon: Cloud,        label: 'Климат',      path: '/climate',       color: '#22d3ee' },
+  { Icon: Zap,          label: 'Энергия',     path: '/energy',        color: '#fbbf24' },
+  { Icon: Truck,        label: 'Транспорт',   path: '/transport',     color: '#00d4ff' },
+  { Icon: Bot,          label: 'Роботы',      path: '/robotics',      color: '#b6ff2e' },
+  { Icon: Sprout,       label: 'Агротех',     path: '/agritech',      color: '#84cc16' },
+  { Icon: Building2,    label: 'Город',       path: '/city',          color: '#60a5fa' },
+  { Icon: Recycle,      label: 'Циркуляр',    path: '/circular',      color: '#4ade80' },
+  { Icon: Telescope,    label: 'Обсерватория',path: '/observatory',   color: '#818cf8' },
+  { Icon: FlaskConical, label: 'Откр.наука',  path: '/open-science',  color: '#8b7cff' },
 ] as const;
 
 // ── Marker type metadata ───────────────────────────────────────
