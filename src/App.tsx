@@ -1,5 +1,8 @@
 import { useState, useCallback, lazy, Suspense } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { Route, Switch, useLocation } from 'wouter';
+import PlatformOnboarding from '@/components/onboarding/PlatformOnboarding';
+import { usePlatformOnboarding } from '@/components/onboarding/usePlatformOnboarding';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { Header } from '@/components/layout/Header';
@@ -67,6 +70,13 @@ const DAOPage = lazy(() => import('@/pages/DAOPage'));
 const DirectionsPage = lazy(() => import('@/pages/DirectionsPage'));
 const SimulatorPage = lazy(() => import('@/pages/SimulatorPage'));
 const GenesisPage = lazy(() => import('@/pages/GenesisPage'));
+const ProjectLabPage = lazy(() => import('@/pages/ProjectLabPage'));
+const SitePage = lazy(() => import('@/pages/SitePage'));
+const LandingPromoPage = lazy(() => import('@/pages/LandingPromoPage'));
+const AralSeaProjectPage = lazy(() => import('@/pages/AralSeaProjectPage'));
+const InnovationsPage = lazy(() => import('@/pages/InnovationsPage'));
+const TokenomicsPage = lazy(() => import('@/pages/TokenomicsPage'));
+const NewsFeedPage = lazy(() => import('@/pages/NewsFeedPage'));
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage'));
 const SatellitePage = lazy(() => import('@/pages/SatellitePage'));
 const SensorsPage = lazy(() => import('@/pages/SensorsPage'));
@@ -80,6 +90,7 @@ const AgritechPage = lazy(() => import('@/pages/AgritechPage'));
 const CityPage = lazy(() => import('@/pages/CityPage'));
 const CircularPage = lazy(() => import('@/pages/CircularPage'));
 const ObservatoryPage = lazy(() => import('@/pages/ObservatoryPage'));
+const EcoJourneyPage = lazy(() => import('@/pages/EcoJourneyPage'));
 
 // UX/UI style prototypes (linked from /updates)
 const ObjectTwinHUD = lazy(() => import('@/pages/prototypes/ObjectTwinHUD'));
@@ -112,12 +123,27 @@ export default function App() {
   }, []);
 
   const { requestPermission } = useAlertNotifications(true);
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+
+  // Platform-wide first-visit onboarding gate (shown once the splash clears).
+  const { showOnboarding, completeOnboarding } = usePlatformOnboarding();
+  const handleOnboardingComplete = useCallback(() => {
+    completeOnboarding();
+    // Route the user into the app (default target).
+    if (location !== '/') setLocation('/');
+  }, [completeOnboarding, location, setLocation]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Splash screen (first visit only) */}
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+
+      {/* Platform-wide first-visit onboarding (after splash, before app use) */}
+      <AnimatePresence>
+        {!showSplash && showOnboarding && (
+          <PlatformOnboarding onComplete={handleOnboardingComplete} />
+        )}
+      </AnimatePresence>
 
       {/* Animated network-mesh background (behind all content) */}
       {!showSplash && <NetworkMeshBackground />}
@@ -297,6 +323,27 @@ export default function App() {
               <Route path="/genesis">
                 <GenesisPage />
               </Route>
+              <Route path="/lab">
+                <ProjectLabPage />
+              </Route>
+              <Route path="/site">
+                <SitePage />
+              </Route>
+              <Route path="/landing">
+                <LandingPromoPage />
+              </Route>
+              <Route path="/aral">
+                <AralSeaProjectPage />
+              </Route>
+              <Route path="/innovations">
+                <InnovationsPage />
+              </Route>
+              <Route path="/tokenomics">
+                <TokenomicsPage />
+              </Route>
+              <Route path="/news">
+                <NewsFeedPage />
+              </Route>
               <Route path="/roadmap">
                 <RoadmapPage />
               </Route>
@@ -335,6 +382,9 @@ export default function App() {
               </Route>
               <Route path="/observatory">
                 <ObservatoryPage />
+              </Route>
+              <Route path="/journey">
+                <EcoJourneyPage />
               </Route>
               <Route path="/aral-whitepaper">
                 <AralWhitepaperPage />

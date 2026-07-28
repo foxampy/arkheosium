@@ -24,6 +24,7 @@ import {
 } from '@/data/subjects-data';
 import { useSupabaseCommunity } from '@/hooks/useSupabaseCommunity';
 import ProductCard from '@/components/ProductCard';
+import { localizedField } from '@/lib/i18n-utils';
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -128,7 +129,7 @@ function OrgCard({
       index={index}
       title={subject.name_ru}
       subtitle={subject.type_label}
-      description={subject.description}
+      description={localizedField(subject, 'description')}
       placeholderIcon={Building2}
       placeholderColor={color}
       imageUrl={subject.image_url}

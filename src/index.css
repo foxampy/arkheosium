@@ -64,15 +64,145 @@
 }
 
 /* ═══════════════════════════════════════════
+   BRANDED ANIMATED SCROLLBAR (global)
+   Flowing water-gradient thumb — the site's
+   signature cyan→teal→blue, animated on scroll.
+═══════════════════════════════════════════ */
+/* Vertical flow of the base water gradient (the "перетекание") */
+@keyframes vodScrollFlow {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+/* Secondary glossy highlight drifting down the droplet — sells the liquid feel */
+@keyframes vodScrollGloss {
+  0%   { background-position: 50% 120%; opacity: 0.55; }
+  50%  { background-position: 50% 40%;  opacity: 0.9;  }
+  100% { background-position: 50% -40%; opacity: 0.55; }
+}
+/* Gentle wobble of the droplet shine so the water looks alive */
+@keyframes vodScrollWobble {
+  0%,100% { transform: translateX(0) scaleY(1); }
+  50%     { transform: translateX(0.5px) scaleY(1.02); }
+}
+/* Firefox — can't do the droplet, keep a sensible teal thumb */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,220,220,0.55) rgba(0,12,30,0.5);
+}
+/* WebKit / Chromium */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+/* Watery channel — faint dark-cyan vertical gradient */
+*::-webkit-scrollbar-track {
+  background: linear-gradient(90deg,
+    rgba(0,8,22,0.75) 0%,
+    rgba(0,26,46,0.55) 50%,
+    rgba(0,8,22,0.75) 100%);
+  border-radius: 999px;
+}
+/* Glossy water-droplet thumb: multi-layered gradients (moving shine +
+   flowing water body), fully rounded, translucent, cyan outer glow. */
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 2px solid rgba(0,10,26,0.55);
+  background:
+    /* top glossy shine — animated drift */
+    radial-gradient(120% 45% at 50% 12%,
+      rgba(255,255,255,0.55) 0%,
+      rgba(255,255,255,0.14) 30%,
+      transparent 60%),
+    /* drifting secondary highlight for liquid перетекание */
+    linear-gradient(180deg,
+      rgba(255,255,255,0) 0%,
+      rgba(180,255,250,0.35) 45%,
+      rgba(255,255,255,0) 90%),
+    /* flowing water body */
+    linear-gradient(180deg,
+      #00e6c8 0%,
+      #00b4ff 35%,
+      #3b82f6 65%,
+      #00e6c8 100%);
+  background-size: 100% 100%, 100% 220%, 100% 300%;
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-position: 50% 12%, 50% 120%, 0% 0%;
+  animation:
+    vodScrollGloss 3.2s ease-in-out infinite,
+    vodScrollFlow 4s linear infinite,
+    vodScrollWobble 3.2s ease-in-out infinite;
+  box-shadow:
+    0 0 8px rgba(0,220,220,0.35),
+    inset 0 1px 2px rgba(255,255,255,0.35),
+    inset 0 -3px 6px rgba(0,0,0,0.4);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background:
+    radial-gradient(120% 45% at 50% 12%,
+      rgba(255,255,255,0.7) 0%,
+      rgba(255,255,255,0.2) 30%,
+      transparent 60%),
+    linear-gradient(180deg,
+      rgba(255,255,255,0) 0%,
+      rgba(200,255,252,0.5) 45%,
+      rgba(255,255,255,0) 90%),
+    linear-gradient(180deg,
+      #22f5d8 0%,
+      #22c3ff 40%,
+      #60a5fa 70%,
+      #22f5d8 100%);
+  background-size: 100% 100%, 100% 220%, 100% 300%;
+  background-repeat: no-repeat, no-repeat, repeat;
+  box-shadow:
+    0 0 14px rgba(0,230,230,0.7),
+    0 0 4px rgba(0,220,220,0.6),
+    inset 0 1px 2px rgba(255,255,255,0.5),
+    inset 0 -3px 6px rgba(0,0,0,0.35);
+}
+*::-webkit-scrollbar-corner { background: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  *::-webkit-scrollbar-thumb,
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    animation: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════
    WATER GLASSMORPHISM + NEUMORPHISM SYSTEM
 ═══════════════════════════════════════════ */
 
 @layer utilities {
-  /* ─── Scrollbar ───────────────────────── */
-  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,200,220,0.03); border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,200,220,0.2); border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,200,220,0.4); }
+  /* ─── Scrollbar (thin liquid-droplet variant) ── */
+  .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(0,220,220,0.5) transparent; }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: linear-gradient(90deg,
+      rgba(0,20,36,0.5) 0%, rgba(0,30,50,0.35) 50%, rgba(0,20,36,0.5) 100%);
+    border-radius: 999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background:
+      radial-gradient(120% 45% at 50% 14%,
+        rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.12) 32%, transparent 62%),
+      linear-gradient(180deg,
+        rgba(255,255,255,0) 0%, rgba(180,255,250,0.3) 45%, rgba(255,255,255,0) 90%),
+      linear-gradient(180deg, #00e6c8 0%, #00b4ff 45%, #3b82f6 100%);
+    background-size: 100% 100%, 100% 220%, 100% 300%;
+    background-repeat: no-repeat, no-repeat, repeat;
+    background-position: 50% 14%, 50% 120%, 0% 0%;
+    animation:
+      vodScrollGloss 3.2s ease-in-out infinite,
+      vodScrollFlow 4s linear infinite;
+    box-shadow:
+      0 0 6px rgba(0,220,220,0.3),
+      inset 0 1px 1px rgba(255,255,255,0.3);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    box-shadow:
+      0 0 10px rgba(0,230,230,0.6),
+      inset 0 1px 1px rgba(255,255,255,0.45);
+  }
 
   /* ─── Liquid Glass Panels ─────────────── */
   .glass {

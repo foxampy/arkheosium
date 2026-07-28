@@ -11,6 +11,7 @@ import {
 import { PROJECT_GROUPS } from '@/data/project-groups';
 import type { GroupId, LayerKey, MapMarker, WaterMapProps, WaterMapHandle } from './types';
 import { createMarkerElement, createClusterElement } from './MapIcons';
+import { DOMAIN_CONFIG, normalizeDomain } from '@/lib/domains';
 
 const DEFAULT_LAYERS: LayerKey[] = ['rivers', 'lakes', 'glaciers', 'borders', 'cities'];
 
@@ -30,6 +31,9 @@ export function WaterMap({
   mapRef: externalMapRef,
   cluster = false,
   clusterRadius = 48,
+  graphEdges,
+  complexes,
+  onComplexClick,
 }: WaterMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -39,6 +43,10 @@ export function WaterMap({
   const onGroupClickRef = useRef(onGroupClick);
   const onMarkerClickRef = useRef(onMarkerClick);
   const onBoundsChangeRef = useRef(onBoundsChange);
+  const onComplexClickRef = useRef(onComplexClick);
+  useEffect(() => {
+    onComplexClickRef.current = onComplexClick;
+  }, [onComplexClick]);
 
   useEffect(() => {
     onGroupClickRef.current = onGroupClick;
@@ -323,6 +331,186 @@ export function WaterMap({
     else map.once('load', apply);
   }, [layers]);
 
+  // ── Knowledge-graph edges (relationship web) ─────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const SRC = 'kg-edges';
+    const data: GeoJSON.FeatureCollection = graphEdges ?? { type: 'FeatureCollection', features: [] };
+
+    const apply = () => {
+      const existing = map.getSource(SRC) as maplibregl.GeoJSONSource | undefined;
+      if (existing) {
+        existing.setData(data as any);
+        return;
+      }
+      map.addSource(SRC, { type: 'geojson', data: data as any });
+      // Soft glow underlay
+      map.addLayer({
+        id: 'kg-edges-glow',
+        type: 'line',
+        source: SRC,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': ['interpolate', ['linear'], ['zoom'], 2, 3, 6, 6, 10, 9],
+          'line-blur': 4,
+          'line-opacity': 0.22,
+        },
+      });
+      // Crisp core line
+      map.addLayer({
+        id: 'kg-edges-core',
+        type: 'line',
+        source: SRC,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': ['interpolate', ['linear'], ['zoom'], 2, 0.6, 6, 1.1, 10, 1.8],
+          'line-opacity': 0.75,
+          'line-dasharray': [2, 2],
+        },
+      });
+      // Invisible wide hit-line so thin edges are easy to click
+      map.addLayer({
+        id: 'kg-edges-hit',
+        type: 'line',
+        source: SRC,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': '#000', 'line-opacity': 0.01, 'line-width': 12 },
+      });
+
+      const CAT_LABEL: Record<string, string> = {
+        operational: 'Операционная',
+        financial: 'Финансовая',
+        development: 'Развитие',
+        infrastructure: 'Инфраструктура',
+        other: 'Прочая',
+      };
+      map.on('click', 'kg-edges-hit', (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+        const p = f.properties as Record<string, any>;
+        const color = p.color ?? '#00e6c8';
+        const rel = p.relationship ?? 'related';
+        const strength = p.strength ?? 1;
+        const catLabel = CAT_LABEL[p.category] ?? 'Связь';
+        const bars = Math.max(1, Math.min(5, Math.round(Number(strength))));
+        const barsHtml = Array.from({ length: 5 })
+          .map((_, i) => `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:2px;background:${i < bars ? color : 'rgba(255,255,255,0.15)'}"></span>`)
+          .join('');
+        const html = `
+          <div style="font-family:system-ui,sans-serif;min-width:180px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <span style="width:10px;height:10px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color}"></span>
+              <strong style="color:#0f172a;font-size:13px">${catLabel}</strong>
+            </div>
+            <div style="font-size:12px;color:#334155;margin-bottom:6px">Тип: <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">${rel}</code></div>
+            <div style="font-size:11px;color:#64748b;display:flex;align-items:center;gap:4px">Сила связи ${barsHtml}</div>
+          </div>`;
+        new maplibregl.Popup({ offset: 8, closeButton: true, maxWidth: '260px' })
+          .setLngLat(e.lngLat)
+          .setHTML(html)
+          .addTo(map);
+      });
+      map.on('mouseenter', 'kg-edges-hit', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', 'kg-edges-hit', () => {
+        map.getCanvas().style.cursor = '';
+      });
+    };
+
+    if (loadedRef.current) apply();
+    else map.once('load', apply);
+  }, [graphEdges]);
+
+  // ── Complex hubs (entity_groups) — glowing multi-ring markers ─
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const SRC = 'kg-complexes';
+    const data: GeoJSON.FeatureCollection = complexes ?? { type: 'FeatureCollection', features: [] };
+
+    const apply = () => {
+      const existing = map.getSource(SRC) as maplibregl.GeoJSONSource | undefined;
+      if (existing) {
+        existing.setData(data as any);
+        return;
+      }
+      map.addSource(SRC, { type: 'geojson', data: data as any });
+      // Outer glow halo
+      map.addLayer({
+        id: 'kg-complexes-halo',
+        type: 'circle',
+        source: SRC,
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-opacity': 0.18,
+          'circle-blur': 0.9,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 12, 6, 20, 10, 30],
+        },
+      });
+      // Ring
+      map.addLayer({
+        id: 'kg-complexes-ring',
+        type: 'circle',
+        source: SRC,
+        paint: {
+          'circle-color': 'rgba(0,0,0,0)',
+          'circle-stroke-color': ['get', 'color'],
+          'circle-stroke-width': 2,
+          'circle-stroke-opacity': 0.85,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 8, 6, 13, 10, 20],
+        },
+      });
+      // Bright core
+      map.addLayer({
+        id: 'kg-complexes-core',
+        type: 'circle',
+        source: SRC,
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-opacity': 0.95,
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 1,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 3.5, 6, 5, 10, 7],
+        },
+      });
+
+      const onClick = (e: any) => {
+        const f = e.features?.[0];
+        if (!f) return;
+        const p = f.properties as Record<string, any>;
+        const color = p.color ?? '#00e6c8';
+        const title = p.title ?? p.slug ?? 'Комплекс';
+        const desc = (p.description ?? '').toString().slice(0, 220);
+        const html = `
+          <div style="font-family:system-ui,sans-serif;min-width:200px;max-width:240px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <span style="width:11px;height:11px;border-radius:50%;background:${color};box-shadow:0 0 10px ${color}"></span>
+              <strong style="color:#0f172a;font-size:13px;line-height:1.25">${title}</strong>
+            </div>
+            <div style="font-size:11px;color:#475569;line-height:1.4">${desc}</div>
+            <div style="margin-top:6px;font-size:10px;color:${color};font-weight:600;text-transform:uppercase;letter-spacing:.04em">Комплекс</div>
+          </div>`;
+        new maplibregl.Popup({ offset: 14, closeButton: true, maxWidth: '260px' })
+          .setLngLat((f.geometry as any).coordinates)
+          .setHTML(html)
+          .addTo(map);
+        if (p.slug) onComplexClickRef.current?.(p.slug);
+      };
+      for (const id of ['kg-complexes-core', 'kg-complexes-ring', 'kg-complexes-halo']) {
+        map.on('click', id, onClick);
+        map.on('mouseenter', id, () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; });
+      }
+    };
+
+    if (loadedRef.current) apply();
+    else map.once('load', apply);
+  }, [complexes]);
+
   // ── Render markers from prop (optional proximity clustering) ──
   useEffect(() => {
     const map = mapRef.current;
@@ -343,8 +531,10 @@ export function WaterMap({
     };
 
     // Water bodies (Реки/Озёра/Ледники) keep their natural per-type colors;
-    // everything else is coloured to match its top filter pill:
-    //   Объекты #00e6c8 · Субъекты #fbbf24 · Проекты #60a5fa · Реализованные #22c55e
+    // subjects/projects keep their type pill colour so the top legend stays
+    // meaningful. Physical objects are coloured by their RESOURCE DOMAIN
+    // (water=cyan, energy=amber, minerals=violet, nature=green, agriculture=lime,
+    // climate=sky) — water objects resolve to #00e6c8 so nothing regresses.
     function getMarkerMeta(m: MapMarker) {
       const isCompleted = (m as any).isCompleted;
       const isWaterBody = m.id.startsWith('wb-');
@@ -356,7 +546,7 @@ export function WaterMap({
             ? '#60a5fa'
             : isWaterBody
               ? (m.objectType && OBJECT_ICON_COLORS[m.objectType]) || '#22d3ee'
-              : '#00e6c8';
+              : DOMAIN_CONFIG[normalizeDomain(m.domain)].color;
       const iconType = isCompleted
         ? 'completed'
         : m.type === 'subject'
@@ -547,6 +737,11 @@ function buildPopupHtml(m: MapMarker): string {
   const description = m.description ? escapeHtml(m.description) : '';
   const typeLabel = escapeHtml(TYPE_LABELS[m.type] ?? m.type);
   const tc = TYPE_COLORS[m.type] ?? DEFAULT_TYPE_COLOR;
+  const dom = DOMAIN_CONFIG[normalizeDomain(m.domain)];
+  // Domain chip shown for objects (physical resources carry a meaningful domain)
+  const domainChip = m.type === 'object'
+    ? `<span style="display:inline-block;padding:3px 9px;border-radius:999px;background:${dom.color}22;color:${dom.color};font-size:11px;font-weight:600;margin-bottom:8px;margin-left:6px;">${dom.emoji} ${escapeHtml(dom.labelRu)}</span>`
+    : '';
 
   // Water body markers (wb-*) and completed projects (CP-*) don't have separate detail pages
   const isWaterBody = m.id.startsWith('wb-');
@@ -557,7 +752,7 @@ function buildPopupHtml(m: MapMarker): string {
     <div style="font-family: Inter, system-ui, sans-serif; color: #e2e8f0; padding: 6px 4px;">
       <div style="display: inline-block; padding: 3px 10px; border-radius: 999px; background: ${tc.bg}; color: ${tc.text}; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 600;">
         ${typeLabel}
-      </div>
+      </div>${domainChip}
       <div style="font-weight: 700; font-size: 14px; line-height: 1.35; margin-bottom: 6px; color: #f8fafc;">
         ${title}
       </div>

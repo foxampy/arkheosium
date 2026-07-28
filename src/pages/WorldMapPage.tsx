@@ -7,7 +7,7 @@ import {
   Layers, ArrowRight, X, MapPin, Droplets, Zap,
   Play, Pause, Calendar, AlertTriangle, TrendingDown,
   Search, SlidersHorizontal, ChevronRight, ChevronDown,
-  Waves, Mountain, Map
+  Waves, Mountain, Map, Network
 } from "lucide-react";
 import { OBJECTS_DATA, getObjectColor, getObjectColorForYear, getObjectValueForYear, CRISIS_COLORS, type PlatformObject } from "@/data/objects-data";
 import { SUBJECTS_DATA, getSubjectColor, type PlatformSubject } from "@/data/subjects-data";
@@ -16,7 +16,10 @@ import { WaterMap } from "@/components/map/WaterMap";
 import type { MapMarker, LayerKey, WaterMapHandle } from "@/components/map/types";
 import { ALL_REGIONS } from "@/data/regions-data";
 import { useSupabaseMarkers } from "@/hooks/useSupabaseMarkers";
+import { useSupabaseGraph, EDGE_CATEGORY_META, type EdgeCategory } from "@/hooks/useSupabaseGraph";
+import { useSupabaseComplexes } from "@/hooks/useSupabaseComplexes";
 import { getAllMapMarkers } from "@/data/map-markers";
+import { DOMAIN_CONFIG, DOMAIN_ORDER, normalizeDomain, type DomainKey } from "@/lib/domains";
 // useWaterResources removed — map now uses supabaseMarkers directly
 import { COMPLETED_PROJECTS, getCompletedProjectColor } from "@/data/completed-projects-data";
 import { CheckCircle } from "lucide-react";
@@ -417,9 +420,22 @@ export default function WorldMapPage() {
   const [showSubjects, setShowSubjects] = useState(true);
   const [showProjects, setShowProjects] = useState(true);
   const [showCompleted, setShowCompleted] = useState(true);
+  const [activeDomains, setActiveDomains] = useState<Set<DomainKey>>(() => new Set(DOMAIN_ORDER));
+  const toggleDomain = useCallback((d: DomainKey) => {
+    setActiveDomains(prev => {
+      const next = new Set(prev);
+      if (next.has(d)) next.delete(d); else next.add(d);
+      return next;
+    });
+  }, []);
+  const [showGraph, setShowGraph] = useState(false);
+  const [showComplexes, setShowComplexes] = useState(true);
   const [mapReady, setMapReady] = useState(false);
   const [geoLayers, setGeoLayers] = useState<LayerKey[]>(['rivers', 'lakes', 'glaciers', 'borders', 'cities']);
   const { markers: supabaseMarkers, loading: sbLoading } = useSupabaseMarkers();
+  const { edges: graphEdges, count: graphEdgeCount } = useSupabaseGraph();
+  const { complexes, count: complexCount } = useSupabaseComplexes();
+  const EMPTY_FC = useMemo<GeoJSON.FeatureCollection>(() => ({ type: 'FeatureCollection', features: [] }), []);
   const [mapBounds, setMapBounds] = useState<[number, number, number, number] | null>(null);
   const [year, setYear] = useState(YEAR_MAX);
   const [playing, setPlaying] = useState(false);
@@ -660,6 +676,36 @@ export default function WorldMapPage() {
     return out;
   }, [hardcodedMarkers, completedMarkers, waterBodyMarkers, supabaseMarkers]);
 
+  // Apply the top type toggles (Объекты/Субъекты/Проекты/Реализованные) AND the
+  // resource-domain toggles to what actually renders on the map. Water bodies
+  // (wb-*) are always shown — they are the base hydrographic layer.
+  const filteredMapMarkers: MapMarker[] = useMemo(() => {
+    return mapMarkers.filter(m => {
+      const isWaterBody = m.id.startsWith('wb-');
+      const isCompleted = (m as any).isCompleted === true;
+      // type gate
+      if (!isWaterBody) {
+        if (isCompleted) { if (!showCompleted) return false; }
+        else if (m.type === 'object') { if (!showObjects) return false; }
+        else if (m.type === 'subject') { if (!showSubjects) return false; }
+        else if (m.type === 'project') { if (!showProjects) return false; }
+      }
+      // domain gate (water bodies + hardcoded default to 'water')
+      if (!activeDomains.has(normalizeDomain(m.domain))) return false;
+      return true;
+    });
+  }, [mapMarkers, showObjects, showSubjects, showProjects, showCompleted, activeDomains]);
+
+  // Per-domain totals (across all markers) for the legend chips
+  const domainCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const m of mapMarkers) {
+      const d = normalizeDomain(m.domain);
+      c[d] = (c[d] ?? 0) + 1;
+    }
+    return c;
+  }, [mapMarkers]);
+
   const handleMapMarkerClick = useCallback((m: MapMarker) => {
     // Check if this is a water body marker (wb- prefix)
     if (m.id.startsWith('wb-')) {
@@ -790,7 +836,7 @@ export default function WorldMapPage() {
     return lng >= west && lng <= east && lat >= south && lat <= north;
   }, [mapBounds]);
 
-  const visibleMarkers = mapMarkers.filter(m => isInBounds(m.lat, m.lng));
+  const visibleMarkers = filteredMapMarkers.filter(m => isInBounds(m.lat, m.lng));
   const objectCount = visibleMarkers.filter(m => m.type === 'object').length;
   const subjectCount = visibleMarkers.filter(m => m.type === 'subject').length;
   const projectCount = visibleMarkers.filter(m => m.type === 'project' && !(m as any).isCompleted).length;
@@ -867,6 +913,87 @@ export default function WorldMapPage() {
         </div>
       </div>
 
+      {/* ─── Resource-domain toggles (Ресурсы) ─── */}
+      <div className="relative z-[588] flex items-center gap-2 px-4 py-2 border-b overflow-x-auto flex-shrink-0"
+        style={{ borderColor: "rgba(0,200,230,0.06)", background: "rgba(0,5,18,0.7)" }}>
+        <span className="text-white/25 text-[11px] font-medium shrink-0">Ресурсы:</span>
+        {DOMAIN_ORDER.map(d => {
+          const meta = DOMAIN_CONFIG[d];
+          const active = activeDomains.has(d);
+          return (
+            <button
+              key={d}
+              onClick={() => toggleDomain(d)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium cursor-pointer transition-all shrink-0"
+              style={{
+                background: active ? `${meta.color}1f` : "rgba(255,255,255,0.03)",
+                color: active ? meta.color : "rgba(255,255,255,0.35)",
+                border: `1px solid ${active ? meta.color + '55' : 'rgba(255,255,255,0.06)'}`,
+              }}
+            >
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: meta.color, opacity: active ? 1 : 0.3, boxShadow: active ? `0 0 6px ${meta.color}` : 'none' }} />
+              <span>{meta.labelRu}</span>
+              <span className="tabular-nums" style={{ opacity: 0.6 }}>{domainCounts[d] ?? 0}</span>
+            </button>
+          );
+        })}
+        <div className="ml-auto flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setShowComplexes(v => !v)}
+            title="Показать комплексы — гео-хабы, объединяющие объекты, проекты и субъекты"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium cursor-pointer transition-all shrink-0"
+            style={{
+              background: showComplexes ? "rgba(192,132,252,0.16)" : "rgba(255,255,255,0.03)",
+              color: showComplexes ? "#c084fc" : "rgba(255,255,255,0.35)",
+              border: `1px solid ${showComplexes ? "rgba(192,132,252,0.45)" : "rgba(255,255,255,0.06)"}`,
+            }}
+          >
+            <Layers size={12} />
+            <span>Комплексы</span>
+            {showComplexes && <span className="tabular-nums" style={{ opacity: 0.6 }}>{complexCount}</span>}
+          </button>
+          <button
+            onClick={() => setShowGraph(v => !v)}
+            title="Показать связи графа знаний между сущностями"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium cursor-pointer transition-all shrink-0"
+            style={{
+              background: showGraph ? "rgba(0,230,200,0.16)" : "rgba(255,255,255,0.03)",
+              color: showGraph ? "#00e6c8" : "rgba(255,255,255,0.35)",
+              border: `1px solid ${showGraph ? "rgba(0,230,200,0.45)" : "rgba(255,255,255,0.06)"}`,
+            }}
+          >
+            <Network size={12} />
+            <span>Связи графа</span>
+            {showGraph && <span className="tabular-nums" style={{ opacity: 0.6 }}>{graphEdgeCount}</span>}
+          </button>
+          <button
+            onClick={() => setActiveDomains(new Set(DOMAIN_ORDER))}
+            className="text-[10px] text-white/30 hover:text-white/60 cursor-pointer transition-colors"
+          >Все</button>
+          <button
+            onClick={() => setActiveDomains(new Set())}
+            className="text-[10px] text-white/30 hover:text-white/60 cursor-pointer transition-colors"
+          >Сброс</button>
+        </div>
+      </div>
+
+      {/* ─── Knowledge-graph edge legend (only when web is on) ─── */}
+      {showGraph && (
+        <div className="relative z-[587] flex items-center gap-3 px-4 py-1.5 border-b overflow-x-auto flex-shrink-0"
+          style={{ borderColor: "rgba(0,200,230,0.06)", background: "rgba(0,5,18,0.65)" }}>
+          <span className="text-white/25 text-[10px] font-medium shrink-0">Тип связи:</span>
+          {(Object.keys(EDGE_CATEGORY_META) as EdgeCategory[]).map(cat => {
+            const m = EDGE_CATEGORY_META[cat];
+            return (
+              <span key={cat} className="flex items-center gap-1.5 text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <span className="inline-block rounded-full" style={{ width: 14, height: 3, background: m.color, boxShadow: `0 0 6px ${m.color}` }} />
+                {m.labelRu}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
       {/* ─── Geo layer toggles ─── */}
       <div className="relative z-[589] flex items-center gap-2 px-4 py-2 border-b overflow-x-auto flex-shrink-0"
         style={{ borderColor: "rgba(0,200,230,0.06)", background: "rgba(0,5,18,0.75)" }}>
@@ -889,8 +1016,10 @@ export default function WorldMapPage() {
             center={[10, 25]}
             zoom={1.4}
             layers={geoLayers}
-            markers={mapMarkers}
+            markers={filteredMapMarkers}
             cluster={true}
+            graphEdges={showGraph ? graphEdges : EMPTY_FC}
+            complexes={showComplexes ? complexes : EMPTY_FC}
             onMarkerClick={handleMapMarkerClick}
             onBoundsChange={setMapBounds}
             highlightGroups={['aral', 'samarkand-water', 'tashkent-metro', 'central-asia-rivers']}

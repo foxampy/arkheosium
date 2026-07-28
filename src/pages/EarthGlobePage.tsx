@@ -9,11 +9,15 @@ import {
   FlaskConical, ShoppingCart, Activity, Bell, TrendingUp,
   FileText, Newspaper, X, ArrowRight,
   Sparkles, Satellite, Radio, Waves, Cloud, Zap, Truck, Bot,
-  Sprout, Recycle, Telescope,
+  Sprout, Recycle, Telescope, Network,
 } from 'lucide-react';
 import { useSupabaseMarkers } from '@/hooks/useSupabaseMarkers';
+import { useSupabaseGraph } from '@/hooks/useSupabaseGraph';
 import { getAllMapMarkers } from '@/data/map-markers';
+import { DOMAIN_CONFIG, normalizeDomain } from '@/lib/domains';
 import type { MapMarker } from '@/components/map/types';
+import OSDesktop from '@/components/os/OSDesktop';
+import { groupMarkersByRegion, type RegionGroup } from '@/lib/regionGrouping';
 
 // ── OS modules grid ────────────────────────────────────────────
 const OS_MODULES = [
@@ -57,6 +61,11 @@ const DEFAULT_META = { color: '#a78bfa', label: 'Объект', route: '/hub' };
 function metaFor(type: string) {
   return (TYPE_META as Record<string, typeof DEFAULT_META>)[type] ?? DEFAULT_META;
 }
+// Objects glow by resource domain; subjects/projects keep their type colour.
+function markerColor(m: MapMarker): string {
+  if (m.type === 'object') return DOMAIN_CONFIG[normalizeDomain(m.domain)].color;
+  return metaFor(m.type).color;
+}
 
 // ── Helpers ────────────────────────────────────────────────────
 function latLngToVec3(lat: number, lng: number, r = 1.53): THREE.Vector3 {
@@ -69,6 +78,82 @@ function latLngToVec3(lat: number, lng: number, r = 1.53): THREE.Vector3 {
   );
 }
 
+// ── Knowledge-graph arc layer ──────────────────────────────────
+// Builds glowing great-circle-ish arcs between related entities. Endpoints are
+// projected with the SAME latLngToVec3 helper + radius (1.53) used by markers,
+// so arcs share world space with the markers and orbit identically as the
+// camera moves. Each arc's midpoint is pushed outward from the globe centre by
+// a factor proportional to the angular separation of its endpoints, so long
+// links bow higher above the surface.
+const GLOBE_R = 1.53;
+const ARC_CAP = 300; // keep draw calls bounded (dataset ~280–420 edges)
+
+// Build THREE.Line objects imperatively and render via <primitive>. This
+// sidesteps the react-three-fiber <line> JSX intrinsic (which clashes with the
+// SVG `line` DOM type) and lets us own geometry/material disposal explicitly.
+function GraphArcs({ edges }: { edges: GeoJSON.FeatureCollection }) {
+  const objects = useMemo<THREE.Object3D[]>(() => {
+    const out: THREE.Object3D[] = [];
+    const feats = edges.features.slice(0, ARC_CAP);
+    for (const f of feats) {
+      if (!f.geometry || f.geometry.type !== 'LineString') continue;
+      const coords = f.geometry.coordinates as [number, number][];
+      if (coords.length < 2) continue;
+      const [lngA, latA] = coords[0];
+      const [lngB, latB] = coords[1];
+      const a = latLngToVec3(latA, lngA, GLOBE_R);
+      const b = latLngToVec3(latB, lngB, GLOBE_R);
+
+      // angular separation (0..π) drives how far the arc bows outward
+      const angle = a.angleTo(b);
+      const lift = 1 + angle * 0.42; // 1.0 (adjacent) → up to ~2.3 (antipodal)
+      const mid = a.clone().add(b).multiplyScalar(0.5).normalize().multiplyScalar(GLOBE_R * lift);
+
+      const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+      const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(32));
+      const color = (f.properties?.color as string) || '#00e6c8';
+
+      // faint halo + bright core sharing one geometry
+      const halo = new THREE.Line(
+        geometry,
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.18, toneMapped: false }),
+      );
+      const core = new THREE.Line(
+        geometry,
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.6, toneMapped: false }),
+      );
+      out.push(halo, core);
+    }
+    return out;
+  }, [edges]);
+
+  // dispose geometries + materials when the arc set is rebuilt or unmounts
+  useEffect(() => {
+    return () => {
+      for (const o of objects) {
+        const line = o as THREE.Line;
+        line.geometry?.dispose();
+        const mat = line.material;
+        if (Array.isArray(mat)) mat.forEach(m => m.dispose());
+        else mat?.dispose();
+      }
+    };
+  }, [objects]);
+
+  return (
+    <group>
+      {objects.map((o, i) => (
+        <primitive key={i} object={o} />
+      ))}
+    </group>
+  );
+}
+
+// Reference camera distance (matches initial camera position length).
+// Markers scale ∝ distance-to-camera so their on-screen size stays constant
+// regardless of zoom (they no longer visually grow when the user zooms in).
+const REF_CAM_DIST = 4.32;
+
 // ── Single marker (glowing mesh dot) ───────────────────────────
 function SingleMarker({
   marker, onHover, onSelect,
@@ -77,12 +162,23 @@ function SingleMarker({
   onHover: (h: boolean) => void;
   onSelect: (m: MapMarker) => void;
 }) {
+  const { camera } = useThree();
+  const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
-  const meta = metaFor(marker.type);
+  const glowColor = markerColor(marker);
   const pos = useMemo(() => latLngToVec3(marker.lat, marker.lng), [marker.lat, marker.lng]);
+
+  // Keep constant apparent (screen) size: world scale grows with distance.
+  useFrame(() => {
+    if (!meshRef.current) return;
+    const d = camera.position.distanceTo(pos);
+    const s = THREE.MathUtils.clamp(d / REF_CAM_DIST, 0.45, 1.6);
+    meshRef.current.scale.setScalar(s);
+  });
 
   return (
     <mesh
+      ref={meshRef}
       position={pos}
       onPointerOver={(e) => { e.stopPropagation(); setHovered(true); onHover(true); document.body.style.cursor = 'pointer'; }}
       onPointerOut={() => { setHovered(false); onHover(false); document.body.style.cursor = 'auto'; }}
@@ -90,8 +186,8 @@ function SingleMarker({
     >
       <sphereGeometry args={[hovered ? 0.032 : 0.02, 14, 14]} />
       <meshStandardMaterial
-        color={meta.color}
-        emissive={meta.color}
+        color={glowColor}
+        emissive={glowColor}
         emissiveIntensity={hovered ? 3.0 : 1.7}
         toneMapped={false}
       />
@@ -108,6 +204,7 @@ function ClusterMarker({
   onZoom: (pos: THREE.Vector3) => void;
 }) {
   const { camera } = useThree();
+  const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(true);
   const visRef = useRef(true);
@@ -115,16 +212,23 @@ function ClusterMarker({
   const normal = useMemo(() => pos.clone().normalize(), [pos]);
   const r = THREE.MathUtils.clamp(0.03 + Math.log10(count) * 0.02, 0.032, 0.08);
 
-  // hide the HTML badge when the cluster is on the far side of the globe
+  // hide the HTML badge when the cluster is on the far side of the globe;
+  // also keep the halo a constant apparent size (scale ∝ camera distance).
   useFrame(() => {
     const camDir = camera.position.clone().normalize();
     const v = normal.dot(camDir) > -0.05;
     if (v !== visRef.current) { visRef.current = v; setVisible(v); }
+    if (meshRef.current) {
+      const d = camera.position.distanceTo(pos);
+      const s = THREE.MathUtils.clamp(d / REF_CAM_DIST, 0.45, 1.6);
+      meshRef.current.scale.setScalar(s);
+    }
   });
 
   return (
     <group position={pos}>
       <mesh
+        ref={meshRef}
         onPointerOver={(e) => { e.stopPropagation(); setHovered(true); onHover(true); document.body.style.cursor = 'zoom-in'; }}
         onPointerOut={() => { setHovered(false); onHover(false); document.body.style.cursor = 'auto'; }}
         onClick={(e) => { e.stopPropagation(); onZoom(pos); }}
@@ -133,7 +237,7 @@ function ClusterMarker({
         <meshBasicMaterial color={color} transparent opacity={hovered ? 0.5 : 0.32} />
       </mesh>
       {visible && (
-        <Html center distanceFactor={9} zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
+        <Html center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
           <div style={{
             minWidth: 20,
             padding: '2px 7px',
@@ -148,6 +252,134 @@ function ClusterMarker({
             whiteSpace: 'nowrap',
           }}>
             {count > 999 ? '999+' : count}
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
+// ── Region contour ring ────────────────────────────────────────
+// A small-circle outline drawn on the sphere surface around a region's
+// predefined centre. This replaces the number-in-a-circle cluster: instead
+// interconnected structures are grouped into a territorial region marked by a
+// glowing contour + a name/count label. Ring geometry is built imperatively
+// (THREE.Line loop) and rendered via <primitive> — same pattern as GraphArcs.
+function buildRing(center: THREE.Vector3, angRad: number, color: string): THREE.Line {
+  const normal = center.clone().normalize();
+  // stable tangent basis perpendicular to the region normal
+  const seed = Math.abs(normal.y) > 0.92 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+  const u = new THREE.Vector3().crossVectors(normal, seed).normalize();
+  const v = new THREE.Vector3().crossVectors(normal, u).normalize();
+  const pts: THREE.Vector3[] = [];
+  const SEG = 72;
+  const rSurf = GLOBE_R * 1.01; // hover just above the surface to avoid z-fight
+  for (let i = 0; i <= SEG; i++) {
+    const t = (i / SEG) * Math.PI * 2;
+    const dir = normal
+      .clone()
+      .multiplyScalar(Math.cos(angRad))
+      .add(u.clone().multiplyScalar(Math.sin(angRad) * Math.cos(t)))
+      .add(v.clone().multiplyScalar(Math.sin(angRad) * Math.sin(t)));
+    pts.push(dir.multiplyScalar(rSurf));
+  }
+  const geometry = new THREE.BufferGeometry().setFromPoints(pts);
+  return new THREE.Line(
+    geometry,
+    new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.85, toneMapped: false }),
+  );
+}
+
+function RegionMarker({
+  group, onHover, onZoom,
+}: {
+  group: RegionGroup;
+  onHover: (h: boolean) => void;
+  onZoom: (pos: THREE.Vector3, group: RegionGroup) => void;
+}) {
+  const { camera } = useThree();
+  const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const visRef = useRef(true);
+  const pos = useMemo(
+    () => latLngToVec3(group.centerLat, group.centerLng),
+    [group.centerLat, group.centerLng],
+  );
+  const normal = useMemo(() => pos.clone().normalize(), [pos]);
+  // angular radius scales gently with object count (bigger regions → wider ring)
+  const angRad = THREE.MathUtils.clamp(0.12 + Math.log10(group.count + 1) * 0.05, 0.12, 0.34);
+
+  // build ring (halo + core) once per group/zoom-size change
+  const rings = useMemo(() => {
+    const core = buildRing(pos, angRad, group.color);
+    const halo = buildRing(pos, angRad, group.color);
+    (halo.material as THREE.LineBasicMaterial).opacity = 0.28;
+    return [halo, core];
+  }, [pos, angRad, group.color]);
+
+  useEffect(() => {
+    return () => {
+      for (const l of rings) {
+        l.geometry?.dispose();
+        (l.material as THREE.Material)?.dispose();
+      }
+    };
+  }, [rings]);
+
+  // cull the label on the far hemisphere (like ClusterMarker)
+  useFrame(() => {
+    const camDir = camera.position.clone().normalize();
+    const vis = normal.dot(camDir) > 0.02;
+    if (vis !== visRef.current) { visRef.current = vis; setVisible(vis); }
+  });
+
+  return (
+    <group>
+      {rings.map((l, i) => (
+        <primitive key={i} object={l} />
+      ))}
+      {/* invisible hit target at the region centre for click-to-zoom */}
+      <mesh
+        position={pos}
+        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); onHover(true); document.body.style.cursor = 'zoom-in'; }}
+        onPointerOut={() => { setHovered(false); onHover(false); document.body.style.cursor = 'auto'; }}
+        onClick={(e) => { e.stopPropagation(); onZoom(pos, group); }}
+      >
+        <sphereGeometry args={[0.06, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+      {visible && (
+        <Html position={pos} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
+          <div style={{
+            transform: 'translateY(-38px)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '3px 9px',
+            borderRadius: 999,
+            background: 'rgba(4,12,26,0.88)',
+            border: `1.5px solid ${group.color}`,
+            color: '#fff',
+            fontSize: 11,
+            fontWeight: 700,
+            whiteSpace: 'nowrap',
+            boxShadow: `0 0 14px ${group.color}66`,
+            backdropFilter: 'blur(6px)',
+            opacity: hovered ? 1 : 0.92,
+          }}>
+            <span style={{ letterSpacing: '0.01em' }}>{group.name}</span>
+            <span style={{
+              minWidth: 16,
+              padding: '0 5px',
+              borderRadius: 999,
+              background: group.color,
+              color: '#04121a',
+              fontSize: 10,
+              fontWeight: 900,
+              textAlign: 'center',
+            }}>
+              {group.count > 999 ? '999+' : group.count}
+            </span>
           </div>
         </Html>
       )}
@@ -178,12 +410,14 @@ function EarthMesh() {
 interface FlyTarget { camPos: THREE.Vector3; }
 
 function Scene({
-  markers, onHover, onSelect, controlsRef,
+  markers, onHover, onSelect, controlsRef, graphEdges, showGraph,
 }: {
   markers: MapMarker[];
   onHover: (h: boolean) => void;
   onSelect: (m: MapMarker) => void;
   controlsRef: React.MutableRefObject<any>;
+  graphEdges: GeoJSON.FeatureCollection;
+  showGraph: boolean;
 }) {
   const { camera } = useThree();
   const [camDist, setCamDist] = useState(4.3);
@@ -209,38 +443,17 @@ function Scene({
     flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(newDist) };
   };
 
-  // ── Zoom-based geographic clustering ──
-  const clusters = useMemo(() => {
-    const cellDeg = THREE.MathUtils.clamp((camDist - 2.4) * 5.5, 0.6, 40);
-    const buckets = new Map<string, MapMarker[]>();
-    for (const m of markers) {
-      if (typeof m.lat !== 'number' || typeof m.lng !== 'number') continue;
-      const key = Math.floor(m.lat / cellDeg) + ':' + Math.floor(m.lng / cellDeg);
-      const arr = buckets.get(key);
-      if (arr) arr.push(m);
-      else buckets.set(key, [m]);
-    }
-    return Array.from(buckets.entries()).map(([key, items]) => {
-      if (items.length === 1) {
-        return { key, single: items[0] as MapMarker };
-      }
-      let lat = 0, lng = 0;
-      for (const it of items) { lat += it.lat; lng += it.lng; }
-      // dominant type colour
-      const typeCount: Record<string, number> = {};
-      for (const it of items) typeCount[it.type] = (typeCount[it.type] || 0) + 1;
-      const domType = Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0][0];
-      return {
-        key,
-        cluster: {
-          lat: lat / items.length,
-          lng: lng / items.length,
-          count: items.length,
-          color: metaFor(domType).color,
-        },
-      };
-    });
-  }, [markers, camDist]);
+  // ── Region grouping (replaces number-in-a-circle clusters) ──
+  // Interconnected structures are grouped into predefined territorial regions.
+  // Zoomed out → show region contours + name/count labels. Zoomed in → reveal
+  // the individual markers inside.
+  const regionGroups = useMemo(() => groupMarkersByRegion(markers), [markers]);
+  const showRegions = camDist > 3.0;
+
+  const handleRegionZoom = (pos: THREE.Vector3) => {
+    // fly close enough to cross the showRegions threshold and reveal markers
+    flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(2.75) };
+  };
 
   return (
     <>
@@ -269,22 +482,27 @@ function Scene({
         <meshStandardMaterial color="#001133" transparent opacity={0.14} side={THREE.BackSide} />
       </Sphere>
 
-      {/* Data markers with zoom clustering */}
-      {clusters.map((c) =>
-        c.single ? (
-          <SingleMarker key={c.key} marker={c.single} onHover={onHover} onSelect={onSelect} />
-        ) : c.cluster ? (
-          <ClusterMarker
-            key={c.key}
-            lat={c.cluster.lat}
-            lng={c.cluster.lng}
-            count={c.cluster.count}
-            color={c.cluster.color}
-            onHover={onHover}
-            onZoom={handleZoom}
-          />
-        ) : null
-      )}
+      {/* Knowledge-graph arcs (world space — orbits with the globe like markers) */}
+      {showGraph && <GraphArcs edges={graphEdges} />}
+
+      {/* Region contours (zoomed out) → individual markers (zoomed in) */}
+      {showRegions
+        ? regionGroups.map((g) => (
+            <RegionMarker
+              key={g.id}
+              group={g}
+              onHover={onHover}
+              onZoom={handleRegionZoom}
+            />
+          ))
+        : markers.map((m) => (
+            <SingleMarker
+              key={`${m.type}:${m.id}`}
+              marker={m}
+              onHover={onHover}
+              onSelect={onSelect}
+            />
+          ))}
     </>
   );
 }
@@ -295,9 +513,11 @@ export default function EarthGlobePage() {
   const [autoRotate, setAutoRotate] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [selected, setSelected] = useState<MapMarker | null>(null);
+  const [showGraph, setShowGraph] = useState(false);
   const controlsRef = useRef<any>(null);
 
   const { markers: supabaseMarkers } = useSupabaseMarkers();
+  const { edges: graphEdges, count: graphCount } = useSupabaseGraph();
 
   // Feed the globe from the local aggregator (all objects/subjects/projects)
   // merged with Supabase rows. Deduped by `${type}:${id}` via a Set so the
@@ -352,6 +572,8 @@ export default function EarthGlobePage() {
           onHover={setHovered}
           onSelect={setSelected}
           controlsRef={controlsRef}
+          graphEdges={graphEdges}
+          showGraph={showGraph}
         />
         <OrbitControls
           ref={controlsRef}
@@ -395,56 +617,51 @@ export default function EarthGlobePage() {
 
         <div className="flex-1" />
 
-        {/* Bottom: App dock ────────────────────────────── */}
-        <div className="px-3 pb-safe-area-inset-bottom pb-5 pointer-events-auto">
-          <div
-            className="rounded-2xl px-3 py-2.5"
-            style={{
-              background: 'rgba(5,13,26,0.85)',
-              border: '1px solid rgba(0,200,230,0.08)',
-              backdropFilter: 'blur(28px)',
-              boxShadow: '0 -6px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.035)',
-            }}
-          >
-            <div className="grid grid-cols-6 gap-1.5">
-              {OS_MODULES.map((mod, i) => (
-                <motion.button
-                  key={mod.path}
-                  initial={{ opacity: 0, scale: 0.75 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.03, type: 'spring', stiffness: 320, damping: 22 }}
-                  whileHover={{ scale: 1.08, y: -2 }}
-                  whileTap={{ scale: 0.91 }}
-                  onClick={() => setLocation(mod.path)}
-                  className="flex flex-col items-center gap-1 py-1.5 rounded-xl group"
-                >
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 group-hover:shadow-lg"
-                    style={{
-                      background: `linear-gradient(145deg, ${mod.color}22, ${mod.color}0d)`,
-                      border: `1px solid ${mod.color}28`,
-                    }}
-                  >
-                    <mod.Icon size={16} style={{ color: mod.color }} />
-                  </div>
-                  <span className="text-[9px] text-white/40 font-medium text-center leading-none tracking-tight group-hover:text-white/70 transition-colors">
-                    {mod.label}
-                  </span>
-                </motion.button>
-              ))}
-            </div>
+        {/* Bottom control bar (graph toggle + rotation hint). App tiles are now
+            a freeform draggable desktop rendered by <OSDesktop/> below. */}
+        <div className="px-3 pb-safe-area-inset-bottom pb-5 pointer-events-none">
+          {/* Knowledge-graph arc toggle ("Связи графа") */}
+          <div className="flex justify-center pointer-events-none">
+            <button
+              onClick={() => setShowGraph(s => !s)}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full transition-all active:scale-95 pointer-events-auto"
+              style={{
+                background: showGraph ? 'rgba(0,230,200,0.14)' : 'rgba(5,13,26,0.85)',
+                border: `1px solid ${showGraph ? '#00e6c8' : 'rgba(0,200,230,0.14)'}`,
+                color: showGraph ? '#00e6c8' : 'rgba(255,255,255,0.55)',
+                boxShadow: showGraph ? '0 0 18px rgba(0,230,200,0.25)' : 'none',
+                backdropFilter: 'blur(28px)',
+              }}
+            >
+              <Network size={15} />
+              <span className="text-[11px] font-semibold tracking-tight">
+                Связи графа
+              </span>
+              <span
+                className="text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded-full"
+                style={{
+                  background: showGraph ? 'rgba(0,230,200,0.18)' : 'rgba(255,255,255,0.06)',
+                  color: showGraph ? '#00e6c8' : 'rgba(255,255,255,0.4)',
+                }}
+              >
+                {graphCount}
+              </span>
+            </button>
           </div>
 
-          {/* Globe control hint */}
+          {/* Globe control hint / rotation toggle */}
           <button
             onClick={() => setAutoRotate(r => !r)}
-            className="mt-2.5 w-full text-center"
+            className="mt-2 w-full text-center pointer-events-auto"
             style={{ color: 'rgba(255,255,255,0.15)', fontSize: 10 }}
           >
-            {autoRotate ? '⏸ Остановить вращение' : '▶ Запустить вращение'} · Тяни глобус для поворота
+            {autoRotate ? '⏸ Остановить вращение' : '▶ Запустить вращение'} · Тяни глобус · Перетаскивай приложения
           </button>
         </div>
       </div>
+
+      {/* ── Freeform draggable OS desktop (tiles + folders over the globe) ── */}
+      <OSDesktop modules={OS_MODULES} onNavigate={setLocation} />
 
       {/* ── Marker popup card ─────────────────────────────────── */}
       <AnimatePresence>

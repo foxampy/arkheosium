@@ -24,6 +24,7 @@ export interface PlatformSubject {
   budget_currency?: string;
   image_url?: string;
   description: string;
+  description_ru?: string;
   tags: string[];
   last_updated: string;
   managed_objects?: string[];
@@ -120,6 +121,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=600",
     description: "Regional water authority for Bukhara",
+    description_ru: "Региональное управление водного хозяйства Бухарской области",
     coverage: "Bukhara Region (entire)",
     responsibilities: ["Regional water distribution", "Infrastructure maintenance", "Conflict resolution", "Water use licensing"],
     managed_objects: ["OBJ-UZ-PS-002", "OBJ-UZ-PS-003", "OBJ-UZ-PS-004", "OBJ-UZ-PS-005"],
@@ -145,6 +147,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     capital_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600",
     description: "Digital transformation leader for Central Asian water management",
+    description_ru: "Лидер цифровой трансформации водного хозяйства Центральной Азии",
     mission: "Transform water management through IoT, AI, and blockchain",
     key_services: ["System integration", "IoT sensor deployment", "Real-time monitoring", "Data analytics", "Platform development"],
     technology_stack: ["IoT sensors (Siemens, ABB)", "AWS cloud", "Apache Kafka", "Hyperledger Fabric"],
@@ -171,6 +174,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600",
     description: "Primary water supply operator for Uzbekistan's major cities",
+    description_ru: "Основной оператор водоснабжения крупнейших городов Узбекистана",
     primary_function: "Water supply to major cities",
     coverage_cities: 12,
     households_served: 2500000,
@@ -200,6 +204,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     email: "quality@aquasafety.uz",
     image_url: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600",
     description: "Water quality testing and certification specialist",
+    description_ru: "Специалист по контролю качества и сертификации воды",
     specialization: "Water quality management",
     capabilities: ["24/7 laboratory services", "WHO-certified testing", "Real-time monitoring", "Remediation consulting"],
     accreditation: "ISO 17025",
@@ -224,6 +229,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     website: "www.unicap-fund.de",
     image_url: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600",
     description: "Concessional financing specialist for Central Asian infrastructure",
+    description_ru: "Специалист по льготному финансированию инфраструктурных проектов Центральной Азии",
     founded_year: 2008,
     total_assets: 5000000000,
     assets_currency: "USD",
@@ -253,6 +259,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     website: "www.ifc.org",
     image_url: "https://images.unsplash.com/photo-1460472178825-e5240623afd5?w=600",
     description: "World Bank Group member focused on sustainable development",
+    description_ru: "Член Группы Всемирного банка, сфокусированный на устойчивом развитии",
     founded_year: 1956,
     focus: "Sustainable development projects",
     uzbekistan_portfolio: 800000000,
@@ -275,6 +282,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     website: "www.adb.org",
     image_url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600",
     description: "Multilateral development bank supporting regional development",
+    description_ru: "Многосторонний банк развития, поддерживающий региональное развитие",
     founded_year: 1966,
     uzbekistan_portfolio: 800000000,
     portfolio_currency: "USD",
@@ -296,6 +304,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     email: "info@water-tech-global.com",
     image_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600",
     description: "Leading consortium of water technology and engineering companies",
+    description_ru: "Ведущий консорциум компаний в области водных технологий и инжиниринга",
     consortium_members: [
       { name: "Culligan International", type: "Water Treatment Equipment", country: "Germany" },
       { name: "Aqseptence Group", type: "Filtration Systems", country: "Germany" },
@@ -326,6 +335,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=600",
     description: "National water management authority for Kazakhstan",
+    description_ru: "Национальный орган управления водным хозяйством Казахстана",
     key_initiatives: ["ARAL+ program", "Environmental restoration"],
     managed_objects: ["OBJ-KZ-DAM-001", "OBJ-KZ-RES-001"],
     tags: ["government", "kazakhstan", "water", "national"],
@@ -347,6 +357,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?w=600",
     description: "Trans-border water management specialist",
+    description_ru: "Специалист по управлению трансграничными водными ресурсами",
     focus: "Cross-border water management",
     managed_objects: ["OBJ-KZ-DAM-001"],
     tags: ["company", "kazakhstan", "trans-border", "water"],
@@ -368,6 +379,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     founded_year: 1991,
     image_url: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600",
     description: "National water and energy authority for Tajikistan",
+    description_ru: "Национальный орган водного хозяйства и энергетики Таджикистана",
     strategic_priority: "Winter water storage",
     managed_objects: ["OBJ-TJ-DAM-001"],
     tags: ["government", "tajikistan", "ministry", "energy"],
@@ -387,6 +399,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     founded_year: 2009,
     image_url: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600",
     description: "Central Asia's largest hydroelectric power generator",
+    description_ru: "Крупнейший производитель гидроэлектроэнергии в Центральной Азии",
     plants_count: 20,
     installed_capacity: 4650,
     capacity_unit: "MW",
@@ -413,6 +426,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     founded_year: 1991,
     image_url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600",
     description: "National energy and water authority for Kyrgyzstan",
+    description_ru: "Национальный орган энергетики и водного хозяйства Кыргызстана",
     power_from_hydroelectric: "90%",
     managed_objects: ["OBJ-KG-LAK-001", "OBJ-KG-RES-001"],
     tags: ["government", "kyrgyzstan", "energy", "hydroelectric"],
@@ -432,6 +446,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     founded_year: 2003,
     image_url: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600",
     description: "Central Asia's regional power supplier",
+    description_ru: "Региональный поставщик электроэнергии в Центральной Азии",
     key_asset: "Toktogul Hydroelectric Station",
     installed_capacity: 1200,
     capacity_unit: "MW",
@@ -459,6 +474,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 35,
     image_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
     description: "UN inter-agency coordination mechanism for all freshwater-related issues. Coordinates the work of UN system on water and sanitation, leads implementation of SDG 6 (Clean Water and Sanitation).",
+    description_ru: "Межучрежденческий координационный механизм ООН по всем вопросам, связанным с пресной водой. Координирует работу системы ООН в области водоснабжения и санитарии, руководит реализацией ЦУР 6 (Чистая вода и санитария).",
     key_projects: ["SDG 6 Global Acceleration Framework", "World Water Development Report", "GLAAS Report"],
     partnerships: ["SUBJ-INT-UN-002", "SUBJ-INT-UN-003", "SUBJ-INT-UN-004", "SUBJ-INT-UN-005"],
     tags: ["un", "international", "coordination", "sdg6", "global", "freshwater"],
@@ -481,6 +497,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=600",
     description: "United Nations Environment Programme leads global environmental action including freshwater ecosystems, transboundary water governance and the UN World Water Development Report co-authorship. Manages the Global Environmental Monitoring System for water (GEMS/Water).",
+    description_ru: "Программа ООН по окружающей среде (ЮНЕП) возглавляет глобальную природоохранную деятельность, включая пресноводные экосистемы, управление трансграничными водами и соавторство Всемирного доклада ООН о состоянии водных ресурсов. Управляет Глобальной системой экологического мониторинга воды (GEMS/Water).",
     key_projects: ["GEMS/Water Global Network", "Transboundary Water Assessment", "Water-Climate Nexus Programme"],
     tags: ["un", "environment", "freshwater", "ecosystems", "monitoring", "global"],
     last_updated: "2026-06-02"
@@ -500,6 +517,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 200,
     image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600",
     description: "UNESCO's International Hydrological Programme is the only intergovernmental programme in the UN system devoted to water research, water resources management, and education and capacity building. Covers 193 member states and manages the WHYCOS (World Hydrological Cycle Observing System).",
+    description_ru: "Международная гидрологическая программа ЮНЕСКО — единственная межправительственная программа в системе ООН, посвящённая исследованиям воды, управлению водными ресурсами, а также образованию и наращиванию потенциала. Охватывает 193 государства-члена и управляет WHYCOS (Всемирной системой наблюдения за гидрологическим циклом).",
     key_projects: ["WHYCOS Global Hydrological Observing System", "IHP-IX Phase 2022-2029", "International Groundwater Resources Assessment Centre"],
     tags: ["un", "unesco", "hydrology", "research", "education", "global", "groundwater"],
     last_updated: "2026-06-02"
@@ -521,6 +539,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1576671081837-49000212a370?w=600",
     description: "World Health Organization's WASH division sets global drinking water quality guidelines (WHO Guidelines for Drinking-Water Quality), tracks drinking water and sanitation coverage worldwide and leads the JMP (Joint Monitoring Programme for Water Supply and Sanitation) together with UNICEF.",
+    description_ru: "Подразделение ВОЗ по водоснабжению, санитарии и гигиене (WASH) устанавливает глобальные нормы качества питьевой воды (Руководство ВОЗ по качеству питьевой воды), отслеживает охват питьевой водой и санитарией во всём мире и совместно с ЮНИСЕФ руководит Совместной программой мониторинга водоснабжения и санитарии (JMP).",
     key_projects: ["WHO Guidelines for Drinking-Water Quality 4th Ed", "JMP (Joint Monitoring Programme)", "GLASS (Global Analysis and Assessment of Sanitation and Drinking Water)"],
     partnerships: ["SUBJ-INT-UN-005"],
     tags: ["un", "who", "health", "drinking-water", "sanitation", "guidelines", "global"],
@@ -543,6 +562,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1529400971008-f566de0e6dfc?w=600",
     description: "UNICEF's WASH programme works in over 100 countries to improve access to safe water, sanitation and hygiene for children and families. Co-leads the Joint Monitoring Programme (JMP) for Water Supply and Sanitation. Reaches over 13 million people per year with improved water access.",
+    description_ru: "Программа ЮНИСЕФ по водоснабжению, санитарии и гигиене (WASH) работает более чем в 100 странах, улучшая доступ к безопасной воде, санитарии и гигиене для детей и семей. Является соруководителем Совместной программы мониторинга водоснабжения и санитарии (JMP). Ежегодно обеспечивает улучшенный доступ к воде более чем 13 миллионам человек.",
     key_projects: ["JMP Joint Monitoring Programme", "WASH in Schools", "WASH in Health Care Facilities", "Community-Led Total Sanitation"],
     partnerships: ["SUBJ-INT-UN-004"],
     tags: ["un", "unicef", "wash", "children", "sanitation", "hygiene", "global"],
@@ -568,6 +588,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600",
     description: "WWF's freshwater programme protects rivers, lakes, wetlands and the species that depend on them. It covers 35 priority freshwater ecoregions globally, advocates for sustainable water governance and leads the Living Planet Index tracking freshwater biodiversity. The programme's Water Risk Filter is used by 1,200+ businesses.",
+    description_ru: "Пресноводная программа WWF защищает реки, озёра, водно-болотные угодья и зависящие от них виды. Она охватывает 35 приоритетных пресноводных экорегионов по всему миру, продвигает устойчивое управление водными ресурсами и ведёт Индекс живой планеты, отслеживающий пресноводное биоразнообразие. Инструмент программы Water Risk Filter используют более 1200 компаний.",
     key_projects: ["Living Planet Index for Freshwater", "Water Risk Filter", "River Basin Conservation (Amazon, Congo, Yangtze)", "Mekong River Programme"],
     tags: ["ngo", "conservation", "freshwater", "biodiversity", "rivers", "wetlands", "global"],
     last_updated: "2026-06-02"
@@ -590,6 +611,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600",
     description: "Water.org (co-founded by Matt Damon and Gary White) pioneers market-based approaches to achieve safe water and sanitation access for those living in poverty. The WaterCredit initiative leverages microfinance loans — since 1990 it has reached 60+ million people in 15 countries across Africa, Asia and Latin America.",
+    description_ru: "Water.org (соучреждённая Мэттом Дэймоном и Гэри Уайтом) внедряет рыночные подходы для обеспечения доступа к безопасной воде и санитарии для людей, живущих в бедности. Инициатива WaterCredit использует микрофинансовые займы — с 1990 года она охватила более 60 миллионов человек в 15 странах Африки, Азии и Латинской Америки.",
     key_projects: ["WaterCredit microfinance programme", "WaterEquity investment fund", "Sub-Saharan Africa access expansion"],
     tags: ["ngo", "water-access", "microfinance", "sanitation", "developing-world", "usa"],
     last_updated: "2026-06-02"
@@ -612,6 +634,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600",
     description: "WaterAid is an international NGO specialising exclusively in water, sanitation and hygiene. Active in 28 countries, it has reached over 28 million people with clean water since 1981. Advocates at global policy level (UN, G7, G20) for universal WASH access and climate-resilient water infrastructure.",
+    description_ru: "WaterAid — международная НКО, специализирующаяся исключительно на водоснабжении, санитарии и гигиене. Работая в 28 странах, с 1981 года она обеспечила чистой водой более 28 миллионов человек. Отстаивает на глобальном политическом уровне (ООН, G7, G20) всеобщий доступ к WASH и климатически устойчивую водную инфраструктуру.",
     key_projects: ["Universal WASH access campaign 2030", "Climate Resilient WASH", "Sanitation & Menstrual Health programmes"],
     tags: ["ngo", "wash", "water-access", "sanitation", "africa", "asia", "uk"],
     last_updated: "2026-06-02"
@@ -634,6 +657,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
     description: "Global Water Partnership is an intergovernmental organisation promoting integrated water resources management (IWRM). Network of 3,000+ partner organisations in 179 countries, 13 regional water partnerships. Supports governments in translating IWRM principles into national water policy and plans.",
+    description_ru: "Глобальное водное партнёрство — межправительственная организация, продвигающая интегрированное управление водными ресурсами (ИУВР). Сеть из более чем 3000 организаций-партнёров в 179 странах и 13 региональных водных партнёрств. Помогает правительствам воплощать принципы ИУВР в национальную водную политику и планы.",
     key_projects: ["IWRM Implementation Framework", "Water Security 2030 Roadmap", "Climate Adaptation in Water Management", "SDG 6 Acceleration"],
     tags: ["ngo", "iwrm", "governance", "policy", "global", "network", "climate"],
     last_updated: "2026-06-02"
@@ -656,6 +680,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600",
     description: "International multi-stakeholder platform that organises the World Water Forum every 3 years — the largest international gathering on water (10,000+ participants, 170 countries). Brings together governments, international institutions, academics, private sector and civil society to address global water challenges.",
+    description_ru: "Международная многосторонняя платформа, которая раз в 3 года организует Всемирный водный форум — крупнейшее международное водное мероприятие (более 10 000 участников из 170 стран). Объединяет правительства, международные институты, учёных, частный сектор и гражданское общество для решения глобальных водных проблем.",
     key_projects: ["World Water Forum (triennial)", "Water at the G7/G20 agenda", "Global Water Observation Initiative"],
     tags: ["ngo", "forum", "policy", "diplomacy", "global", "multi-stakeholder"],
     last_updated: "2026-06-02"
@@ -677,6 +702,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600",
     description: "Greenpeace campaigns globally against water pollution from industrial agriculture, plastics, mining and fossil fuels. The Detox Water campaign pressured 80+ brands to eliminate hazardous chemicals from supply chains affecting waterways. The Defending Our Rivers programme covers the Amazon, Congo and Mekong basins.",
+    description_ru: "Greenpeace ведёт глобальные кампании против загрязнения воды промышленным сельским хозяйством, пластиком, горнодобычей и ископаемым топливом. Кампания Detox Water вынудила более 80 брендов исключить опасные химикаты из цепочек поставок, загрязняющих водоёмы. Программа Defending Our Rivers охватывает бассейны Амазонки, Конго и Меконга.",
     key_projects: ["Detox Water Campaign", "Defending Our Rivers", "Plastic Pollution & Freshwater", "Clean Water Act enforcement advocacy"],
     tags: ["ngo", "environment", "pollution", "advocacy", "rivers", "oceans", "global"],
     last_updated: "2026-06-02"
@@ -701,6 +727,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600",
     description: "Veolia is the world's largest water services company. Operates water and wastewater services for 100+ million people across 5 continents. Provides water treatment design, engineering, O&M services, and cutting-edge technologies including membrane filtration, UV disinfection, smart metering and digital water management platforms (HUBGRADE).",
+    description_ru: "Veolia — крупнейшая в мире компания по оказанию услуг водоснабжения. Обслуживает системы водоснабжения и водоотведения для более чем 100 миллионов человек на 5 континентах. Предоставляет услуги по проектированию водоочистки, инжинирингу, эксплуатации и обслуживанию, а также передовые технологии, включая мембранную фильтрацию, УФ-обеззараживание, интеллектуальный учёт и цифровые платформы управления водными ресурсами (HUBGRADE).",
     key_projects: ["HUBGRADE Digital Water Platform", "Desalination plants (Middle East, Australia)", "Industrial water recycling", "Paris water system management"],
     tags: ["corporation", "water-services", "treatment", "utilities", "france", "global", "desalination"],
     last_updated: "2026-06-02"
@@ -722,6 +749,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1574068468668-a05a11f871da?w=600",
     description: "SUEZ provides water and wastewater services to 66 million people globally. Specialises in water treatment solutions, digital water management (AqPulse), membrane technology (ZeeWeed), and water recycling. After divestiture from Veolia (2022), SUEZ Water Technologies & Solutions was acquired by INEOS and continues as a leading water technology group.",
+    description_ru: "SUEZ оказывает услуги водоснабжения и водоотведения 66 миллионам человек по всему миру. Специализируется на решениях для водоочистки, цифровом управлении водными ресурсами (AqPulse), мембранных технологиях (ZeeWeed) и рециркуляции воды. После отделения от Veolia (2022) подразделение SUEZ Water Technologies & Solutions было приобретено INEOS и продолжает работу как ведущая группа компаний в сфере водных технологий.",
     key_projects: ["AqPulse Digital Monitoring", "ZeeWeed Membrane Technology", "Water recycling for industrial customers", "Desalination across MENA"],
     tags: ["corporation", "water-services", "treatment", "membrane", "france", "global"],
     last_updated: "2026-06-02"
@@ -743,6 +771,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600",
     description: "Xylem is a leading global water technology company that solves the world's most challenging water issues. Products and services cover transport, treatment, testing, and digital solutions. Brands include Flygt (submersible pumps), Sensus (smart metering), Wedeco (UV disinfection), YSI (water quality testing), and Pure Technologies (pipeline inspection).",
+    description_ru: "Xylem — ведущая мировая компания в области водных технологий, решающая самые сложные водные проблемы. Продукция и услуги охватывают транспортировку, очистку, тестирование и цифровые решения. В число брендов входят Flygt (погружные насосы), Sensus (интеллектуальный учёт), Wedeco (УФ-обеззараживание), YSI (анализ качества воды) и Pure Technologies (диагностика трубопроводов).",
     key_projects: ["Sensus Smart Metering Network", "Pure Analytics Digital Twin", "FlexNet AMI Communication", "Pure Technologies Pipeline Management"],
     tags: ["corporation", "technology", "pumps", "smart-metering", "digital", "usa", "global"],
     last_updated: "2026-06-02"
@@ -764,6 +793,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600",
     description: "Watts Water Technologies manufactures products for residential, commercial and industrial water systems: flow control, water quality, plumbing, HVAC and gas components. Key product lines include backflow preventers, pressure regulators, thermostatic valves, and water treatment systems. Sells to 100+ countries.",
+    description_ru: "Watts Water Technologies производит продукцию для бытовых, коммерческих и промышленных систем водоснабжения: устройства регулирования потока, контроля качества воды, сантехнические компоненты, комплектующие для ОВиК и газовых систем. Основные линейки продукции включают обратные клапаны, регуляторы давления, термостатические клапаны и системы водоочистки. Поставки в более чем 100 стран.",
     tags: ["corporation", "water-systems", "flow-control", "residential", "commercial", "usa"],
     last_updated: "2026-06-02"
   },
@@ -784,6 +814,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600",
     description: "IDEXX Water provides industry-leading water microbiology test kits and instruments used by water utilities, regulators and labs in 170+ countries. Products include Colilert (E. coli and total coliform testing), Enterolert (enterococci), Pseudalert (Pseudomonas), and Quanti-Tray systems for precise quantification.",
+    description_ru: "IDEXX Water предоставляет передовые наборы и приборы для микробиологического анализа воды, используемые водоканалами, регуляторами и лабораториями в более чем 170 странах. Продукция включает Colilert (анализ на E. coli и общие колиформные бактерии), Enterolert (энтерококки), Pseudalert (Pseudomonas) и системы Quanti-Tray для точного количественного определения.",
     tags: ["corporation", "water-testing", "microbiology", "laboratory", "coliform", "usa", "global"],
     last_updated: "2026-06-02"
   },
@@ -804,6 +835,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600",
     description: "Kurita Water Industries is a Japan-based global leader in water treatment chemicals, equipment and services. Serves industrial customers in power generation, steel, electronics, food & beverage, and municipal water. Provides total water management solutions including ultra-pure water for semiconductor manufacturing. Strong presence in Asia-Pacific.",
+    description_ru: "Kurita Water Industries — японский мировой лидер в области реагентов, оборудования и услуг для водоочистки. Обслуживает промышленных клиентов в энергетике, металлургии, электронике, пищевой промышленности, а также муниципальное водоснабжение. Предоставляет комплексные решения по управлению водными ресурсами, включая сверхчистую воду для производства полупроводников. Сильные позиции в Азиатско-Тихоокеанском регионе.",
     tags: ["corporation", "water-treatment", "chemicals", "industrial", "japan", "asia-pacific"],
     last_updated: "2026-06-02"
   },
@@ -824,6 +856,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600",
     description: "Jacobs is one of the world's largest water engineering and consulting firms. The Water & Environment practice delivers design, construction management and programme management for drinking water, wastewater, stormwater, dams, desalination and water reuse. Notable projects include Thames Tideway Tunnel (UK), Neom desalination (Saudi Arabia) and nationwide US infrastructure programmes.",
+    description_ru: "Jacobs — одна из крупнейших в мире инжиниринговых и консалтинговых компаний в сфере водного хозяйства. Направление Water & Environment осуществляет проектирование, управление строительством и программами для питьевого водоснабжения, водоотведения, ливневой канализации, плотин, опреснения и повторного использования воды. Среди знаковых проектов — тоннель Thames Tideway (Великобритания), опреснение Neom (Саудовская Аравия) и общенациональные инфраструктурные программы в США.",
     key_projects: ["Thames Tideway Tunnel (London)", "NEOM Water Infrastructure (Saudi Arabia)", "Water Resilience Programme Australia", "US SRF Infrastructure Programmes"],
     tags: ["engineering", "consulting", "design", "desalination", "wastewater", "dams", "usa", "global"],
     last_updated: "2026-06-02"
@@ -845,6 +878,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600",
     description: "AECOM's Water business delivers planning, design, programme management and construction management for drinking water, wastewater, flood risk, coastal resilience and stormwater projects. One of the top 3 water engineering firms worldwide, active in over 150 countries with landmark projects including the Jubail Industrial City water system (Saudi Arabia).",
+    description_ru: "Водное направление AECOM осуществляет планирование, проектирование, управление программами и строительством для проектов питьевого водоснабжения, водоотведения, защиты от паводков, повышения устойчивости побережий и ливневой канализации. Одна из трёх ведущих мировых инжиниринговых компаний в водной сфере, работающая более чем в 150 странах, с такими знаковыми проектами, как система водоснабжения промышленного города Джубайль (Саудовская Аравия).",
     tags: ["engineering", "consulting", "design", "flood-management", "stormwater", "usa", "global"],
     last_updated: "2026-06-02"
   },
@@ -869,6 +903,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600",
     description: "Pacific Institute is an independent non-partisan think tank creating and advancing solutions to the world's most pressing water challenges. Publishes the influential Water Conflict Chronology, the Climate Change and Water reports, and advises governments and businesses on sustainable water use and water-energy nexus.",
+    description_ru: "Pacific Institute — независимый внепартийный аналитический центр, разрабатывающий и продвигающий решения самых острых водных проблем мира. Публикует авторитетную «Хронологию водных конфликтов», доклады об изменении климата и воде, консультирует правительства и бизнес по вопросам устойчивого водопользования и взаимосвязи воды и энергетики.",
     key_projects: ["Water Conflict Chronology database", "Corporate Water Stewardship", "Water Reuse Policy", "Water-Energy-Food Nexus Research"],
     tags: ["research", "think-tank", "policy", "conflict", "climate", "usa", "global"],
     last_updated: "2026-06-02"
@@ -891,6 +926,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600",
     description: "SIWI generates evidence and drives policy change for equitable and sustainable water use. Organises World Water Week in Stockholm — the world's leading annual conference on water issues. Manages the Stockholm Water Prize and Junior Water Prize. Provides technical assistance to governments in Africa, Asia and the Middle East.",
+    description_ru: "SIWI формирует доказательную базу и способствует изменению политики в интересах справедливого и устойчивого водопользования. Организует Всемирную неделю воды в Стокгольме — ведущую ежегодную конференцию мира по водным вопросам. Присуждает Стокгольмскую водную премию и Юниорскую водную премию. Оказывает техническую помощь правительствам стран Африки, Азии и Ближнего Востока.",
     key_projects: ["World Water Week (annual)", "Stockholm Water Prize", "Transboundary Water Management Technical Assistance", "WASH Governance in Sub-Saharan Africa"],
     tags: ["research", "policy", "conference", "governance", "global", "sweden"],
     last_updated: "2026-06-02"
@@ -913,6 +949,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1562774053-701939374585?w=600",
     description: "IHE Delft is the world's largest international graduate water education facility. Offers MSc programmes in water management, sanitation, hydraulic engineering and water governance. Has awarded 21,000+ master's degrees to water professionals from 165 countries. UNESCO Category 1 centre.",
+    description_ru: "IHE Delft — крупнейшее в мире международное учреждение последипломного образования в области воды. Предлагает магистерские программы по управлению водными ресурсами, санитарии, гидротехнике и управлению водным сектором. Присвоило более 21 000 степеней магистра специалистам-водникам из 165 стран. Центр ЮНЕСКО категории 1.",
     key_projects: ["MSc Water Management Programme", "Water Governance Research", "Digital Catchment Management", "Capacity Building for Low-Income Countries"],
     tags: ["research", "education", "graduate", "capacity-building", "netherlands", "global", "un"],
     last_updated: "2026-06-02"
@@ -934,6 +971,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=600",
     description: "CGIAR's Water, Land and Ecosystems programme is hosted by IWMI (International Water Management Institute). Conducts research in 30+ developing countries on food-water-land security, irrigation, groundwater, basin water management and nature-based solutions. Works directly with smallholder farmers and national governments to increase water productivity.",
+    description_ru: "Программа CGIAR «Вода, земля и экосистемы» реализуется под эгидой IWMI (Международного института управления водными ресурсами). Ведёт исследования в более чем 30 развивающихся странах по вопросам продовольственной, водной и земельной безопасности, ирригации, подземных вод, бассейнового управления водными ресурсами и природоориентированных решений. Работает напрямую с мелкими фермерами и национальными правительствами для повышения продуктивности использования воды.",
     key_projects: ["Groundwater Research Central Asia", "Irrigation Efficiency Transformation", "Water Accounting+", "Gender in Water Management"],
     tags: ["research", "agriculture", "irrigation", "groundwater", "developing-world", "food-security"],
     last_updated: "2026-06-02"
@@ -958,6 +996,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1494587351196-bbf5f29cff42?w=600",
     description: "The US EPA Office of Water implements the Clean Water Act and Safe Drinking Water Act. Regulates drinking water quality for 300+ million Americans, sets water quality standards for rivers and lakes, manages the Clean Water State Revolving Fund ($5 billion/year), and oversees NPDES (National Pollutant Discharge Elimination System) permits for 450,000+ facilities.",
+    description_ru: "Управление водных ресурсов EPA США реализует Закон о чистой воде и Закон о безопасной питьевой воде. Регулирует качество питьевой воды для более чем 300 миллионов американцев, устанавливает нормативы качества воды для рек и озёр, управляет Оборотным фондом штатов по чистой воде (5 млрд долларов в год) и контролирует разрешения NPDES (Национальной системы ликвидации сбросов загрязняющих веществ) для более чем 450 000 объектов.",
     key_projects: ["Clean Water Act Implementation", "Safe Drinking Water Act Standards", "PFAS National Strategy", "Clean Water State Revolving Fund"],
     tags: ["government", "regulation", "drinking-water", "clean-water", "usa", "federal"],
     last_updated: "2026-06-02"
@@ -980,6 +1019,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency_note: "DG Environment total budget",
     image_url: "https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=600",
     description: "The EU Water Framework Directive (WFD, 2000/60/EC) is the cornerstone of European water policy. Requires all EU Member States to achieve 'good ecological status' of all water bodies by 2027. DG Environment implements WFD, the Floods Directive, the Drinking Water Directive (2020) and the Urban Wastewater Treatment Directive. Covers 28 river basin management plans across 27 member states.",
+    description_ru: "Водная рамочная директива ЕС (ВРД, 2000/60/EC) — краеугольный камень европейской водной политики. Требует от всех государств-членов ЕС достичь «хорошего экологического состояния» всех водных объектов к 2027 году. Генеральный директорат по окружающей среде реализует ВРД, Директиву о паводках, Директиву о питьевой воде (2020) и Директиву об очистке городских сточных вод. Охватывает 28 планов управления речными бассейнами в 27 государствах-членах.",
     key_projects: ["Water Framework Directive (WFD) Implementation", "Floods Directive National Plans", "Drinking Water Directive 2020", "Nitrates Directive", "Blueprint to Safeguard Europe's Water"],
     tags: ["government", "eu", "regulation", "rivers", "drinking-water", "floods", "europe"],
     last_updated: "2026-06-02"
@@ -1001,6 +1041,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "CNY",
     image_url: "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=600",
     description: "China's Ministry of Water Resources (MWR) oversees all national water policy, river basin commissions, flood control and drought relief. Manages the South-to-North Water Diversion Project — the world's largest water transfer infrastructure — plus 98,000+ reservoirs and 420,000 km of levees. China invests $100+ billion annually in water infrastructure.",
+    description_ru: "Министерство водных ресурсов Китая (MWR) курирует всю национальную водную политику, комиссии речных бассейнов, защиту от паводков и борьбу с засухой. Управляет проектом переброски воды с юга на север — крупнейшей в мире инфраструктурой водопереброски — а также более чем 98 000 водохранилищами и 420 000 км дамб. Китай ежегодно инвестирует более 100 млрд долларов в водную инфраструктуру.",
     key_projects: ["South-to-North Water Diversion (1,400 km)", "Three Gorges Dam Management", "Yangtze River Protection", "Yellow River Basin Restoration", "National Water Network Plan 2035"],
     tags: ["government", "ministry", "china", "infrastructure", "diversion", "rivers", "dams"],
     last_updated: "2026-06-02"
@@ -1022,6 +1063,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600",
     description: "India's Jal Shakti Ministry (created 2019 by merging two ministries) manages water resources, river development and Ganga rejuvenation. Runs Jal Jeevan Mission targeting tap water to every rural household by 2024, NMCG (National Mission for Clean Ganga), and PMKSY (Pradhan Mantri Krishi Sinchai Yojana) irrigation mission. India has the world's largest irrigation system — 90 million hectares.",
+    description_ru: "Министерство Джал Шакти Индии (образованное в 2019 году путём слияния двух министерств) управляет водными ресурсами, развитием рек и оздоровлением Ганга. Реализует миссию Jal Jeevan по обеспечению водопроводной водой каждого сельского домохозяйства к 2024 году, NMCG (Национальную миссию по очистке Ганга) и ирригационную миссию PMKSY (Pradhan Mantri Krishi Sinchai Yojana). Индия располагает крупнейшей в мире оросительной системой — 90 миллионов гектаров.",
     key_projects: ["Jal Jeevan Mission (tap water for 190M households)", "National Mission for Clean Ganga (NMCG)", "PMKSY Irrigation Mission", "River Interlinking Project"],
     tags: ["government", "ministry", "india", "irrigation", "ganga", "rural-water", "asia"],
     last_updated: "2026-06-02"
@@ -1044,6 +1086,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 80,
     image_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600",
     description: "Cambrian Innovation develops biological water and wastewater treatment systems powered by clean energy. Their EcoVolt product line converts industrial wastewater organic content into biogas that powers treatment, achieving carbon-neutral and sometimes carbon-negative operation. Serves breweries, food & beverage, and cannabis industries.",
+    description_ru: "Cambrian Innovation разрабатывает биологические системы очистки воды и сточных вод, работающие на чистой энергии. Линейка продукции EcoVolt превращает органическое содержимое промышленных стоков в биогаз, обеспечивающий энергией сам процесс очистки, что позволяет достичь углеродной нейтральности, а иногда и отрицательного углеродного баланса. Обслуживает пивоваренную, пищевую и каннабисную отрасли.",
     key_projects: ["EcoVolt Bioelectrochemical Treatment", "Bioenergy-Positive Wastewater Treatment", "Food & Beverage Sector Water Solutions"],
     tags: ["startup", "technology", "wastewater", "biogas", "clean-energy", "circular", "usa"],
     last_updated: "2026-06-02"
@@ -1063,6 +1106,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 250,
     image_url: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600",
     description: "WaterGen is a global leader in atmospheric water generation (AWG) technology — extracting drinking water directly from air humidity. Products range from portable units (1-3 litres/hour) to large industrial generators (6,000 litres/day). Deployed in disaster relief, remote areas, military and industrial settings in 50+ countries. Temperature range: 15-40°C, RH from 20%.",
+    description_ru: "WaterGen — мировой лидер в технологии генерации воды из атмосферного воздуха (AWG), получающей питьевую воду напрямую из влажности воздуха. Продукция варьируется от портативных устройств (1–3 литра в час) до крупных промышленных генераторов (6000 литров в сутки). Применяется при ликвидации последствий стихийных бедствий, в удалённых районах, а также в военной и промышленной сферах более чем в 50 странах. Диапазон температур: 15–40 °C, относительная влажность от 20 %.",
     key_projects: ["GENNY Home Unit", "GEN-350 Industrial Generator", "Humanitarian Emergency Water Supply", "Smart City AWG Integration"],
     tags: ["startup", "technology", "atmospheric-water", "drinking-water", "israel", "innovation", "humanitarian"],
     last_updated: "2026-06-02"
@@ -1082,6 +1126,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 600,
     image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600",
     description: "Gradiant is a global water solutions company for industrial-grade applications — semiconductor manufacturing, oil & gas, pharmaceuticals, mining and power. Technologies include Carrier-Gas Extraction (CGE) for brine concentration, Selective Contaminant Extraction (SCE) for PFAS/heavy metals, and Biological Ion Exchange for nutrient removal. Backed by SoftBank Vision Fund.",
+    description_ru: "Gradiant — глобальная компания, предлагающая водные решения промышленного уровня для производства полупроводников, нефтегазовой отрасли, фармацевтики, горнодобычи и энергетики. Технологии включают экстракцию газом-носителем (CGE) для концентрирования рассолов, селективную экстракцию загрязнителей (SCE) для удаления ПФАС и тяжёлых металлов, а также биологический ионный обмен для удаления биогенных веществ. Поддерживается фондом SoftBank Vision Fund.",
     key_projects: ["Semiconductor Fab Ultrapure Water", "Oil & Gas Produced Water Treatment", "PFAS Destruction Technology", "Zero Liquid Discharge Systems"],
     tags: ["startup", "technology", "industrial", "ultrapure-water", "pfas", "zero-liquid-discharge", "usa"],
     last_updated: "2026-06-02"
@@ -1101,6 +1146,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 50,
     image_url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600",
     description: "Epic Cleantec builds on-site building water reuse systems — capturing greywater and blackwater within large commercial buildings and converting them to non-potable (and potable) reuse water at the point of generation. Systems are embedded in a building's mechanical infrastructure and can reduce a building's municipal water demand by up to 95%.",
+    description_ru: "Epic Cleantec создаёт системы повторного использования воды прямо в зданиях — собирая серые и чёрные стоки внутри крупных коммерческих зданий и превращая их в воду для повторного непитьевого (а также питьевого) использования по месту образования. Системы встраиваются в инженерную инфраструктуру здания и способны снизить потребление муниципальной воды зданием на величину до 95 %.",
     key_projects: ["One Steuart Lane Building Reuse (SF)", "High-rise Water Recycling", "Biosolids Resource Recovery", "FEMA Disaster Relief Water Reuse"],
     tags: ["startup", "technology", "water-reuse", "greywater", "buildings", "circular", "usa"],
     last_updated: "2026-06-02"
@@ -1120,6 +1166,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 30,
     image_url: "https://images.unsplash.com/photo-1519222970733-f546218fa6d7?w=600",
     description: "Origen Water develops electrochemical water treatment systems that eliminate the use of chemicals in disinfection and scale prevention. Their ATLAS platform uses advanced electrochemistry for municipal and commercial water treatment — eliminating chlorine, antiscalants and biocides. Particularly relevant for water-scarce regions seeking chemical-free water management.",
+    description_ru: "Origen Water разрабатывает электрохимические системы водоочистки, исключающие применение химических реагентов при обеззараживании и предотвращении накипи. Платформа ATLAS использует передовую электрохимию для муниципальной и коммерческой водоочистки, отказываясь от хлора, антискалантов и биоцидов. Особенно актуальна для регионов с дефицитом воды, стремящихся к безреагентному управлению водными ресурсами.",
     key_projects: ["ATLAS Electrochemical Platform", "Chemical-Free Municipal Water Treatment", "Industrial Cooling Water Management"],
     tags: ["startup", "technology", "electrochemical", "disinfection", "chemical-free", "usa"],
     last_updated: "2026-06-02"
@@ -1139,6 +1186,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     staff_count: 500,
     image_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
     description: "Xylem Vue is Xylem's digital platform and innovation accelerator — integrating AI, IoT sensors and data analytics across the full water cycle. Combines Xylem's acquisition of Evoqua and Idrica (Smart Water platform) to deliver predictive maintenance, network optimization, leakage reduction and energy efficiency for water utilities. Active in 20+ countries.",
+    description_ru: "Xylem Vue — цифровая платформа и инновационный акселератор Xylem, объединяющий искусственный интеллект, датчики IoT и аналитику данных на всём протяжении водного цикла. Соединяя приобретённые Xylem компании Evoqua и Idrica (платформа Smart Water), обеспечивает предиктивное обслуживание, оптимизацию сетей, снижение потерь и энергоэффективность для водоканалов. Работает более чем в 20 странах.",
     key_projects: ["Idrica Smart Water Platform", "AI Leak Detection Network", "Predictive Asset Management", "Digital Twin for Water Networks"],
     partnerships: ["SUBJ-INT-CORP-003"],
     tags: ["startup", "digital", "ai", "iot", "smart-water", "utilities", "usa"],
@@ -1164,6 +1212,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1460472178825-e5240623afd5?w=600",
     description: "The World Bank Water Global Practice is the largest external financier of water supply and sanitation in the developing world — approving $5-7 billion/year in water-related projects. Supports 170+ countries on water security, sanitation, flood risk, dams, irrigation and water governance. The '2023 Water Security Diagnostic' covers 180+ countries. Manages $3.7 billion Water Sector Reform Trust Fund.",
+    description_ru: "Глобальная водная практика Всемирного банка — крупнейший внешний источник финансирования водоснабжения и санитарии в развивающихся странах, ежегодно одобряющий проекты в водной сфере на сумму 5–7 млрд долларов. Поддерживает более 170 стран по вопросам водной безопасности, санитарии, паводковых рисков, плотин, ирригации и управления водным сектором. Доклад «Water Security Diagnostic 2023» охватывает более 180 стран. Управляет целевым фондом реформирования водного сектора объёмом 3,7 млрд долларов.",
     key_projects: ["Water Security Investment Programme", "WASH Results Programme", "Water Forward Initiative", "Dam Safety Programme", "Water in Climate Action"],
     tags: ["development-bank", "financing", "water-security", "wash", "dams", "irrigation", "global"],
     last_updated: "2026-06-02"
@@ -1185,6 +1234,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=600",
     description: "ADB's Water Financing Partnership Facility (WFPF) mobilises concessional co-financing for water projects in Asia-Pacific. ADB approves $3-4 billion/year for water — the programme covers urban water supply, rural WASH, irrigation modernisation, river basin management and flood risk reduction. The 2022 programme 'From Glaciers to Fields' covers 9 Central Asian countries.",
+    description_ru: "Механизм партнёрского финансирования водных проектов АБР (WFPF) привлекает льготное софинансирование для водных проектов в Азиатско-Тихоокеанском регионе. Азиатский банк развития ежегодно одобряет 3–4 млрд долларов на водную сферу — программа охватывает городское водоснабжение, сельскую санитарию и гигиену, модернизацию ирригации, бассейновое управление и снижение паводковых рисков. Программа 2022 года «От ледников к полям» охватывает 9 стран Центральной Азии.",
     key_projects: ["From Glaciers to Fields (Central Asia)", "Urban Water Supply Modernisation", "Rural WASH Access", "Mekong River Basin Management", "Urban Flood Risk Reduction"],
     tags: ["development-bank", "financing", "central-asia", "irrigation", "floods", "asia-pacific"],
     last_updated: "2026-06-02"
@@ -1206,6 +1256,7 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     budget_currency: "USD",
     image_url: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600",
     description: "The EBRD's Municipal & Environmental Infrastructure group is the primary financier of water and wastewater projects in transition economies (Eastern Europe, Central Asia, MENA). Invests €800M–1.2B/year in water, financing modernisation of water utilities, NRW reduction, energy efficiency and climate resilience in 38 countries including Kazakhstan, Ukraine, Uzbekistan, Moldova and Turkey.",
+    description_ru: "Группа муниципальной и экологической инфраструктуры ЕБРР — основной источник финансирования проектов водоснабжения и водоотведения в странах с переходной экономикой (Восточная Европа, Центральная Азия, регион MENA). Ежегодно инвестирует в водную сферу 800 млн – 1,2 млрд евро, финансируя модернизацию водоканалов, снижение потерь воды, энергоэффективность и климатическую устойчивость в 38 странах, включая Казахстан, Украину, Узбекистан, Молдову и Турцию.",
     key_projects: ["Water Utility Modernisation (Kazakhstan)", "NRW Reduction Programme (Ukraine)", "Green Cities Action Plans", "Climate Resilience Water Infrastructure"],
     tags: ["development-bank", "financing", "central-asia", "eastern-europe", "utilities", "nrw", "climate"],
     last_updated: "2026-06-02"

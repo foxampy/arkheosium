@@ -36,6 +36,8 @@ export interface MapMarker {
   isHighlighted?: boolean;
   /** Specific object sub-type for icon selection (dam, river, pumping_station, etc.) */
   objectType?: string;
+  /** Resource domain (water | energy | minerals | nature | agriculture | climate) — drives colour/legend */
+  domain?: string;
 }
 
 export interface WaterMapHandle {
@@ -72,4 +74,10 @@ export interface WaterMapProps {
   className?: string;
   /** Ref to access map methods like flyTo */
   mapRef?: React.MutableRefObject<WaterMapHandle | null>;
+  /** Knowledge-graph relationship edges (GeoJSON LineStrings); rendered as a glowing web when provided. */
+  graphEdges?: GeoJSON.FeatureCollection;
+  /** Complex hubs (GeoJSON Points from entity_groups); rendered as glowing hub markers when provided. */
+  complexes?: GeoJSON.FeatureCollection;
+  /** Called when a complex hub is clicked (receives its slug). */
+  onComplexClick?: (slug: string) => void;
 }

@@ -9,6 +9,7 @@ import {
   TrendingUp, Users, UserCog, FileText, Brain, Image as ImageIcon, KeyRound,
   Orbit, Waves, Droplets, Thermometer, Zap, BookOpen, Truck, Bot,
   Sprout, Building, Recycle, Radar, Rocket,
+  Database, Layers, Network, Mountain,
 } from 'lucide-react';
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -314,9 +315,13 @@ const ITEMS: Item[] = [
   { Icon: Users, name: 'Сообщество', tag: 'Community', status: 'done', route: '/community', desc: 'Участники экосистемы, обсуждения и совместная работа.' },
   { Icon: UserCog, name: 'Аккаунты', tag: 'Auth & Profile', status: 'done', desc: 'Регистрация, вход, профиль, AuthGate, Premium и админ-инвайты.' },
   { Icon: FileText, name: 'Whitepaper', tag: 'Full Vision', status: 'done', route: '/whitepaper-full', desc: 'Полная презентация экосистемы: видение, модули, ARAL NEXUS, AI Core.' },
+  { Icon: Database, name: 'Мульти-доменная БД', tag: 'Supabase · 6 доменов', status: 'done', route: '/hub', desc: 'Единая база данных ресурсов: вода, энергетика, ископаемые, природа, агро, климат. Объекты, проекты и субъекты по всем доменам.' },
+  { Icon: Layers, name: 'Ресурсы по доменам', tag: 'Domain Layers', status: 'done', route: '/map', desc: 'Карта и глобус подсвечивают объекты по 6 доменам с цветовой легендой, фильтрами и доменными чипами в попапах.' },
 
   // IN PROGRESS
   { Icon: Brain, name: 'Genesis Engine', tag: 'AI Dev Agent', status: 'progress', route: '/genesis', desc: 'Автономный ИИ-агент разработки проектов: research → концепция → технологии → ТЭО → Studio-визуализация → сборка.', mockup: GenesisMockup },
+  { Icon: Network, name: 'Граф знаний', tag: 'Knowledge Graph', status: 'progress', route: '/hub', desc: 'Кросс-доменные комплексы и типизированные связи сущностей: объект↔проект↔субъект↔оборудование↔R&D в единой сети.' },
+  { Icon: Mountain, name: 'Расширение массы данных', tag: 'Data Mass', status: 'progress', desc: 'Параллельные ИИ-агенты наращивают базу: вода Африки, ВИЭ и хранение, климат/углерод, критические минералы.' },
   { Icon: ImageIcon, name: 'Тематические изображения', tag: 'Catalog Media', status: 'progress', desc: 'Замена каталожных изображений на осмысленные тематические визуалы.', mockup: SkeletonMockup },
   { Icon: KeyRound, name: 'Мульти-агент Gemini', tag: 'Gemini Keys', status: 'progress', desc: 'Интеграция пула Gemini-ключей для параллельной работы ИИ-агентов.' },
 

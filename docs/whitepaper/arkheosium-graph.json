@@ -1,0 +1,822 @@
+{
+  "name": "ArkheOSium Graph",
+  "version": "1.1",
+  "nodes": [
+    {
+      "id": "ent:arkheosium",
+      "label": "ArkheOSium",
+      "type": "entity",
+      "group": "entity",
+      "color": "#00e6c8",
+      "meta": {
+        "role": "ОС экосистемы"
+      }
+    },
+    {
+      "id": "ent:foxampyforge",
+      "label": "FoxampyForge",
+      "type": "entity",
+      "group": "entity",
+      "color": "#00d4ff",
+      "meta": {
+        "role": "R&D-лаборатория"
+      }
+    },
+    {
+      "id": "ent:unicap",
+      "label": "UnicapInvest",
+      "type": "entity",
+      "group": "entity",
+      "color": "#f59e0b",
+      "meta": {
+        "role": "Инвестиционная группа"
+      }
+    },
+    {
+      "id": "doc:arkheosium-ecosystem",
+      "label": "ArkheOSium — операционная система экосистемы ресурсов и жизни планеты",
+      "type": "document",
+      "group": "document",
+      "color": "#8aa0b8",
+      "meta": {
+        "file": "01-arkheosium-ecosystem.md",
+        "order": 1,
+        "kind": "whitepaper"
+      }
+    },
+    {
+      "id": "doc:foxampyforge-lab",
+      "label": "FoxampyForge — исследовательско-инновационная лаборатория экосистемы",
+      "type": "document",
+      "group": "document",
+      "color": "#8aa0b8",
+      "meta": {
+        "file": "02-foxampyforge-lab.md",
+        "order": 2,
+        "kind": "whitepaper"
+      }
+    },
+    {
+      "id": "doc:lab-unicap-dao-partnership",
+      "label": "Лаборатория FoxampyForge × UnicapInvest: автономный R&D-департамент и DAO-партнёрство",
+      "type": "document",
+      "group": "document",
+      "color": "#8aa0b8",
+      "meta": {
+        "file": "03-lab-unicap-dao-partnership.md",
+        "order": 3,
+        "kind": "whitepaper"
+      }
+    },
+    {
+      "id": "doc:roadmap-unicap-lab-karakalpak",
+      "label": "Дорожная карта UnicapInvest × Лаборатория FoxampyForge",
+      "type": "document",
+      "group": "document",
+      "color": "#8aa0b8",
+      "meta": {
+        "file": "04-roadmap-unicap-lab-karakalpak.md",
+        "order": 4,
+        "kind": "roadmap"
+      }
+    },
+    {
+      "id": "doc:aral-sea-program",
+      "label": "Программа «Аральское море» — флагман экосистемы ArkheOSium",
+      "type": "document",
+      "group": "document",
+      "color": "#8aa0b8",
+      "meta": {
+        "file": "05-aral-sea-program.md",
+        "order": 5,
+        "kind": "program"
+      }
+    },
+    {
+      "id": "econ:campaign",
+      "label": "Кампания «Каракалпакия» · $250 млн",
+      "type": "economics",
+      "group": "economics",
+      "color": "#a3e635",
+      "meta": {
+        "usd": 250000000
+      }
+    },
+    {
+      "id": "econ:program",
+      "label": "Программа · $0,5 трлн",
+      "type": "economics",
+      "group": "economics",
+      "color": "#00d4ff",
+      "meta": {
+        "usd": 500000000000
+      }
+    },
+    {
+      "id": "concept:multiplier",
+      "label": "Мультипликативный эффект",
+      "type": "concept",
+      "group": "concept",
+      "color": "#f59e0b",
+      "meta": {}
+    },
+    {
+      "id": "concept:dao",
+      "label": "DAO",
+      "type": "concept",
+      "group": "concept",
+      "color": "#00e6c8",
+      "meta": {}
+    },
+    {
+      "id": "concept:mrv",
+      "label": "MRV + DePIN",
+      "type": "concept",
+      "group": "concept",
+      "color": "#00d4ff",
+      "meta": {}
+    },
+    {
+      "id": "concept:ontology",
+      "label": "Онтологическая систематизация",
+      "type": "concept",
+      "group": "concept",
+      "color": "#7dd3fc",
+      "meta": {}
+    },
+    {
+      "id": "vec:research",
+      "label": "Научно-исследовательский",
+      "type": "vector",
+      "group": "vector",
+      "color": "#7dd3fc",
+      "meta": {}
+    },
+    {
+      "id": "vec:economic",
+      "label": "Экономический",
+      "type": "vector",
+      "group": "vector",
+      "color": "#a3e635",
+      "meta": {}
+    },
+    {
+      "id": "vec:engineering",
+      "label": "Инженерный",
+      "type": "vector",
+      "group": "vector",
+      "color": "#00d4ff",
+      "meta": {}
+    },
+    {
+      "id": "vec:ecological",
+      "label": "Экологический",
+      "type": "vector",
+      "group": "vector",
+      "color": "#34d399",
+      "meta": {}
+    },
+    {
+      "id": "vec:social",
+      "label": "Социальный",
+      "type": "vector",
+      "group": "vector",
+      "color": "#c084fc",
+      "meta": {}
+    },
+    {
+      "id": "mod:desalination",
+      "label": "Вода и опреснение",
+      "type": "module",
+      "group": "module",
+      "color": "#00e6c8",
+      "meta": {
+        "metric": "480 000 м³/сут"
+      }
+    },
+    {
+      "id": "mod:energy",
+      "label": "Солнце + ветер + накопители",
+      "type": "module",
+      "group": "module",
+      "color": "#f59e0b",
+      "meta": {
+        "metric": "3,2 ГВт"
+      }
+    },
+    {
+      "id": "mod:agro",
+      "label": "Агро-биокупола",
+      "type": "module",
+      "group": "module",
+      "color": "#a3e635",
+      "meta": {
+        "metric": "120 га"
+      }
+    },
+    {
+      "id": "mod:ecocity",
+      "label": "Эко-город",
+      "type": "module",
+      "group": "module",
+      "color": "#34d399",
+      "meta": {
+        "metric": "45 000 жителей"
+      }
+    },
+    {
+      "id": "mod:port",
+      "label": "Логистика и порт",
+      "type": "module",
+      "group": "module",
+      "color": "#c084fc",
+      "meta": {
+        "metric": "2,4 млн т/год"
+      }
+    },
+    {
+      "id": "mod:rnd",
+      "label": "R&D-кампус",
+      "type": "module",
+      "group": "module",
+      "color": "#7dd3fc",
+      "meta": {
+        "metric": "1 200 исследователей"
+      }
+    },
+    {
+      "id": "mod:monitoring",
+      "label": "Сеть мониторинга",
+      "type": "module",
+      "group": "module",
+      "color": "#00d4ff",
+      "meta": {
+        "metric": "52 000 датчиков"
+      }
+    },
+    {
+      "id": "lib-engineering",
+      "label": "Инженерная библиотека",
+      "type": "library",
+      "group": "library",
+      "color": "#00d4ff",
+      "meta": {
+        "kind": "own"
+      }
+    },
+    {
+      "id": "lib-research",
+      "label": "Научно-исследовательская",
+      "type": "library",
+      "group": "library",
+      "color": "#7dd3fc",
+      "meta": {
+        "kind": "own"
+      }
+    },
+    {
+      "id": "lib-water",
+      "label": "Библиотека воды",
+      "type": "library",
+      "group": "library",
+      "color": "#00e6c8",
+      "meta": {
+        "kind": "own"
+      }
+    },
+    {
+      "id": "lib-energy",
+      "label": "Энергетическая",
+      "type": "library",
+      "group": "library",
+      "color": "#f59e0b",
+      "meta": {
+        "kind": "partner"
+      }
+    },
+    {
+      "id": "lib-agro",
+      "label": "Агро-биологическая",
+      "type": "library",
+      "group": "library",
+      "color": "#a3e635",
+      "meta": {
+        "kind": "partner"
+      }
+    },
+    {
+      "id": "lib-eco",
+      "label": "Экологическая",
+      "type": "library",
+      "group": "library",
+      "color": "#34d399",
+      "meta": {
+        "kind": "own"
+      }
+    },
+    {
+      "id": "lib-social",
+      "label": "Социально-правовая",
+      "type": "library",
+      "group": "library",
+      "color": "#c084fc",
+      "meta": {
+        "kind": "partner"
+      }
+    },
+    {
+      "id": "dp:water-meter",
+      "label": "Счётчики воды",
+      "type": "data-product",
+      "group": "data-product",
+      "color": "#00e6c8",
+      "meta": {
+        "seal": "hash"
+      }
+    },
+    {
+      "id": "dp:energy-oracle",
+      "label": "Энергетический оракул",
+      "type": "data-product",
+      "group": "data-product",
+      "color": "#f59e0b",
+      "meta": {
+        "seal": "token"
+      }
+    },
+    {
+      "id": "dp:agro-sensors",
+      "label": "Агро-телеметрия",
+      "type": "data-product",
+      "group": "data-product",
+      "color": "#a3e635",
+      "meta": {
+        "seal": "hash"
+      }
+    },
+    {
+      "id": "dp:eco-mrv",
+      "label": "Экологический MRV",
+      "type": "data-product",
+      "group": "data-product",
+      "color": "#34d399",
+      "meta": {
+        "seal": "token"
+      }
+    },
+    {
+      "id": "dp:port-ledger",
+      "label": "Логистический реестр",
+      "type": "data-product",
+      "group": "data-product",
+      "color": "#c084fc",
+      "meta": {
+        "seal": "hash"
+      }
+    },
+    {
+      "id": "dp:grid-controller",
+      "label": "Контроллер микрогрида",
+      "type": "data-product",
+      "group": "data-product",
+      "color": "#00d4ff",
+      "meta": {
+        "seal": "token"
+      }
+    },
+    {
+      "id": "dao:governance",
+      "label": "Управление",
+      "type": "dao",
+      "group": "dao",
+      "color": "#00e6c8",
+      "meta": {}
+    },
+    {
+      "id": "dao:consensus",
+      "label": "Консенсус",
+      "type": "dao",
+      "group": "dao",
+      "color": "#00d4ff",
+      "meta": {}
+    },
+    {
+      "id": "dao:funding",
+      "label": "Финансирование",
+      "type": "dao",
+      "group": "dao",
+      "color": "#a3e635",
+      "meta": {}
+    },
+    {
+      "id": "dao:distribution",
+      "label": "Распределение эффективности",
+      "type": "dao",
+      "group": "dao",
+      "color": "#c084fc",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "source": "ent:foxampyforge",
+      "target": "ent:arkheosium",
+      "label": "разрабатывает",
+      "type": "builds"
+    },
+    {
+      "source": "ent:foxampyforge",
+      "target": "ent:unicap",
+      "label": "R&D-департамент",
+      "type": "division_of"
+    },
+    {
+      "source": "ent:foxampyforge",
+      "target": "ent:unicap",
+      "label": "DAO-партнёрство",
+      "type": "dao_partner"
+    },
+    {
+      "source": "doc:arkheosium-ecosystem",
+      "target": "ent:arkheosium",
+      "label": "описывает",
+      "type": "describes"
+    },
+    {
+      "source": "doc:foxampyforge-lab",
+      "target": "ent:foxampyforge",
+      "label": "описывает",
+      "type": "describes"
+    },
+    {
+      "source": "doc:lab-unicap-dao-partnership",
+      "target": "ent:foxampyforge",
+      "label": "описывает",
+      "type": "describes"
+    },
+    {
+      "source": "doc:lab-unicap-dao-partnership",
+      "target": "ent:unicap",
+      "label": "описывает",
+      "type": "describes"
+    },
+    {
+      "source": "doc:roadmap-unicap-lab-karakalpak",
+      "target": "econ:campaign",
+      "label": "фокус",
+      "type": "focus"
+    },
+    {
+      "source": "doc:aral-sea-program",
+      "target": "econ:program",
+      "label": "описывает",
+      "type": "describes"
+    },
+    {
+      "source": "doc:aral-sea-program",
+      "target": "econ:campaign",
+      "label": "описывает",
+      "type": "describes"
+    },
+    {
+      "source": "doc:aral-sea-program",
+      "target": "doc:arkheosium-ecosystem",
+      "label": "ссылается",
+      "type": "cross-ref"
+    },
+    {
+      "source": "doc:aral-sea-program",
+      "target": "doc:foxampyforge-lab",
+      "label": "ссылается",
+      "type": "cross-ref"
+    },
+    {
+      "source": "doc:aral-sea-program",
+      "target": "doc:lab-unicap-dao-partnership",
+      "label": "ссылается",
+      "type": "cross-ref"
+    },
+    {
+      "source": "doc:aral-sea-program",
+      "target": "doc:roadmap-unicap-lab-karakalpak",
+      "label": "ссылается",
+      "type": "cross-ref"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "concept:multiplier",
+      "label": "×",
+      "type": "scales"
+    },
+    {
+      "source": "concept:multiplier",
+      "target": "econ:program",
+      "label": "→ программа",
+      "type": "scales"
+    },
+    {
+      "source": "ent:arkheosium",
+      "target": "econ:program",
+      "label": "флагман: Аральское море",
+      "type": "flagship"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "mod:desalination",
+      "label": "содержит",
+      "type": "contains"
+    },
+    {
+      "source": "mod:desalination",
+      "target": "vec:engineering",
+      "label": "вектор",
+      "type": "serves"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "mod:energy",
+      "label": "содержит",
+      "type": "contains"
+    },
+    {
+      "source": "mod:energy",
+      "target": "vec:engineering",
+      "label": "вектор",
+      "type": "serves"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "mod:agro",
+      "label": "содержит",
+      "type": "contains"
+    },
+    {
+      "source": "mod:agro",
+      "target": "vec:economic",
+      "label": "вектор",
+      "type": "serves"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "mod:ecocity",
+      "label": "содержит",
+      "type": "contains"
+    },
+    {
+      "source": "mod:ecocity",
+      "target": "vec:social",
+      "label": "вектор",
+      "type": "serves"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "mod:port",
+      "label": "содержит",
+      "type": "contains"
+    },
+    {
+      "source": "mod:port",
+      "target": "vec:economic",
+      "label": "вектор",
+      "type": "serves"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "mod:rnd",
+      "label": "содержит",
+      "type": "contains"
+    },
+    {
+      "source": "mod:rnd",
+      "target": "vec:research",
+      "label": "вектор",
+      "type": "serves"
+    },
+    {
+      "source": "econ:campaign",
+      "target": "mod:monitoring",
+      "label": "содержит",
+      "type": "contains"
+    },
+    {
+      "source": "mod:monitoring",
+      "target": "vec:engineering",
+      "label": "вектор",
+      "type": "serves"
+    },
+    {
+      "source": "lib-engineering",
+      "target": "concept:ontology",
+      "label": "узел онтологии",
+      "type": "part_of"
+    },
+    {
+      "source": "lib-research",
+      "target": "concept:ontology",
+      "label": "узел онтологии",
+      "type": "part_of"
+    },
+    {
+      "source": "lib-water",
+      "target": "concept:ontology",
+      "label": "узел онтологии",
+      "type": "part_of"
+    },
+    {
+      "source": "lib-energy",
+      "target": "concept:ontology",
+      "label": "узел онтологии",
+      "type": "part_of"
+    },
+    {
+      "source": "lib-agro",
+      "target": "concept:ontology",
+      "label": "узел онтологии",
+      "type": "part_of"
+    },
+    {
+      "source": "lib-eco",
+      "target": "concept:ontology",
+      "label": "узел онтологии",
+      "type": "part_of"
+    },
+    {
+      "source": "lib-social",
+      "target": "concept:ontology",
+      "label": "узел онтологии",
+      "type": "part_of"
+    },
+    {
+      "source": "lib-engineering",
+      "target": "lib-research",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "lib-engineering",
+      "target": "lib-water",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "lib-engineering",
+      "target": "lib-energy",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "lib-research",
+      "target": "lib-eco",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "lib-water",
+      "target": "lib-agro",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "lib-energy",
+      "target": "lib-agro",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "lib-eco",
+      "target": "lib-social",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "lib-research",
+      "target": "lib-water",
+      "label": "связь знаний",
+      "type": "ontology"
+    },
+    {
+      "source": "mod:desalination",
+      "target": "dp:water-meter",
+      "label": "эмитирует",
+      "type": "emits"
+    },
+    {
+      "source": "dp:water-meter",
+      "target": "concept:mrv",
+      "label": "хеш",
+      "type": "verifies"
+    },
+    {
+      "source": "mod:energy",
+      "target": "dp:energy-oracle",
+      "label": "эмитирует",
+      "type": "emits"
+    },
+    {
+      "source": "dp:energy-oracle",
+      "target": "concept:mrv",
+      "label": "токен",
+      "type": "verifies"
+    },
+    {
+      "source": "mod:agro",
+      "target": "dp:agro-sensors",
+      "label": "эмитирует",
+      "type": "emits"
+    },
+    {
+      "source": "dp:agro-sensors",
+      "target": "concept:mrv",
+      "label": "хеш",
+      "type": "verifies"
+    },
+    {
+      "source": "mod:monitoring",
+      "target": "dp:eco-mrv",
+      "label": "эмитирует",
+      "type": "emits"
+    },
+    {
+      "source": "dp:eco-mrv",
+      "target": "concept:mrv",
+      "label": "токен",
+      "type": "verifies"
+    },
+    {
+      "source": "mod:port",
+      "target": "dp:port-ledger",
+      "label": "эмитирует",
+      "type": "emits"
+    },
+    {
+      "source": "dp:port-ledger",
+      "target": "concept:mrv",
+      "label": "хеш",
+      "type": "verifies"
+    },
+    {
+      "source": "mod:monitoring",
+      "target": "dp:grid-controller",
+      "label": "эмитирует",
+      "type": "emits"
+    },
+    {
+      "source": "dp:grid-controller",
+      "target": "concept:mrv",
+      "label": "токен",
+      "type": "verifies"
+    },
+    {
+      "source": "dao:governance",
+      "target": "concept:dao",
+      "label": "функция",
+      "type": "part_of"
+    },
+    {
+      "source": "dao:consensus",
+      "target": "concept:dao",
+      "label": "функция",
+      "type": "part_of"
+    },
+    {
+      "source": "dao:funding",
+      "target": "concept:dao",
+      "label": "функция",
+      "type": "part_of"
+    },
+    {
+      "source": "dao:distribution",
+      "target": "concept:dao",
+      "label": "функция",
+      "type": "part_of"
+    },
+    {
+      "source": "concept:dao",
+      "target": "econ:campaign",
+      "label": "управляет",
+      "type": "governs"
+    },
+    {
+      "source": "concept:dao",
+      "target": "concept:mrv",
+      "label": "агрегирует",
+      "type": "aggregates"
+    },
+    {
+      "source": "concept:dao",
+      "target": "concept:ontology",
+      "label": "связная системность",
+      "type": "connects"
+    },
+    {
+      "source": "ent:foxampyforge",
+      "target": "concept:dao",
+      "label": "управляет через",
+      "type": "governs_via"
+    }
+  ],
+  "stats": {
+    "node_count": 43,
+    "edge_count": 66
+  }
+}

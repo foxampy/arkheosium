@@ -5,7 +5,7 @@
  * Route: /genesis  — open to all; detail/download/publish gated by AuthGate/PremiumOverlay.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { useTranslation } from 'react-i18next';
@@ -54,6 +54,27 @@ export default function GenesisPage() {
   // Full access = authenticated (subscriber) or admin. Free/anon users see preview only.
   const isAdmin = profile?.role === 'admin';
   const fullAccess = isAuthenticated || isAdmin;
+
+  // Prefill from Project Lab handoff (sessionStorage set by /lab → "Собрать в Genesis").
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('lab-handoff');
+      if (!raw) return;
+      sessionStorage.removeItem('lab-handoff');
+      const h = JSON.parse(raw) as {
+        mode?: string;
+        blocks?: { title: string; content: string }[];
+      };
+      const filled = (h.blocks ?? []).filter((b) => b.content?.trim());
+      if (!filled.length) return;
+      const concept = filled.find((b) => /концепц/i.test(b.title));
+      setTitle((concept?.content || filled[0].content).split('\n')[0].slice(0, 80));
+      setDescription(filled.map((b) => `## ${b.title}\n${b.content.trim()}`).join('\n\n').slice(0, 4000));
+      setInputType(h.mode === 'product' ? 'concept' : 'object');
+    } catch {
+      /* ignore malformed handoff */
+    }
+  }, []);
 
   const canRun = title.trim().length > 1 && description.trim().length > 4 && !genesis.loading;
 

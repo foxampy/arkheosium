@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ArkheOSium — Whitepaper</title>
+<style>
+:root{--bg:#040a14;--bg2:#060f1c;--card:rgba(6,15,28,0.6);--bd:rgba(255,255,255,0.08);
+--tx:#e6eef7;--mut:#94a7bd;--accent:#00e6c8;--accent2:#00d4ff;--gold:#f59e0b;}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:radial-gradient(1200px 700px at 70% -10%,rgba(0,212,255,0.10),transparent 60%),
+radial-gradient(1000px 600px at 10% 20%,rgba(0,230,200,0.07),transparent 55%),var(--bg);
+color:var(--tx);font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+line-height:1.7;font-size:16px;-webkit-font-smoothing:antialiased;}
+.wrap{display:grid;grid-template-columns:290px 1fr;gap:0;max-width:1500px;margin:0 auto;}
+aside{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:26px 20px;
+border-right:1px solid var(--bd);background:rgba(4,10,20,0.65);backdrop-filter:blur(10px);}
+aside .brand{font-weight:800;font-size:18px;letter-spacing:.3px;
+background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;
+background-clip:text;color:transparent;margin-bottom:2px;}
+aside .sub{color:var(--mut);font-size:12px;margin-bottom:20px;}
+aside nav a{display:block;color:var(--mut);text-decoration:none;font-size:13px;padding:4px 0;
+border-left:2px solid transparent;padding-left:10px;transition:color .15s,border-color .15s;}
+aside nav a:hover{color:var(--tx);border-color:var(--accent);}
+aside nav a.doc{color:var(--tx);font-weight:700;margin-top:16px;font-size:13.5px;}
+aside nav a.sec{font-size:12px;opacity:.85;}
+main{padding:0 clamp(20px,4vw,64px) 90px;min-width:0;}
+.cover{padding:90px 0 40px;border-bottom:1px solid var(--bd);}
+.cover .kick{display:inline-block;font-size:12px;text-transform:uppercase;letter-spacing:2px;
+color:var(--accent);border:1px solid var(--bd);border-radius:999px;padding:6px 14px;margin-bottom:22px;}
+.cover h1{font-size:clamp(30px,5vw,52px);line-height:1.1;margin:0 0 18px;font-weight:800;}
+.cover h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;
+background-clip:text;color:transparent;}
+.cover p{color:var(--mut);font-size:18px;max-width:760px;}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;}
+.meta span{font-size:12.5px;color:var(--mut);border:1px solid var(--bd);border-radius:999px;padding:5px 12px;}
+section.doc{padding:56px 0;border-bottom:1px solid var(--bd);}
+.doc-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent2);margin-bottom:8px;}
+h2.doc-title{font-size:clamp(24px,3.4vw,36px);margin:0 0 10px;font-weight:800;line-height:1.15;}
+.doc-topic{color:var(--mut);margin-bottom:8px;}
+main h3{font-size:20px;margin:34px 0 10px;font-weight:700;color:#fff;}
+main h4{font-size:16px;margin:22px 0 8px;font-weight:700;color:var(--accent);}
+main p{color:#d4dfeb;}
+main a{color:var(--accent2);text-decoration:none;border-bottom:1px solid rgba(0,212,255,.3);}
+main a:hover{border-color:var(--accent2);}
+main ul{padding-left:22px;color:#d4dfeb;}
+main li{margin:5px 0;}
+blockquote{margin:16px 0;padding:14px 18px;border-left:3px solid var(--accent);
+background:rgba(0,230,200,0.06);border-radius:0 12px 12px 0;color:#cfe0ee;font-style:italic;}
+code{background:rgba(255,255,255,.07);padding:2px 6px;border-radius:6px;font-size:13.5px;
+font-family:'Cascadia Code',Consolas,monospace;color:#9fe;}
+hr{border:none;border-top:1px solid var(--bd);margin:26px 0;}
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--bd);border-radius:14px;}
+table{border-collapse:collapse;width:100%;font-size:14px;}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--bd);vertical-align:top;}
+th{background:rgba(255,255,255,.04);color:#fff;font-weight:700;font-size:12.5px;
+text-transform:uppercase;letter-spacing:.4px;}
+tbody tr:hover{background:rgba(0,212,255,.04);}
+td strong{color:#fff;}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:26px 0;}
+.fact{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px 18px;
+backdrop-filter:blur(14px);}
+.fact .l{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:6px;}
+.fact .v{font-size:15px;color:#fff;}
+.fact .v b{color:var(--accent);}
+.graph-card{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:20px;
+margin:26px 0;backdrop-filter:blur(14px);}
+.graph-card h3{margin-top:0;}
+#graph{width:100%;height:auto;display:block;}
+.edge{stroke:rgba(255,255,255,0.11);stroke-width:1;transition:opacity .15s,stroke-width .15s,stroke .15s;}
+.lbl{fill:#c3d2e2;font-size:9px;pointer-events:none;paint-order:stroke;
+stroke:rgba(4,10,20,0.85);stroke-width:2.4px;font-family:'Segoe UI',sans-serif;}
+.lbl.big{fill:#fff;font-size:11.5px;font-weight:700;}
+.node circle{cursor:pointer;transition:opacity .15s,r .15s;}
+#graph.dim .edge{opacity:.05;}
+#graph.dim .node{opacity:.22;}
+#graph.dim .node.hl{opacity:1;}
+#graph.dim .edge.hl{opacity:.95;stroke:var(--accent);stroke-width:2;}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;}
+.legend span{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mut);}
+.legend i{width:11px;height:11px;border-radius:50%;display:inline-block;}
+.ghint{color:var(--mut);font-size:13px;margin-top:6px;}
+footer{color:var(--mut);font-size:13px;padding:40px 0 0;}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;}aside{position:static;height:auto;
+border-right:none;border-bottom:1px solid var(--bd);}aside nav{columns:2;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside>
+  <div class="brand">ArkheOSium</div>
+  <div class="sub">Whitepaper · единый документ</div>
+  <nav>
+    <a class="doc" href="#top">Обзор и факты</a>
+    <a class="sec" href="#graph-sec">Граф связей</a>
+<a class="doc" href="#doc-arkheosium-ecosystem">01 · ArkheOSium</a>
+<a class="sec" href="#arkheosium-ecosystem-s0">1. Аннотация / резюме</a>
+<a class="sec" href="#arkheosium-ecosystem-s1">2. Проблема: ресурсы и жизнь планеты под давлением</a>
+<a class="sec" href="#arkheosium-ecosystem-s2">3. Видение и миссия</a>
+<a class="sec" href="#arkheosium-ecosystem-s3">4. Архитектура ОС</a>
+<a class="sec" href="#arkheosium-ecosystem-s4">5. Операционная среда: онбординг, кластеры, модули</a>
+<a class="sec" href="#arkheosium-ecosystem-s5">6. Модули и векторы</a>
+<a class="sec" href="#arkheosium-ecosystem-s6">7. Слой знаний: онтологическая систематизация</a>
+<a class="sec" href="#arkheosium-ecosystem-s7">8. Верификация и токенизация данных (MRV + DePIN)</a>
+<a class="sec" href="#arkheosium-ecosystem-s8">9. Экономика</a>
+<a class="sec" href="#arkheosium-ecosystem-s9">10. Флагман: Проект «Аральское море» как витрина ОС</a>
+<a class="sec" href="#arkheosium-ecosystem-s10">11. Дорожная карта</a>
+<a class="sec" href="#arkheosium-ecosystem-s11">12. Заключение</a>
+<a class="doc" href="#doc-foxampyforge-lab">02 · FoxampyForge</a>
+<a class="sec" href="#foxampyforge-lab-s0">1. Аннотация</a>
+<a class="sec" href="#foxampyforge-lab-s1">2. Позиционирование: R&amp;D-подразделение группы UnicapInvest</a>
+<a class="sec" href="#foxampyforge-lab-s2">3. Что Лаборатория создаёт и чем управляет</a>
+<a class="sec" href="#foxampyforge-lab-s3">4. Модель «из идеи в продукт»: фрактальная методология</a>
+<a class="sec" href="#foxampyforge-lab-s4">5. Внутренняя экономика Лаборатории</a>
+<a class="sec" href="#foxampyforge-lab-s5">6. DAO Лаборатории</a>
+<a class="sec" href="#foxampyforge-lab-s6">7. Связь с ArkheOSium: граф знаний, MRV/DePIN, токенизация</a>
+<a class="sec" href="#foxampyforge-lab-s7">8. Портфель направлений / векторов</a>
+<a class="sec" href="#foxampyforge-lab-s8">9. Как Лаборатория входит в UnicapInvest</a>
+<a class="sec" href="#foxampyforge-lab-s9">10. Заключение</a>
+<a class="doc" href="#doc-lab-unicap-dao-partnership">03 · Лаборатория FoxampyForge × UnicapInves</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s0">1. Аннотация</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s1">2. Стороны партнёрства</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s2">3. Модель автономии</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s3">4. DAO-партнёрство: как услуги и продукты поставляются через DAO</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s4">5. Экономика взаимодействия</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s5">6. Верификация ценности: от измерения до расчёта</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s6">7. Юридически-организационный контур</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s7">8. Управление рисками и прозрачность</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s8">9. Масштабирование на другие программы и кампании</a>
+<a class="sec" href="#lab-unicap-dao-partnership-s9">10. Заключение</a>
+<a class="doc" href="#doc-roadmap-unicap-lab-karakalpak">04 · Дорожная карта UnicapInvest × Лаборато</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s0">1. Аннотация</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s1">2. Принципы совместной работы</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s2">3. Общая карта программ и векторов</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s3">4. Фокус сейчас — кампания «Каракалпакия»</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s4">5. Фазовая дорожная карта 2025 → 2040</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s5">6. Переход от кампании к общей программе $0,5T</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s6">7. Модель финансирования и распределения эффективности через DAO</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s7">8. Риски, зависимости и критерии готовности фаз (gates)</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s8">9. Ближайшие шаги (следующие 90 дней)</a>
+<a class="sec" href="#roadmap-unicap-lab-karakalpak-s9">10. Заключение</a>
+<a class="doc" href="#doc-aral-sea-program">05 · Программа «Аральское море»</a>
+<a class="sec" href="#aral-sea-program-s0">1. Аннотация</a>
+<a class="sec" href="#aral-sea-program-s1">2. Контекст и вызов</a>
+<a class="sec" href="#aral-sea-program-s2">3. Архитектура Программы: контуры и стоимость</a>
+<a class="sec" href="#aral-sea-program-s3">4. Кампания «Каракалпакия» — эталонный контур</a>
+<a class="sec" href="#aral-sea-program-s4">5. Модули контура</a>
+<a class="sec" href="#aral-sea-program-s5">6. Слой знаний: онтологическая систематизация</a>
+<a class="sec" href="#aral-sea-program-s6">7. Верификация и токенизация данных (MRV + DePIN)</a>
+<a class="sec" href="#aral-sea-program-s7">8. DAO — связующий слой интеграции</a>
+<a class="sec" href="#aral-sea-program-s8">9. Интеграции: карта, глобус и партнёрские контуры</a>
+<a class="sec" href="#aral-sea-program-s9">10. Другие кампании и тиражирование</a>
+<a class="sec" href="#aral-sea-program-s10">11. Дорожная карта 2025 → 2040</a>
+<a class="sec" href="#aral-sea-program-s11">12. Заключение</a>
+  </nav>
+</aside>
+<main>
+  <div class="cover" id="top">
+    <span class="kick">Операционная система экосистемы</span>
+    <h1>Экосистема <span>ArkheOSium</span>, Лаборатория FoxampyForge и Программа «Аральское море»</h1>
+    <p>Комплект документов уровня whitepaper: операционная система ресурсов и жизни планеты, R&amp;D-лаборатория, DAO-партнёрство с группой UnicapInvest и флагманская Программа восстановления Приаралья — в едином связанном виде.</p>
+    <div class="meta"><span>5 документов · 54 секций · ~9 914 слов</span><span>Граф: 43 узлов · 66 связей</span><span>Версия 1.1</span></div>
+  </div>
+
+  <section class="doc">
+    <div class="doc-eyebrow">Единый источник истины</div>
+    <h2 class="doc-title">Канонические факты</h2>
+    <div class="doc-topic">Одинаковы во всех документах и в машиночитаемой базе знаний.</div>
+    <div class="facts"><div class="fact"><div class="l">ArkheOSium</div><div class="v">Операционная система (ОС) экосистемы ресурсов и жизни планеты; мульти-доменная платформа: 2D-карта + 3D-глобус, граф знаний, MRV/DePIN-верификация.</div></div><div class="fact"><div class="l">FoxampyForge</div><div class="v">Исследовательско-инновационная (R&amp;D) лаборатория — подразделение группы UnicapInvest; разрабатывает и управляет ArkheOSium и проектами через DAO.</div></div><div class="fact"><div class="l">UnicapInvest</div><div class="v">Материнская инвестиционная группа (UNICAP); Лаборатория входит в неё как автономный R&amp;D-департамент.</div></div><div class="fact"><div class="l">Кампания «Каракалпакия»</div><div class="v">$250 млн — стоимость кампании «Каракалпакия» (региональный эталон).</div></div><div class="fact"><div class="l">Полная программа</div><div class="v">$0,5 трлн — ПОЛНАЯ стоимость программы (глобальная интеграция).</div></div><div class="fact"><div class="l">Принцип эффекта</div><div class="v">Эффект МУЛЬТИПЛИКАТИВЕН, а не аддитивен: прибыльность многократно выше даже полной кампании Каракалпакии.</div></div><div class="fact"><div class="l">Токен Лаборатории</div><div class="v">Искра ✦ — Внутренний токен Лаборатории FoxampyForge (App Hub, маркетплейс услуг, стейкинг, фрактальная методология).</div></div><div class="fact"><div class="l">Верификация</div><div class="v">MRV (Measurement / Reporting / Verification) + DePIN. Каждый модуль контура автоматически собирает данные и запечатывает информацию ХЭШЕМ либо выпускает её как ЭМИССИОННЫЙ ТОКЕН, эмитируемый самим модулем.</div></div><div class="fact"><div class="l">Слой знаний</div><div class="v">Онтологическая систематизация — Граф знаний поверх таксономии и фасетной классификации; DAO обеспечивает связную системность знаний, продуктов и библиотек по доменам/векторам.</div></div></div>
+  </section>
+
+  <section class="doc" id="graph-sec">
+    <div class="doc-eyebrow">Связность</div>
+    <h2 class="doc-title">Граф связей</h2>
+    <div class="doc-topic">Документы, сущности, экономика, векторы, модули, библиотеки (онтология), продукты данных MRV и DAO — со всеми связями. Наведите на узел, чтобы подсветить его связи; клик по документу — переход к нему.</div>
+    <div class="graph-card">
+      <h3>Карта экосистемы</h3>
+      <svg id="graph" viewBox="0 0 1120 880" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Граф связей документов и сущностей ArkheOSium">
+<g class="edges">
+<line class="edge" data-s="ent:foxampyforge" data-t="ent:arkheosium" x1="642.3" y1="147.5" x2="560.0" y2="5.0"><title>разрабатывает</title></line>
+<line class="edge" data-s="ent:foxampyforge" data-t="ent:unicap" x1="642.3" y1="147.5" x2="477.7" y2="147.5"><title>R&D-департамент</title></line>
+<line class="edge" data-s="ent:foxampyforge" data-t="ent:unicap" x1="642.3" y1="147.5" x2="477.7" y2="147.5"><title>DAO-партнёрство</title></line>
+<line class="edge" data-s="doc:arkheosium-ecosystem" data-t="ent:arkheosium" x1="165.0" y1="95.0" x2="560.0" y2="5.0"><title>описывает</title></line>
+<line class="edge" data-s="doc:foxampyforge-lab" data-t="ent:foxampyforge" x1="279.1" y1="177.9" x2="642.3" y2="147.5"><title>описывает</title></line>
+<line class="edge" data-s="doc:lab-unicap-dao-partnership" data-t="ent:foxampyforge" x1="235.5" y1="312.1" x2="642.3" y2="147.5"><title>описывает</title></line>
+<line class="edge" data-s="doc:lab-unicap-dao-partnership" data-t="ent:unicap" x1="235.5" y1="312.1" x2="477.7" y2="147.5"><title>описывает</title></line>
+<line class="edge" data-s="doc:roadmap-unicap-lab-karakalpak" data-t="econ:campaign" x1="94.5" y1="312.1" x2="560.0" y2="227.0"><title>фокус</title></line>
+<line class="edge" data-s="doc:aral-sea-program" data-t="econ:program" x1="50.9" y1="177.9" x2="560.0" y2="383.0"><title>описывает</title></line>
+<line class="edge" data-s="doc:aral-sea-program" data-t="econ:campaign" x1="50.9" y1="177.9" x2="560.0" y2="227.0"><title>описывает</title></line>
+<line class="edge" data-s="doc:aral-sea-program" data-t="doc:arkheosium-ecosystem" x1="50.9" y1="177.9" x2="165.0" y2="95.0"><title>ссылается</title></line>
+<line class="edge" data-s="doc:aral-sea-program" data-t="doc:foxampyforge-lab" x1="50.9" y1="177.9" x2="279.1" y2="177.9"><title>ссылается</title></line>
+<line class="edge" data-s="doc:aral-sea-program" data-t="doc:lab-unicap-dao-partnership" x1="50.9" y1="177.9" x2="235.5" y2="312.1"><title>ссылается</title></line>
+<line class="edge" data-s="doc:aral-sea-program" data-t="doc:roadmap-unicap-lab-karakalpak" x1="50.9" y1="177.9" x2="94.5" y2="312.1"><title>ссылается</title></line>
+<line class="edge" data-s="econ:campaign" data-t="concept:multiplier" x1="560.0" y1="227.0" x2="850.0" y2="168.0"><title>×</title></line>
+<line class="edge" data-s="concept:multiplier" data-t="econ:program" x1="850.0" y1="168.0" x2="560.0" y2="383.0"><title>→ программа</title></line>
+<line class="edge" data-s="ent:arkheosium" data-t="econ:program" x1="560.0" y1="5.0" x2="560.0" y2="383.0"><title>флагман: Аральское море</title></line>
+<line class="edge" data-s="econ:campaign" data-t="mod:desalination" x1="560.0" y1="227.0" x2="615.0" y2="478.0"><title>содержит</title></line>
+<line class="edge" data-s="mod:desalination" data-t="vec:engineering" x1="615.0" y1="478.0" x2="992.6" y2="594.3"><title>вектор</title></line>
+<line class="edge" data-s="econ:campaign" data-t="mod:energy" x1="560.0" y1="227.0" x2="710.4" y2="523.9"><title>содержит</title></line>
+<line class="edge" data-s="mod:energy" data-t="vec:engineering" x1="710.4" y1="523.9" x2="992.6" y2="594.3"><title>вектор</title></line>
+<line class="edge" data-s="econ:campaign" data-t="mod:agro" x1="560.0" y1="227.0" x2="733.9" y2="627.1"><title>содержит</title></line>
+<line class="edge" data-s="mod:agro" data-t="vec:economic" x1="733.9" y1="627.1" x2="1028.2" y2="484.7"><title>вектор</title></line>
+<line class="edge" data-s="econ:campaign" data-t="mod:ecocity" x1="560.0" y1="227.0" x2="667.9" y2="709.9"><title>содержит</title></line>
+<line class="edge" data-s="mod:ecocity" data-t="vec:social" x1="667.9" y1="709.9" x2="841.8" y2="484.7"><title>вектор</title></line>
+<line class="edge" data-s="econ:campaign" data-t="mod:port" x1="560.0" y1="227.0" x2="562.1" y2="709.9"><title>содержит</title></line>
+<line class="edge" data-s="mod:port" data-t="vec:economic" x1="562.1" y1="709.9" x2="1028.2" y2="484.7"><title>вектор</title></line>
+<line class="edge" data-s="econ:campaign" data-t="mod:rnd" x1="560.0" y1="227.0" x2="496.1" y2="627.1"><title>содержит</title></line>
+<line class="edge" data-s="mod:rnd" data-t="vec:research" x1="496.1" y1="627.1" x2="935.0" y2="417.0"><title>вектор</title></line>
+<line class="edge" data-s="econ:campaign" data-t="mod:monitoring" x1="560.0" y1="227.0" x2="519.6" y2="523.9"><title>содержит</title></line>
+<line class="edge" data-s="mod:monitoring" data-t="vec:engineering" x1="519.6" y1="523.9" x2="992.6" y2="594.3"><title>вектор</title></line>
+<line class="edge" data-s="lib-engineering" data-t="concept:ontology" x1="235.0" y1="467.0" x2="768.0" y2="250.0"><title>узел онтологии</title></line>
+<line class="edge" data-s="lib-research" data-t="concept:ontology" x1="327.3" y1="511.4" x2="768.0" y2="250.0"><title>узел онтологии</title></line>
+<line class="edge" data-s="lib-water" data-t="concept:ontology" x1="350.0" y1="611.3" x2="768.0" y2="250.0"><title>узел онтологии</title></line>
+<line class="edge" data-s="lib-energy" data-t="concept:ontology" x1="286.2" y1="691.3" x2="768.0" y2="250.0"><title>узел онтологии</title></line>
+<line class="edge" data-s="lib-agro" data-t="concept:ontology" x1="183.8" y1="691.3" x2="768.0" y2="250.0"><title>узел онтологии</title></line>
+<line class="edge" data-s="lib-eco" data-t="concept:ontology" x1="120.0" y1="611.3" x2="768.0" y2="250.0"><title>узел онтологии</title></line>
+<line class="edge" data-s="lib-social" data-t="concept:ontology" x1="142.7" y1="511.4" x2="768.0" y2="250.0"><title>узел онтологии</title></line>
+<line class="edge" data-s="lib-engineering" data-t="lib-research" x1="235.0" y1="467.0" x2="327.3" y2="511.4"><title>связь знаний</title></line>
+<line class="edge" data-s="lib-engineering" data-t="lib-water" x1="235.0" y1="467.0" x2="350.0" y2="611.3"><title>связь знаний</title></line>
+<line class="edge" data-s="lib-engineering" data-t="lib-energy" x1="235.0" y1="467.0" x2="286.2" y2="691.3"><title>связь знаний</title></line>
+<line class="edge" data-s="lib-research" data-t="lib-eco" x1="327.3" y1="511.4" x2="120.0" y2="611.3"><title>связь знаний</title></line>
+<line class="edge" data-s="lib-water" data-t="lib-agro" x1="350.0" y1="611.3" x2="183.8" y2="691.3"><title>связь знаний</title></line>
+<line class="edge" data-s="lib-energy" data-t="lib-agro" x1="286.2" y1="691.3" x2="183.8" y2="691.3"><title>связь знаний</title></line>
+<line class="edge" data-s="lib-eco" data-t="lib-social" x1="120.0" y1="611.3" x2="142.7" y2="511.4"><title>связь знаний</title></line>
+<line class="edge" data-s="lib-research" data-t="lib-water" x1="327.3" y1="511.4" x2="350.0" y2="611.3"><title>связь знаний</title></line>
+<line class="edge" data-s="mod:desalination" data-t="dp:water-meter" x1="615.0" y1="478.0" x2="430.0" y2="638.0"><title>эмитирует</title></line>
+<line class="edge" data-s="dp:water-meter" data-t="concept:mrv" x1="430.0" y1="638.0" x2="850.0" y2="332.0"><title>хеш</title></line>
+<line class="edge" data-s="mod:energy" data-t="dp:energy-oracle" x1="710.4" y1="523.9" x2="535.7" y2="699.0"><title>эмитирует</title></line>
+<line class="edge" data-s="dp:energy-oracle" data-t="concept:mrv" x1="535.7" y1="699.0" x2="850.0" y2="332.0"><title>токен</title></line>
+<line class="edge" data-s="mod:agro" data-t="dp:agro-sensors" x1="733.9" y1="627.1" x2="535.7" y2="821.0"><title>эмитирует</title></line>
+<line class="edge" data-s="dp:agro-sensors" data-t="concept:mrv" x1="535.7" y1="821.0" x2="850.0" y2="332.0"><title>хеш</title></line>
+<line class="edge" data-s="mod:monitoring" data-t="dp:eco-mrv" x1="519.6" y1="523.9" x2="430.0" y2="882.0"><title>эмитирует</title></line>
+<line class="edge" data-s="dp:eco-mrv" data-t="concept:mrv" x1="430.0" y1="882.0" x2="850.0" y2="332.0"><title>токен</title></line>
+<line class="edge" data-s="mod:port" data-t="dp:port-ledger" x1="562.1" y1="709.9" x2="324.3" y2="821.0"><title>эмитирует</title></line>
+<line class="edge" data-s="dp:port-ledger" data-t="concept:mrv" x1="324.3" y1="821.0" x2="850.0" y2="332.0"><title>хеш</title></line>
+<line class="edge" data-s="mod:monitoring" data-t="dp:grid-controller" x1="519.6" y1="523.9" x2="324.3" y2="699.0"><title>эмитирует</title></line>
+<line class="edge" data-s="dp:grid-controller" data-t="concept:mrv" x1="324.3" y1="699.0" x2="850.0" y2="332.0"><title>токен</title></line>
+<line class="edge" data-s="dao:governance" data-t="concept:dao" x1="800.0" y1="642.0" x2="932.0" y2="250.0"><title>функция</title></line>
+<line class="edge" data-s="dao:consensus" data-t="concept:dao" x1="888.0" y1="730.0" x2="932.0" y2="250.0"><title>функция</title></line>
+<line class="edge" data-s="dao:funding" data-t="concept:dao" x1="800.0" y1="818.0" x2="932.0" y2="250.0"><title>функция</title></line>
+<line class="edge" data-s="dao:distribution" data-t="concept:dao" x1="712.0" y1="730.0" x2="932.0" y2="250.0"><title>функция</title></line>
+<line class="edge" data-s="concept:dao" data-t="econ:campaign" x1="932.0" y1="250.0" x2="560.0" y2="227.0"><title>управляет</title></line>
+<line class="edge" data-s="concept:dao" data-t="concept:mrv" x1="932.0" y1="250.0" x2="850.0" y2="332.0"><title>агрегирует</title></line>
+<line class="edge" data-s="concept:dao" data-t="concept:ontology" x1="932.0" y1="250.0" x2="768.0" y2="250.0"><title>связная системность</title></line>
+<line class="edge" data-s="ent:foxampyforge" data-t="concept:dao" x1="642.3" y1="147.5" x2="932.0" y2="250.0"><title>управляет через</title></line>
+</g>
+<g class="nodes">
+<g class="node" data-id="ent:arkheosium">
+<circle cx="560.0" cy="5.0" r="20" fill="#00e6c8" fill-opacity="0.85" stroke="#00e6c8" stroke-width="1.5"><title>ArkheOSium</title></circle>
+<text class="lbl big" x="560.0" y="39.0" text-anchor="middle">ArkheOSium</text>
+</g>
+<g class="node" data-id="ent:foxampyforge">
+<circle cx="642.3" cy="147.5" r="20" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>FoxampyForge</title></circle>
+<text class="lbl big" x="666.3" y="151.5" text-anchor="start">FoxampyForge</text>
+</g>
+<g class="node" data-id="ent:unicap">
+<circle cx="477.7" cy="147.5" r="20" fill="#f59e0b" fill-opacity="0.85" stroke="#f59e0b" stroke-width="1.5"><title>UnicapInvest</title></circle>
+<text class="lbl big" x="453.7" y="151.5" text-anchor="end">UnicapInvest</text>
+</g>
+<g class="node" data-id="doc:arkheosium-ecosystem">
+<circle cx="165.0" cy="95.0" r="14" fill="#8aa0b8" fill-opacity="0.85" stroke="#8aa0b8" stroke-width="1.5"><title>ArkheOSium — операционная система экосистемы ресурсов и жизни планеты</title></circle>
+<text class="lbl big" x="165.0" y="123.0" text-anchor="middle">ArkheOSium — операционная система экосистемы ресурсов и жизни планеты</text>
+</g>
+<g class="node" data-id="doc:foxampyforge-lab">
+<circle cx="279.1" cy="177.9" r="14" fill="#8aa0b8" fill-opacity="0.85" stroke="#8aa0b8" stroke-width="1.5"><title>FoxampyForge — исследовательско-инновационная лаборатория экосистемы</title></circle>
+<text class="lbl big" x="297.1" y="181.9" text-anchor="start">FoxampyForge — исследовательско-инновационная лаборатория экосистемы</text>
+</g>
+<g class="node" data-id="doc:lab-unicap-dao-partnership">
+<circle cx="235.5" cy="312.1" r="14" fill="#8aa0b8" fill-opacity="0.85" stroke="#8aa0b8" stroke-width="1.5"><title>Лаборатория FoxampyForge × UnicapInvest: автономный R&D-департамент и DAO-партнёрство</title></circle>
+<text class="lbl big" x="253.5" y="316.1" text-anchor="start">Лаборатория FoxampyForge × UnicapInvest: автономный R&amp;D-департамент и DAO-партнёрство</text>
+</g>
+<g class="node" data-id="doc:roadmap-unicap-lab-karakalpak">
+<circle cx="94.5" cy="312.1" r="14" fill="#8aa0b8" fill-opacity="0.85" stroke="#8aa0b8" stroke-width="1.5"><title>Дорожная карта UnicapInvest × Лаборатория FoxampyForge</title></circle>
+<text class="lbl big" x="76.5" y="316.1" text-anchor="end">Дорожная карта UnicapInvest × Лаборатория FoxampyForge</text>
+</g>
+<g class="node" data-id="doc:aral-sea-program">
+<circle cx="50.9" cy="177.9" r="14" fill="#8aa0b8" fill-opacity="0.85" stroke="#8aa0b8" stroke-width="1.5"><title>Программа «Аральское море» — флагман экосистемы ArkheOSium</title></circle>
+<text class="lbl big" x="32.9" y="181.9" text-anchor="end">Программа «Аральское море» — флагман экосистемы ArkheOSium</text>
+</g>
+<g class="node" data-id="econ:campaign">
+<circle cx="560.0" cy="227.0" r="18" fill="#a3e635" fill-opacity="0.85" stroke="#a3e635" stroke-width="1.5"><title>Кампания «Каракалпакия» · $250 млн</title></circle>
+<text class="lbl big" x="560.0" y="259.0" text-anchor="middle">Кампания «Каракалпакия» · $250 млн</text>
+</g>
+<g class="node" data-id="econ:program">
+<circle cx="560.0" cy="383.0" r="18" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>Программа · $0,5 трлн</title></circle>
+<text class="lbl big" x="560.0" y="415.0" text-anchor="middle">Программа · $0,5 трлн</text>
+</g>
+<g class="node" data-id="concept:multiplier">
+<circle cx="850.0" cy="168.0" r="15" fill="#f59e0b" fill-opacity="0.85" stroke="#f59e0b" stroke-width="1.5"><title>Мультипликативный эффект</title></circle>
+<text class="lbl big" x="850.0" y="197.0" text-anchor="middle">Мультипликативный эффект</text>
+</g>
+<g class="node" data-id="concept:dao">
+<circle cx="932.0" cy="250.0" r="15" fill="#00e6c8" fill-opacity="0.85" stroke="#00e6c8" stroke-width="1.5"><title>DAO</title></circle>
+<text class="lbl big" x="951.0" y="254.0" text-anchor="start">DAO</text>
+</g>
+<g class="node" data-id="concept:mrv">
+<circle cx="850.0" cy="332.0" r="15" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>MRV + DePIN</title></circle>
+<text class="lbl big" x="850.0" y="361.0" text-anchor="middle">MRV + DePIN</text>
+</g>
+<g class="node" data-id="concept:ontology">
+<circle cx="768.0" cy="250.0" r="15" fill="#7dd3fc" fill-opacity="0.85" stroke="#7dd3fc" stroke-width="1.5"><title>Онтологическая систематизация</title></circle>
+<text class="lbl big" x="749.0" y="254.0" text-anchor="end">Онтологическая систематизация</text>
+</g>
+<g class="node" data-id="vec:research">
+<circle cx="935.0" cy="417.0" r="11" fill="#7dd3fc" fill-opacity="0.85" stroke="#7dd3fc" stroke-width="1.5"><title>Научно-исследовательский</title></circle>
+<text class="lbl" x="935.0" y="439.0" text-anchor="middle">Научно-исследовательский</text>
+</g>
+<g class="node" data-id="vec:economic">
+<circle cx="1028.2" cy="484.7" r="11" fill="#a3e635" fill-opacity="0.85" stroke="#a3e635" stroke-width="1.5"><title>Экономический</title></circle>
+<text class="lbl" x="1043.2" y="488.7" text-anchor="start">Экономический</text>
+</g>
+<g class="node" data-id="vec:engineering">
+<circle cx="992.6" cy="594.3" r="11" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>Инженерный</title></circle>
+<text class="lbl" x="1007.6" y="598.3" text-anchor="start">Инженерный</text>
+</g>
+<g class="node" data-id="vec:ecological">
+<circle cx="877.4" cy="594.3" r="11" fill="#34d399" fill-opacity="0.85" stroke="#34d399" stroke-width="1.5"><title>Экологический</title></circle>
+<text class="lbl" x="862.4" y="598.3" text-anchor="end">Экологический</text>
+</g>
+<g class="node" data-id="vec:social">
+<circle cx="841.8" cy="484.7" r="11" fill="#c084fc" fill-opacity="0.85" stroke="#c084fc" stroke-width="1.5"><title>Социальный</title></circle>
+<text class="lbl" x="826.8" y="488.7" text-anchor="end">Социальный</text>
+</g>
+<g class="node" data-id="mod:desalination">
+<circle cx="615.0" cy="478.0" r="10" fill="#00e6c8" fill-opacity="0.85" stroke="#00e6c8" stroke-width="1.5"><title>Вода и опреснение</title></circle>
+<text class="lbl" x="615.0" y="499.0" text-anchor="middle">Вода и опреснение</text>
+</g>
+<g class="node" data-id="mod:energy">
+<circle cx="710.4" cy="523.9" r="10" fill="#f59e0b" fill-opacity="0.85" stroke="#f59e0b" stroke-width="1.5"><title>Солнце + ветер + накопители</title></circle>
+<text class="lbl" x="724.4" y="527.9" text-anchor="start">Солнце + ветер + накопители</text>
+</g>
+<g class="node" data-id="mod:agro">
+<circle cx="733.9" cy="627.1" r="10" fill="#a3e635" fill-opacity="0.85" stroke="#a3e635" stroke-width="1.5"><title>Агро-биокупола</title></circle>
+<text class="lbl" x="747.9" y="631.1" text-anchor="start">Агро-биокупола</text>
+</g>
+<g class="node" data-id="mod:ecocity">
+<circle cx="667.9" cy="709.9" r="10" fill="#34d399" fill-opacity="0.85" stroke="#34d399" stroke-width="1.5"><title>Эко-город</title></circle>
+<text class="lbl" x="681.9" y="713.9" text-anchor="start">Эко-город</text>
+</g>
+<g class="node" data-id="mod:port">
+<circle cx="562.1" cy="709.9" r="10" fill="#c084fc" fill-opacity="0.85" stroke="#c084fc" stroke-width="1.5"><title>Логистика и порт</title></circle>
+<text class="lbl" x="548.1" y="713.9" text-anchor="end">Логистика и порт</text>
+</g>
+<g class="node" data-id="mod:rnd">
+<circle cx="496.1" cy="627.1" r="10" fill="#7dd3fc" fill-opacity="0.85" stroke="#7dd3fc" stroke-width="1.5"><title>R&D-кампус</title></circle>
+<text class="lbl" x="482.1" y="631.1" text-anchor="end">R&amp;D-кампус</text>
+</g>
+<g class="node" data-id="mod:monitoring">
+<circle cx="519.6" cy="523.9" r="10" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>Сеть мониторинга</title></circle>
+<text class="lbl" x="505.6" y="527.9" text-anchor="end">Сеть мониторинга</text>
+</g>
+<g class="node" data-id="lib-engineering">
+<circle cx="235.0" cy="467.0" r="10" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>Инженерная библиотека</title></circle>
+<text class="lbl" x="235.0" y="488.0" text-anchor="middle">Инженерная библиотека</text>
+</g>
+<g class="node" data-id="lib-research">
+<circle cx="327.3" cy="511.4" r="10" fill="#7dd3fc" fill-opacity="0.85" stroke="#7dd3fc" stroke-width="1.5"><title>Научно-исследовательская</title></circle>
+<text class="lbl" x="341.3" y="515.4" text-anchor="start">Научно-исследовательская</text>
+</g>
+<g class="node" data-id="lib-water">
+<circle cx="350.0" cy="611.3" r="10" fill="#00e6c8" fill-opacity="0.85" stroke="#00e6c8" stroke-width="1.5"><title>Библиотека воды</title></circle>
+<text class="lbl" x="364.0" y="615.3" text-anchor="start">Библиотека воды</text>
+</g>
+<g class="node" data-id="lib-energy">
+<circle cx="286.2" cy="691.3" r="10" fill="#f59e0b" fill-opacity="0.85" stroke="#f59e0b" stroke-width="1.5"><title>Энергетическая</title></circle>
+<text class="lbl" x="300.2" y="695.3" text-anchor="start">Энергетическая</text>
+</g>
+<g class="node" data-id="lib-agro">
+<circle cx="183.8" cy="691.3" r="10" fill="#a3e635" fill-opacity="0.85" stroke="#a3e635" stroke-width="1.5"><title>Агро-биологическая</title></circle>
+<text class="lbl" x="169.8" y="695.3" text-anchor="end">Агро-биологическая</text>
+</g>
+<g class="node" data-id="lib-eco">
+<circle cx="120.0" cy="611.3" r="10" fill="#34d399" fill-opacity="0.85" stroke="#34d399" stroke-width="1.5"><title>Экологическая</title></circle>
+<text class="lbl" x="106.0" y="615.3" text-anchor="end">Экологическая</text>
+</g>
+<g class="node" data-id="lib-social">
+<circle cx="142.7" cy="511.4" r="10" fill="#c084fc" fill-opacity="0.85" stroke="#c084fc" stroke-width="1.5"><title>Социально-правовая</title></circle>
+<text class="lbl" x="128.7" y="515.4" text-anchor="end">Социально-правовая</text>
+</g>
+<g class="node" data-id="dp:water-meter">
+<circle cx="430.0" cy="638.0" r="9" fill="#00e6c8" fill-opacity="0.85" stroke="#00e6c8" stroke-width="1.5"><title>Счётчики воды</title></circle>
+<text class="lbl" x="430.0" y="658.0" text-anchor="middle">Счётчики воды</text>
+</g>
+<g class="node" data-id="dp:energy-oracle">
+<circle cx="535.7" cy="699.0" r="9" fill="#f59e0b" fill-opacity="0.85" stroke="#f59e0b" stroke-width="1.5"><title>Энергетический оракул</title></circle>
+<text class="lbl" x="548.7" y="703.0" text-anchor="start">Энергетический оракул</text>
+</g>
+<g class="node" data-id="dp:agro-sensors">
+<circle cx="535.7" cy="821.0" r="9" fill="#a3e635" fill-opacity="0.85" stroke="#a3e635" stroke-width="1.5"><title>Агро-телеметрия</title></circle>
+<text class="lbl" x="548.7" y="825.0" text-anchor="start">Агро-телеметрия</text>
+</g>
+<g class="node" data-id="dp:eco-mrv">
+<circle cx="430.0" cy="882.0" r="9" fill="#34d399" fill-opacity="0.85" stroke="#34d399" stroke-width="1.5"><title>Экологический MRV</title></circle>
+<text class="lbl" x="430.0" y="902.0" text-anchor="middle">Экологический MRV</text>
+</g>
+<g class="node" data-id="dp:port-ledger">
+<circle cx="324.3" cy="821.0" r="9" fill="#c084fc" fill-opacity="0.85" stroke="#c084fc" stroke-width="1.5"><title>Логистический реестр</title></circle>
+<text class="lbl" x="311.3" y="825.0" text-anchor="end">Логистический реестр</text>
+</g>
+<g class="node" data-id="dp:grid-controller">
+<circle cx="324.3" cy="699.0" r="9" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>Контроллер микрогрида</title></circle>
+<text class="lbl" x="311.3" y="703.0" text-anchor="end">Контроллер микрогрида</text>
+</g>
+<g class="node" data-id="dao:governance">
+<circle cx="800.0" cy="642.0" r="11" fill="#00e6c8" fill-opacity="0.85" stroke="#00e6c8" stroke-width="1.5"><title>Управление</title></circle>
+<text class="lbl" x="800.0" y="664.0" text-anchor="middle">Управление</text>
+</g>
+<g class="node" data-id="dao:consensus">
+<circle cx="888.0" cy="730.0" r="11" fill="#00d4ff" fill-opacity="0.85" stroke="#00d4ff" stroke-width="1.5"><title>Консенсус</title></circle>
+<text class="lbl" x="903.0" y="734.0" text-anchor="start">Консенсус</text>
+</g>
+<g class="node" data-id="dao:funding">
+<circle cx="800.0" cy="818.0" r="11" fill="#a3e635" fill-opacity="0.85" stroke="#a3e635" stroke-width="1.5"><title>Финансирование</title></circle>
+<text class="lbl" x="800.0" y="840.0" text-anchor="middle">Финансирование</text>
+</g>
+<g class="node" data-id="dao:distribution">
+<circle cx="712.0" cy="730.0" r="11" fill="#c084fc" fill-opacity="0.85" stroke="#c084fc" stroke-width="1.5"><title>Распределение эффективности</title></circle>
+<text class="lbl" x="697.0" y="734.0" text-anchor="end">Распределение эффективности</text>
+</g>
+</g>
+</svg>
+      <div class="legend"><span><i style="background:#00e6c8"></i>Сущности</span><span><i style="background:#8aa0b8"></i>Документы</span><span><i style="background:#00d4ff"></i>Экономика</span><span><i style="background:#f59e0b"></i>Концепты</span><span><i style="background:#34d399"></i>Векторы</span><span><i style="background:#00e6c8"></i>Модули</span><span><i style="background:#c084fc"></i>Библиотеки</span><span><i style="background:#f59e0b"></i>Продукты данных · MRV</span><span><i style="background:#7dd3fc"></i>DAO</span></div>
+      <div class="ghint">43 узлов · 66 связей · наведение выделяет соседей, клик по узлу-документу прокручивает к разделу.</div>
+    </div>
+  </section>
+
+  <section class="doc" id="doc-arkheosium-ecosystem"><div class="doc-eyebrow">Документ 01 · whitepaper</div><h2 class="doc-title">ArkheOSium — операционная система экосистемы ресурсов и жизни планеты</h2><div class="doc-topic">Экосистема / ОС ArkheOSium</div><blockquote>Технико-экономический документ (whitepaper) для инвесторов и партнёров. Версия 1.1 · Флагман: Проект «Аральское море» · Продакшн: <code>arkheosium.vercel.app</code></blockquote>
+<hr>
+<h3 id="arkheosium-ecosystem-s0">1. Аннотация / резюме</h3>
+<p><strong>ArkheOSium</strong> — это операционная система (ОС) для экосистемы ресурсов и жизни человечества, планеты и цивилизации. Как классическая ОС управляет ресурсами компьютера, ArkheOSium управляет ресурсами Земли: водой, энергией, минералами, природой, сельским хозяйством и климатом — сводя разрозненные данные, знания, инженерию и капитал в единый управляемый контур.</p>
+<p>Технологически ArkheOSium — это реально работающее веб-приложение (React + TypeScript + Vite), развёрнутое на Vercel. Оно объединяет пять слоёв: <strong>мульти-доменную базу данных ресурсов</strong>, <strong>двойной геопространственный интерфейс</strong> (2D-карта + 3D-глобус), <strong>слой знаний</strong> (граф знаний поверх онтологии), <strong>слой верификации</strong> (MRV + DePIN с криптографическим запечатыванием данных) и <strong>DAO</strong> как связующий слой управления и финансирования.</p>
+<p>ArkheOSium задумана не как набор веб-страниц, а как <strong>цифровая операционная среда всей Инновационной лаборатории</strong>: люди работают не «в приложении», а внутри Лаборатории, используя ArkheOSium как единую среду управления исследованиями, проектами, продуктами, знаниями, партнёрствами и капиталом. Лаборатория <strong>FoxampyForge</strong> при этом одновременно <strong>работает внутри этой среды и создаёт/развивает</strong> саму ОС; весь проект <strong>принадлежит Лаборатории</strong>, тогда как управление ведётся <strong>через DAO</strong>. Пользователь всегда находится внутри одного живого пространства, а меняется лишь уровень погружения и активный контекст — по принципу <strong>Environment → Workspace → Object → Context → Action</strong>.</p>
+<p><strong>Для кого этот документ:</strong> инвесторы, институциональные партнёры, правительства регионов и научные консорциумы, которым нужна прозрачная, верифицируемая и тиражируемая модель управления ресурсами. Флагманская витрина ОС — <strong>Проект «Аральское море»</strong>: региональная кампания «Каракалпакия» стоимостью <strong>$250 млн</strong> служит самодостаточным эталоном, а общая программа Проекта оценивается в <strong>$0.5 трлн</strong> с мультипликативной — а не аддитивной — рентабельностью и готовностью к развёртыванию в любом регионе Земли и за её пределами.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s1">2. Проблема: ресурсы и жизнь планеты под давлением</h3>
+<p>Деградация экосистем — не абстракция, а измеримый системный сбой. Ключевой ресурс — <strong>вода</strong>: от неё зависят энергетика, сельское хозяйство, здоровье населения и климатическая стабильность. Разрушение водного баланса запускает каскад: пересыхание водоёмов → пыльные бури и засоление почв → потеря биоразнообразия → социальная и экономическая деградация региона.</p>
+<p>Аральское море — хрестоматийный пример этого каскада: одно из крупнейших внутренних морей планеты сократилось до фрагментов, оставив десятки тысяч квадратных километров токсичной пустыни Аралкум и поставив под угрозу миллионы людей в южном Приаралье.</p>
+<p>Корневая проблема — <strong>фрагментарность управления</strong>. Данные о ресурсах разрознены, знания заперты в отраслевых силосах, инвестиции идут «по обещаниям», а результаты не поддаются независимой проверке. Каждый вектор (вода, энергия, экология, наука, экономика, социум) оптимизируется отдельно — и суммарный эффект оказывается ниже потенциала. Требуется <strong>системная интеграция</strong>, в которой измерение, знание, инженерия и капитал работают как единый организм.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s2">3. Видение и миссия</h3>
+<p><strong>Видение:</strong> единый путь к всеобщему процветанию через модульные системы и кампании, связывающие все векторы — экологию, знания/R&amp;D, экономику, науку и социальные программы. Процветание достижимо только при прямой интеграции всех проектов и кампаний — и именно это реализует Проект «Аральское море» как первая витрина ОС.</p>
+<p><strong>Миссия ArkheOSium</strong> — быть «операционной системой экосистемы ресурсов и жизни»: слоем, который делает состояние планетарных ресурсов наблюдаемым, знание — связным, результат — верифицируемым, а капитал — направляемым по доказанной эффективности. ОС не заменяет исполнителей на местах — она даёт им общую среду, стандарт данных и механизм консенсуса, позволяющий тиражировать успешную региональную кампанию по всей Земле и за её пределами (колонизация, новые сферы интегрирования).</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s3">4. Архитектура ОС</h3>
+<p>ArkheOSium построена из пяти взаимосвязанных слоёв. Нижние слои поставляют данные и факты, верхние — смысл и управление.</p>
+<p>``<code>mermaid flowchart TD subgraph L5[DAO — связующий слой] DAO[Управление · Консенсус · Финансирование · Распределение эффективности] end subgraph L4[Слой верификации MRV + DePIN] MRV[Авто-сбор / измерение / контроль] SEAL[Запечатывание: хеш-якорь ИЛИ эмиссионный токен модуля] end subgraph L3[Слой знаний] KG[Граф знаний] ONT[Онтология · Таксономия · Фасетная классификация] end subgraph L2[Геопространственный интерфейс] MAP[2D-карта MapLibre — контуры регионов + счётчики] GLOBE[3D-глобус — дуги графа знаний + контур-маркеры] end subgraph L1[Мульти-доменная БД ресурсов] DB[Вода · Энергия · Минералы · Природа · Агро · Климат] end DB --&gt; MAP &amp; GLOBE MAP &amp; GLOBE --&gt; KG ONT --&gt; KG KG --&gt; MRV MRV --&gt; SEAL SEAL --&gt; DAO DAO --&gt;|обратная связь: приоритеты и капитал| DB </code>``</p>
+<ul><li><strong>Слой 1 — мульти-доменная БД ресурсов.</strong> Единая база объектов и субъектов по шести доменам с канонической палитрой (см. раздел 6). Каждый объект привязан к территории, домену и вектору.</li><li><strong>Слой 2 — двойной геопространственный интерфейс.</strong> *2D-карта* (<code>src/components/map/WaterMap.tsx</code>) на MapLibre рисует контуры регионов по заданным территориальным границам с табличкой «название + количество объектов», группируя объекты по уровню зума. *3D-глобус* (<code>src/pages/EarthGlobePage.tsx</code>) на react-three-fiber показывает дуги графа знаний и контур-маркеры регионов, раскрывая отдельные метки при приближении.</li><li><strong>Слой 3 — граф знаний.</strong> Онтологическая систематизация связывает модули и библиотеки по каждому вектору (инженерия, наука/R&amp;D, экономика, экология, социум).</li><li><strong>Слой 4 — верификация (MRV + DePIN).</strong> Продукты автоматически собирают, измеряют и контролируют данные и немедленно запечатывают их — хешем или эмиссионным токеном самого модуля контура.</li><li><strong>Слой 5 — DAO.</strong> Связующий слой управления, консенсуса, финансирования и распределения эффективности между модулями.</li></ul>
+<p>Контуры задаются на всех уровнях иерархии: <strong>регион → кампания → модуль → вектор → общая программа</strong>.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s4">5. Операционная среда: онбординг, кластеры, модули</h3>
+<p>Поверх пяти технических слоёв ArkheOSium разворачивается как <strong>единая операционная среда инноваций (Innovation Operating System)</strong> — не сайт со страницами, а цифровой двойник всей Инновационной лаборатории, где люди, идеи, процессы, продукты, исследования и партнёрства отображаются как единый живой организм. Именно это отличает ОС от инструментов вроде Notion, Jira или Confluence: те управляют отдельными сущностями, а ArkheOSium визуализирует и сопровождает всю организацию как динамическую систему.</p>
+<p>Среда устроена в четыре уровня погружения: <strong>Onboarding → Living Ecosystem → Workspaces → Objects</strong>.</p>
+<p><strong>Онбординг</strong> — короткое (5–15 минут) знакомство, а не регистрация: живое ядро собирается из частиц, раскрывается в исследования, проекты, людей, компании, AI, документы и DAO, после чего пользователь выбирает <strong>роль</strong> (исследователь, партнёр, компания, инвестор, разработчик, эксперт, студент, государство) и <strong>интересы</strong> (вода, экология, AI, архитектура, блокчейн, дизайн, smart city и др.). Роль полностью меняет дальнейший UX, а созданный цифровой профиль-аватар вводит пользователя в ОС.</p>
+<p><strong>Living Ecosystem</strong> — главный экран вместо привычной домашней страницы: в центре живое ядро <strong>Living Core</strong>, отражающее текущее состояние всей экосистемы, от которого расходятся связи к проектам, лабораториям, компаниям, документам, AI, DAO, людям и технологиям. Навигация строится не через меню, а через <strong>живой граф знаний</strong> и <strong>универсальную командную строку</strong> (по образцу VS Code / Obsidian): ввод запроса мгновенно перестраивает пространство вокруг нужного объекта.</p>
+<p><strong>Модель живых кластеров</strong> заменяет дерево департаментов: Innovation Core, Research, Engineering, Design, Product, Startup, Project, Knowledge, Partnership, Investment, Education, Operations. Кластер — не кнопка, а полноценное цифровое пространство, которое при приближении трансформируется в рабочую область (например, «Проекты» → портфель → конкретный проект → его задачи, документы, граф зависимостей, участники и аналитика) без выхода из системы.</p>
+<p><strong>Модульная архитектура.</strong> ОС состоит из ~18 базовых модулей, каждый существует одновременно как самостоятельное рабочее пространство и как объект в общем графе:</p>
+<div class='tw'><table><thead><tr><th>Модуль</th><th>Назначение</th></tr></thead><tbody><tr><td>Living Core</td><td>Центральное ядро состояния экосистемы</td></tr><tr><td>Laboratory</td><td>Лаборатория, кластеры, департаменты, исследования</td></tr><tr><td>Projects</td><td>Все проекты и их жизненный цикл</td></tr><tr><td>Products</td><td>Продукты, технологии, сервисы</td></tr><tr><td>Startups</td><td>Инкубатор и акселератор стартапов</td></tr><tr><td>Organizations</td><td>UnicapInvest, партнёры, университеты, органы власти</td></tr><tr><td>Collaborations</td><td>Совместные программы, консорциумы, DAO-группы</td></tr><tr><td>Knowledge Graph</td><td>Семантический граф знаний</td></tr><tr><td>Documents</td><td>Whitepaper, стандарты, исследования, регламенты</td></tr><tr><td>AI Workspace</td><td>Специализированные ИИ-агенты</td></tr><tr><td>Goals &amp; OKR</td><td>Стратегия, цели, KPI, ключевые результаты</td></tr><tr><td>Roadmaps</td><td>Дорожные карты, этапы, зависимости</td></tr><tr><td>Tasks</td><td>Задачи, спринты, Kanban, Gantt</td></tr><tr><td>Grants &amp; Funding</td><td>Гранты, инвестиции, заявки, доноры</td></tr><tr><td>Analytics</td><td>Метрики, BI, прогнозы, влияние проектов</td></tr><tr><td>Community</td><td>Эксперты, команды, коммуникации, события</td></tr><tr><td>Resources</td><td>Финансы, оборудование, интеллектуальные активы</td></tr><tr><td>Settings &amp; Identity</td><td>Профиль, роли, права доступа, персонализация</td></tr></tbody></table></div>
+<p><strong>Единая система объектов.</strong> Любой объект ОС — проект, компания, документ, человек, партнёр, технология — имеет одинаковую структуру: обложка → описание → связи → документы → AI → история → комментарии → метрики → действия. Переходы реализуются не как исчезновение страниц, а как масштабирование и трансформация: контекст не теряется.</p>
+<p><strong>AI Workspace</strong> — не чат, а среда из нескольких специализированных агентов (Architect, Researcher, Lawyer, Engineer, Designer, Analyst, Grant Writer, Investor), которые «знают» всю экосистему: могут показать связи между проектами (например, как связаны Aral Nexus и VOD.eco), перестроить карту под запрос или собрать все проекты по направлению.</p>
+<p><strong>Слой экосистемы (Ecosystem).</strong> Внутри ОС проекты и направления существуют как связанные узлы единой экосистемы: <strong>Aral Nexus</strong>, <strong>VOD.eco</strong>, <strong>Ethosium</strong>, <strong>Innovation Lab</strong>, <strong>AI</strong>, <strong>Education</strong>, <strong>DAO</strong>. Каждый крупный проект (например, Aral Nexus) раскрывается как собственная мини-ОС: Overview, Modules, Research, Timeline, Funding, Partners, Documents, Simulation, Roadmap.</p>
+<p>Такой подход превращает ОС из презентации в рабочую платформу: по мере роста экосистемы не требуется менять структуру — достаточно добавлять новые модули, узлы и связи.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s5">6. Модули и векторы</h3>
+<p>ОС организует деятельность по <strong>пяти векторам</strong> и <strong>шести ресурсным доменам</strong> с канонической цветовой палитрой (синхронизирована во всём приложении):</p>
+<div class='tw'><table><thead><tr><th>Домен</th><th>Цвет (hex)</th><th>Роль</th></tr></thead><tbody><tr><td>Вода</td><td><code>#00e6c8</code></td><td>Ключевой ресурс — опреснение, гидробаланс, рекуперация</td></tr><tr><td>Энергия</td><td><code>#f59e0b</code></td><td>ВИЭ, накопители, зелёный водород</td></tr><tr><td>Минералы</td><td><code>#c084fc</code></td><td>Экспорт из рассола, логистика</td></tr><tr><td>Природа</td><td><code>#34d399</code></td><td>Восстановление экосистем, биоразнообразие</td></tr><tr><td>Агро</td><td><code>#a3e635</code></td><td>Биокупола, солеустойчивые культуры</td></tr><tr><td>Климат</td><td><code>#7dd3fc</code></td><td>Мониторинг, климат-моделирование</td></tr></tbody></table></div>
+<p><strong>Векторы:</strong> научно-исследовательский, экономический, инженерный, экологический, социальный. Реальные модули кампании «Каракалпакия» (из <code>src/data/karakalpak-campaign.ts</code>):</p>
+<div class='tw'><table><thead><tr><th>Модуль</th><th>Вектор</th><th>Домен</th><th>Назначение</th><th>Метрика</th></tr></thead><tbody><tr><td>Вода и опреснение</td><td>Инженерный</td><td>Вода</td><td>Солнечное опреснение и рециркуляция</td><td>480 000 м³/сут</td></tr><tr><td>Солнце + ветер + накопители</td><td>Инженерный</td><td>Энергия</td><td>Гибридное поле ВИЭ + зелёный водород</td><td>3,2 ГВт</td></tr><tr><td>Агро-биокупола</td><td>Экономический</td><td>Агро</td><td>Вертикальные фермы, аквапоника, галофиты</td><td>120 га</td></tr><tr><td>Эко-город</td><td>Социальный</td><td>Природа</td><td>Биоклиматический «15-минутный город»</td><td>45 000 жителей</td></tr><tr><td>Логистика и порт</td><td>Экономический</td><td>Минералы</td><td>Мультимодальный узел, экспорт минералов</td><td>2,4 млн т/год</td></tr><tr><td>R&amp;D-кампус</td><td>Научно-исслед.</td><td>Климат</td><td>Открытая наука, полигон прототипов</td><td>1 200 исследователей</td></tr><tr><td>Сеть мониторинга</td><td>Инженерный</td><td>Климат</td><td>Цифровой двойник + поток верифицируемых данных</td><td>52 000 датчиков</td></tr></tbody></table></div>
+<p>Каждый модуль подключён к DAO и к потоку верифицируемых данных, а его эффект по вектору агрегируется в общую эффективность программы.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s6">7. Слой знаний: онтологическая систематизация</h3>
+<p>Знания ArkheOSium систематизированы научно корректным образом — как <strong>онтологическая систематизация</strong>, реализованная в виде <strong>графа знаний (knowledge graph)</strong> поверх <strong>таксономии</strong> и <strong>фасетной классификации</strong>.</p>
+<ul><li><strong>Онтология</strong> — формальное машиночитаемое представление области: сущности, свойства и связи, обеспечивающее интеграцию между векторами.</li><li><strong>Граф знаний</strong> — узлы (библиотеки/модули) и рёбра (семантические связи); дуги графа уже визуализируются на 3D-глобусе.</li><li><strong>Таксономия</strong> — иерархия «вектор → модуль → задача».</li><li><strong>Фасетная классификация</strong> — классификация по нескольким независимым фасетам одновременно (например: технология · TRL · модуль).</li></ul>
+<p><strong>Библиотеки знаний</strong> — узлы онтологии, собственные и партнёрские, по областям каждого вектора:</p>
+<div class='tw'><table><thead><tr><th>Библиотека</th><th>Домен</th><th>Тип</th><th>Фасет</th></tr></thead><tbody><tr><td>Инженерная</td><td>Инженерия</td><td>своя</td><td>технология · TRL · модуль</td></tr><tr><td>Научно-исследовательская</td><td>Наука</td><td>своя</td><td>дисциплина · метод · датасет</td></tr><tr><td>Библиотека воды</td><td>Вода</td><td>своя</td><td>процесс · источник · качество</td></tr><tr><td>Энергетическая</td><td>Энергия</td><td>партнёр</td><td>генерация · хранение · баланс</td></tr><tr><td>Агро-биологическая</td><td>Агро</td><td>партнёр</td><td>культура · цикл · субстрат</td></tr><tr><td>Экологическая</td><td>Экология</td><td>своя</td><td>экосистема · вид · индикатор</td></tr><tr><td>Социально-правовая</td><td>Социум</td><td>партнёр</td><td>сектор · норма · практика</td></tr></tbody></table></div>
+<p>Связи между библиотеками (рёбра онтологии) задают семантику интеграции: инженерия ↔ наука ↔ вода ↔ энергия ↔ агро ↔ экология ↔ социум образуют связный граф, а не набор изолированных силосов.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s7">8. Верификация и токенизация данных (MRV + DePIN)</h3>
+<p>Доверие инвестора строится на проверяемости. ArkheOSium встраивает верификацию в саму точку измерения по стандарту <strong>MRV</strong> (Measurement, Reporting, Verification) на инфраструктуре <strong>DePIN</strong> (Decentralized Physical Infrastructure).</p>
+<p>Продукты каждого модуля автоматически собирают, измеряют и контролируют данные и <strong>немедленно запечатывают</strong> их одним из двух способов:</p>
+<p>1. <strong>Хеш-якорь (hash-anchoring)</strong> — измерение фиксируется криптографическим хешем on-chain как неизменяемое доказательство факта. 2. <strong>Эмиссионный токен</strong> — данные токенизируются <strong>самим модулем контура</strong> прямо в точке замера: измерение становится верифицируемым активом (<code>data → asset</code>).</p>
+<div class='tw'><table><thead><tr><th>Продукт</th><th>Модуль</th><th>Печать</th><th>Что фиксирует</th></tr></thead><tbody><tr><td>Счётчики воды и качества</td><td>Опреснение</td><td>Хеш-якорь</td><td>Объём и качество пресной воды</td></tr><tr><td>Энергетический оракул</td><td>Энергия</td><td>Токен эмиссии</td><td>Выработка ВИЭ</td></tr><tr><td>Агро-телеметрия</td><td>Агро</td><td>Хеш-якорь</td><td>Урожайность, расход воды и нутриентов</td></tr><tr><td>Экологический MRV</td><td>Мониторинг</td><td>Токен эмиссии</td><td>Поглощение CO₂ → углеродные токены</td></tr><tr><td>Логистический реестр</td><td>Порт</td><td>Хеш-якорь</td><td>Грузооборот, экспорт минералов</td></tr><tr><td>Контроллер микрогрида</td><td>Мониторинг</td><td>Токен эмиссии</td><td>DePIN-узлы токенизируют потоки</td></tr></tbody></table></div>
+<p>Каждый контур (<strong>регион → кампания → модуль → вектор</strong>) эмитирует собственный верифицируемый поток. Потоки агрегируются в общую эффективность программы и поступают в DAO, где капитал направляется в модули по доказанным результатам, а не по обещаниям.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s8">9. Экономика</h3>
+<p>Экономическая модель ArkheOSium строится на двух уровнях: региональная кампания-эталон и глобальная программа.</p>
+<div class='tw'><table><thead><tr><th>Уровень</th><th>Оценка</th><th>Смысл</th></tr></thead><tbody><tr><td><strong>Кампания «Каракалпакия»</strong></td><td><strong>$250 млн</strong></td><td>Самодостаточный региональный эталон; окупается внутри региона; все векторы в одном контуре</td></tr><tr><td><strong>Общая программа Проекта</strong></td><td><strong>$0.5 трлн ($500 млрд)</strong></td><td>Тиражирование по всем регионам Земли и за её пределами; рентабельность в разы выше</td></tr></tbody></table></div>
+<p><strong>Ключевой тезис — мультипликативность, а не аддитивность.</strong> Общая программа стоит и приносит больше суммы отдельных кампаний, потому что интеграция всех векторов даёт <strong>системный множитель</strong>. Кампания «Каракалпакия» рентабельна сама по себе; общая программа — мультипликативно рентабельнее за счёт совместной работы всех модулей, систем и кампаний как единого организма.</p>
+<p>Эффекты кампании по векторам (агрегируются в общую эффективность):</p>
+<div class='tw'><table><thead><tr><th>Вектор</th><th>Эффект</th><th>Показатель</th></tr></thead><tbody><tr><td>Научно-исследовательский</td><td>Открытая наука и полигон технологий</td><td>~85 патентов/год</td></tr><tr><td>Экономический</td><td>Самоокупаемый региональный контур</td><td>28 000 рабочих мест</td></tr><tr><td>Инженерный</td><td>Цифровой двойник и автоматизация</td><td>52 000 датчиков в сети</td></tr><tr><td>Экологический</td><td>Восстановление экосистемы</td><td>18 000 га восстановлено</td></tr><tr><td>Социальный</td><td>Здоровье, образование, среда</td><td>~3 млн человек под влиянием</td></tr></tbody></table></div>
+<p>Модель тиражируема: та же архитектура кампании разворачивается в любом регионе — «где бы мы ни были», включая колонизацию других планет и новые сферы интегрирования.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s9">10. Флагман: Проект «Аральское море» как витрина ОС</h3>
+<p>Проект «Аральское море» — первая полная демонстрация всех пяти слоёв ОС в действии, поданная как иммерсивная презентация.</p>
+<p><strong>Маршрут витрины <code>/journey → /aral</code>:</strong></p>
+<p>1. <strong><code>/journey</code></strong> (<code>src/pages/EcoJourneyPage.tsx</code>) — онбординг-таймлапс истории планетарной воды (−10 000 лет → 2026 → +100 лет наблюдаемого будущего) вокруг «чистого» глобуса: ледники, реки, ирригация, усыхание Арала, дефицит, «угасание». 2. <strong>Возврат в настоящее</strong> — раскрываются метки как контуры регионов с табличками; пульсирует Средняя Азия; центрирование на Аральском море → попап «Проект Аральское море». 3. <strong><code>/aral</code></strong> (<code>src/pages/AralSeaProjectPage.tsx</code>) — split-раскладка: sticky-карта Центральной Азии (левая половина / верх на мобильном) + скролл-главы справа. Карта авто-зумит области под активную главу (<code>IntersectionObserver</code> → <code>flyTo</code>). 4. <strong>Выбор программы</strong> (<code>src/components/eco/DualProgramStage.tsx</code>) — любой путь раскрывает параллельный split «общая программа $0.5 трлн × кампания $250 млн» со знаком «×» и плашкой мультипликативности. 5. <strong>Каракалпакский deep-dive</strong> (<code>src/components/eco/KarakalpakCampaign.tsx</code>) — экономика → эффекты по 5 векторам → модули → граф знаний библиотек → DAO → продукты MRV/DePIN.</p>
+<p>Мастерплан включает зоны: жилой эко-квартал, опреснение и вода, возобновляемая энергетика, агро-биокупола, логистика/порт, R&amp;D-кампус — с восстановлением береговой линии, водно-болотных угодий и лесополос против пыльных бурь. Обзор остальных кампаний добавляет город-остров в центре восстановленного моря и переброс паводковых вод из Сибири.</p>
+<p>Флагман доказывает главный тезис ОС: только прямая интеграция всех векторов и контуров ведёт к процветанию.</p>
+<hr>
+<h3 id="arkheosium-ecosystem-s10">11. Дорожная карта</h3>
+<p>Кратко (детальная версия — в отдельном документе <code>04-roadmap-unicap-lab-karakalpak.md</code>):</p>
+<ul><li><strong>Этап 1 — Витрина и эталон.</strong> Полный запуск презентации <code>/journey → /aral</code>, кампания «Каракалпакия» как самодостаточный референс. *(в основном реализовано)*</li><li><strong>Этап 2 — Верификационный контур.</strong> Промышленное развёртывание сети MRV/DePIN, on-chain хеш-якорение и эмиссионные токены модулей.</li><li><strong>Этап 3 — DAO и капитал.</strong> Полноценный DAO-слой: голосование за приоритеты, финансирование по верифицируемым результатам, распределение эффективности.</li><li><strong>Этап 4 — Тиражирование.</strong> Развёртывание кампаний по регионам Земли; подключение партнёрских библиотек знаний.</li><li><strong>Этап 5 — За пределами Земли.</strong> Новые сферы интегрирования и колонизация как продолжение модели.</li></ul>
+<hr>
+<h3 id="arkheosium-ecosystem-s11">12. Заключение</h3>
+<p>ArkheOSium превращает управление ресурсами и жизнью планеты из набора разрозненных отраслевых усилий в единую операционную систему: наблюдаемую (2D-карта + 3D-глобус), связную (граф знаний поверх онтологии), проверяемую (MRV + DePIN с хеш-якорением и токенами модулей) и управляемую по доказанной эффективности (DAO). Кампания «Каракалпакия» ($250 млн) доказывает жизнеспособность модели на одном регионе; общая программа ($0.5 трлн) раскрывает её мультипликативную ценность при интеграции всех векторов и готовность к тиражированию по всей Земле и за её пределами.</p>
+<p>Для инвестора и партнёра это означает три вещи: <strong>прозрачность</strong> (каждый факт запечатан и проверяем), <strong>тиражируемость</strong> (эталонная кампания как рабочий шаблон) и <strong>мультипликативную отдачу</strong> (интеграция даёт системный множитель, а не арифметическую сумму). Проект «Аральское море» — не обещание, а работающая витрина этой операционной системы.</p></section>
+<section class="doc" id="doc-foxampyforge-lab"><div class="doc-eyebrow">Документ 02 · whitepaper</div><h2 class="doc-title">FoxampyForge — исследовательско-инновационная лаборатория экосистемы</h2><div class="doc-topic">Лаборатория FoxampyForge (R&amp;D)</div><blockquote><strong>Из идеи и концепции — в проект и продукт.</strong> Экосистема проектов, услуг и инвестиций.</blockquote>
+<hr>
+<h3 id="foxampyforge-lab-s0">1. Аннотация</h3>
+<p><strong>FoxampyForge</strong> (далее — Лаборатория) — это исследовательское и инновационное подразделение международной инвестиционной группы <strong>UnicapInvest</strong>. Лаборатория превращает сырые идеи и концепции в работающие цифровые продукты, платформы и целые программы, а затем — в управляемые активы и инвестиционные инициативы.</p>
+<p>В отличие от классического продуктового агентства, FoxampyForge устроена как <strong>OS-подобный стартап-хаб</strong>: у неё есть каталог приложений-продуктов (<strong>App Hub</strong>), маркетплейс услуг, внутренний аккаунт с кошельком и токеном <strong>«Искра» (✦)</strong>, стейкинг и поток заказа услуг. Всё это работает поверх единой методологической и управленческой основы — <strong>фрактальной методологии</strong> полного цикла разработки и <strong>DAO</strong> как связующего слоя управления, консенсуса, финансирования и распределения эффективности.</p>
+<p>Флагманский проект Лаборатории — <strong>ArkheOSium</strong>, операционная система для экосистемы ресурсов и жизни. Лаборатория <strong>одновременно работает внутри ArkheOSium и создаёт/развивает</strong> её: она живёт в среде ОС и является её разработчиком. Весь проект (ArkheOSium и его экосистема) <strong>принадлежит Лаборатории</strong>, но управление ведётся <strong>через DAO</strong>. В контуре ОС разворачивается <strong>кампания «Каракалпакия»</strong> ($250 млн) как эталонный региональный модуль внутри <strong>общей программы Проекта на $0,5 трлн</strong>.</p>
+<p>Настоящий документ описывает роль Лаборатории, её экономику, DAO, связь с ArkheOSium и портфель направлений. Место FoxampyForge внутри группы UnicapInvest подробно раскрыто в документе <strong>03</strong>.</p>
+<hr>
+<h3 id="foxampyforge-lab-s1">2. Позиционирование: R&amp;D-подразделение группы UnicapInvest</h3>
+<p>Согласно собственному описанию, FoxampyForge — это «сайт исследовательского / инновационного подразделения группы <strong>UnicapInvest</strong>». Формулировка в материалах группы: *«FoxampyForge — департамент исследований и инновационных разработок… исследовательский контур группы UnicapInvest: изучаем новые рынки и технологии, проектируем цифровые продукты и платформенные решения и доводим их до стадии передачи в управляющий фонд для масштабирования»*.</p>
+<p>UnicapInvest — международная инвестиционная группа, управляющая капиталом и портфелем активов в реальных секторах экономики:</p>
+<div class='tw'><table><thead><tr><th>Метрика группы</th><th>Значение</th></tr></thead><tbody><tr><td>Под управлением</td><td>€200M</td></tr><tr><td>Портфель активов</td><td>€1.7B</td></tr><tr><td>Офисов</td><td>8</td></tr></tbody></table></div>
+<p>Группа работает в секторах: <strong>здравоохранение, промышленность, энергетика, инфраструктура, жильё</strong>. Флагманская инициатива группы — <strong>VODPROM</strong> (цифровая платформа управления водными и земельными ресурсами, в контуре которой — Token Vodprom и партнёрство Culligan).</p>
+<p>Роль FoxampyForge в этой конструкции однозначна: это <strong>инновационный двигатель группы</strong>. Лаборатория ведёт разведку рынков и технологий, собирает продукты «из идеи в продукт» и передаёт зрелые решения в управляющий фонд для масштабирования. Девиз группы, который наследует и Лаборатория: *«Цена величия — ответственность»*.</p>
+<hr>
+<h3 id="foxampyforge-lab-s2">3. Что Лаборатория создаёт и чем управляет</h3>
+<p>FoxampyForge одновременно <strong>создаёт</strong> и <strong>управляет</strong> тремя классами сущностей — проектами, программами и R&amp;D-инициативами:</p>
+<ul><li><strong>Проекты (продукты).</strong> Портфель приложений-продуктов, каждое в активной разработке и открытое для инвестиций и стейкинга: <strong>VODPROM</strong> (флагман, платформа водных/земельных ресурсов), <strong>ETHOSIUM</strong> (цифровая ОС личности), <strong>PetaMorBis</strong> (цифровой зоополис), <strong>EthosLife</strong> (привычки и цели), <strong>FlowBook</strong> (поток заметок и знаний), <strong>CreamSale</strong> (витрина и продажи).</li><li><strong>Программы.</strong> Долгосрочные многомодульные инициативы. Флагман — <strong>ArkheOSium</strong> и её экологическая программа «Путь к всеобщему процветанию», внутри которой живёт кампания «Каракалпакия».</li><li><strong>R&amp;D.</strong> Прикладные исследования и прототипы: внутренние AI-системы, экспериментальные MVP, закрытый стейкинг-пул как приватная инвестиционная инициатива.</li></ul>
+<p>Управление всем этим портфелем — не ручное, а системное: приоритеты, финансирование и распределение эффективности проходят через <strong>DAO Лаборатории</strong> (раздел 6).</p>
+<p>``<code>mermaid graph TD UCI["UnicapInvest (группа)"] --&gt; LAB["FoxampyForge — R&amp;D-лаборатория"] LAB --&gt; PROJ["Проекты / продукты&lt;br/&gt;VODPROM · ETHOSIUM · PetaMorBis …"] LAB --&gt; PROG["Программы&lt;br/&gt;ArkheOSium"] LAB --&gt; RND["R&amp;D / прототипы&lt;br/&gt;AI-системы · MVP"] PROG --&gt; ARK["ArkheOSium — ОС экосистемы"] ARK --&gt; CAMP["Кампания «Каракалпакия» $250M"] ARK --&gt; GEN["Общая программа $0.5 трлн"] LAB -. управляет через .-&gt; DAO["DAO: управление · консенсус · финансирование · распределение"] DAO --- PROJ DAO --- PROG DAO --- RND </code>``</p>
+<hr>
+<h3 id="foxampyforge-lab-s3">4. Модель «из идеи в продукт»: фрактальная методология</h3>
+<p>Ядро Лаборатории — <strong>фрактальная методология</strong>: одна и та же логика полного цикла повторяется на каждом масштабе — от отдельной услуги до целой программы. В визуальном языке сайта Лаборатории это выражено мотивом «живой материи»: WebGL-фон «песка времени», поверх которого лежат «высеченные в камне плиты» — метафора решений, обретающих постоянство и вес.</p>
+<p>Полный цикл проходит <strong>8 стадий</strong>:</p>
+<div class='tw'><table><thead><tr><th>#</th><th>Стадия</th><th>Суть</th></tr></thead><tbody><tr><td>1</td><td>Исследование</td><td>Рынок, пользователи, технологии → карта возможностей и гипотезы.</td></tr><tr><td>2</td><td>Стратегия</td><td>Бизнес-модель, приоритеты, дорожная карта, критерии успеха.</td></tr><tr><td>3</td><td>Систематизация</td><td>Данные, процессы и требования сводятся в единую логику.</td></tr><tr><td>4</td><td>Архитектура</td><td>Сущности, связи, потоки данных, техническая основа под нагрузку.</td></tr><tr><td>5</td><td>Брендирование</td><td>Позиционирование, вербальная и визуальная идентичность.</td></tr><tr><td>6</td><td>Дизайн</td><td>UX/UI и дизайн-система, готовая к разработке.</td></tr><tr><td>7</td><td>Разработка</td><td>Инженерия, выдерживающая нагрузку; AI/автоматизация как инструмент.</td></tr><tr><td>8</td><td>Рост</td><td>Запуск, аналитика, масштабирование, передача в управляющий фонд.</td></tr></tbody></table></div>
+<p>«Фрактальность» означает, что этот цикл — самоподобен: услуга проходит его в миниатюре, продукт — целиком, программа — как совокупность вложенных циклов модулей. Так идея масштабируется без потери связности:</p>
+<p>``<code>mermaid flowchart LR A["Идея / концепция"] --&gt; B["Проект"] B --&gt; C["Продукт"] C --&gt; D["Масштабирование"] D -.-&gt;|"передача в управляющий фонд"| E["Актив группы"] A -.-&gt;|"тот же цикл на меньшем масштабе"| A2["услуга"] C -.-&gt;|"тот же цикл на большем масштабе"| C2["программа"] </code>``</p>
+<p>Форматы работы, в которых цикл предлагается рынку: <strong>отдельные услуги</strong> (один этап цикла), <strong>полный цикл</strong> (сквозная разработка под ключ) и <strong>Venture Builder</strong> (совместное создание продукта как долгосрочное партнёрство).</p>
+<hr>
+<h3 id="foxampyforge-lab-s4">5. Внутренняя экономика Лаборатории</h3>
+<p>FoxampyForge реализована как OS-подобный хаб с собственной внутренней экономикой. Ключевые контуры:</p>
+<ul><li><strong>App Hub</strong> — каталог приложений-продуктов Лаборатории. Каждый продукт представлен карточкой со стадией готовности, направлением и открытостью к инвестициям/стейкингу.</li><li><strong>Маркетплейс услуг</strong> — таксономия услуг по направлениям (исследования, стратегия, брендинг, AI, инженерия и др.) с потоком заказа услуги.</li><li><strong>Аккаунт и кошелёк</strong> — личный контур пользователя с внутренним токеном <strong>«Искра» (✦)</strong>.</li><li><strong>Стейкинг</strong> — механика удержания/участия; в портфеле есть и <strong>закрытый стейкинг-пул</strong> как отдельная приватная инициатива.</li><li><strong>Поток заказа услуг</strong> — сквозной сценарий: вход → выбор услуги/продукта → оформление заявки.</li></ul>
+<p>Токен <strong>«Искра» (✦)</strong> — внутренняя единица ценности хаба: он связывает потребление услуг, участие в продуктах и стейкинг в единый экономический контур. Экономика построена на премиальном liquid-glass интерфейсе и подаётся как <strong>экосистема проектов, услуг и инвестиций</strong>, а не как разрозненный набор функций.</p>
+<blockquote><strong>Дисклеймер.</strong> Инвестиционно-стейкинговые разделы Лаборатории носят информационный характер и не являются инвестиционной рекомендацией или обещанием доходности.</blockquote>
+<hr>
+<h3 id="foxampyforge-lab-s5">6. DAO Лаборатории</h3>
+<p>Управление портфелем проектов, программ и R&amp;D осуществляется через <strong>DAO</strong> — связующий слой системности и интеграции. DAO решает четыре задачи:</p>
+<div class='tw'><table><thead><tr><th>Функция</th><th>Что делает</th></tr></thead><tbody><tr><td><strong>Управление</strong></td><td>Держатели голосуют за приоритеты модулей и распределение ресурсов.</td></tr><tr><td><strong>Консенсус</strong></td><td>Решения фиксируются on-chain — прозрачно и невозвратно для всех контуров.</td></tr><tr><td><strong>Финансирование</strong></td><td>Пул капитала направляется в модули <strong>по верифицируемым результатам, а не по обещаниям</strong>.</td></tr><tr><td><strong>Распределение эффективности</strong></td><td>Эффект каждого модуля агрегируется и справедливо распределяется между участниками и командами.</td></tr></tbody></table></div>
+<p>Принцип «финансирование по верифицируемым результатам» — центральный. DAO не раздаёт капитал под декларации: каждый модуль (проект, команда, контур) поставляет <strong>верифицируемый поток данных</strong> (см. раздел 7), из которого складывается его измеримая эффективность. Именно эта эффективность агрегируется и становится основанием для распределения ресурсов и вознаграждения. Так DAO превращает разрозненные команды в единый организм, где вклад каждого измерим и справедливо учтён.</p>
+<hr>
+<h3 id="foxampyforge-lab-s6">7. Связь с ArkheOSium: граф знаний, MRV/DePIN, токенизация</h3>
+<p><strong>ArkheOSium</strong> — флагманская программа Лаборатории и одновременно её «производственная площадка», на которой инструменты FoxampyForge проявляются в продукте. Более того, ArkheOSium служит <strong>цифровой операционной средой самой Лаборатории</strong>: команды работают не «в приложении», а внутри Лаборатории, используя ОС как единое пространство управления исследованиями, проектами, знаниями и партнёрствами (онбординг, живые кластеры, граф знаний, AI-агенты). Детальная архитектура этой среды раскрыта в документе <strong>01</strong>. Ключевые инструменты связи:</p>
+<p><strong>Граф знаний и онтология.</strong> Знания каждого вектора хранятся как <strong>библиотеки знаний</strong> (собственные + партнёрские), связанные в <strong>онтологический граф знаний (knowledge graph)</strong> над <strong>таксономией</strong> и <strong>фасетной классификацией</strong>. Онтология — это формальное, машиночитаемое представление области: сущности, свойства и связи, обеспечивающее интеграцию между доменами. Библиотеки — узлы графа; связи между ними задают семантику интеграции модулей.</p>
+<div class='tw'><table><thead><tr><th>Библиотека</th><th>Домен</th><th>Тип</th></tr></thead><tbody><tr><td>Инженерная</td><td>Инженерия</td><td>своя</td></tr><tr><td>Научно-исследовательская</td><td>Наука</td><td>своя</td></tr><tr><td>Библиотека воды</td><td>Вода</td><td>своя</td></tr><tr><td>Энергетическая</td><td>Энергия</td><td>партнёрская</td></tr><tr><td>Агро-биологическая</td><td>Агро</td><td>партнёрская</td></tr><tr><td>Экологическая</td><td>Экология</td><td>своя</td></tr><tr><td>Социально-правовая</td><td>Социум</td><td>партнёрская</td></tr></tbody></table></div>
+<p><strong>MRV + DePIN.</strong> Продукты Лаборатории автоматически <strong>измеряют, фиксируют и верифицируют</strong> данные каждого модуля (Measurement, Reporting, Verification) поверх децентрализованной физической инфраструктуры (DePIN). Каждое измерение сразу <strong>запечатывается</strong>: либо криптографическим <strong>хешем</strong> (неизменяемое доказательство факта), либо <strong>токеном эмиссии самого модуля</strong> (данные становятся верифицируемым активом прямо в точке замера).</p>
+<p><strong>Токенизация.</strong> Каждый контур — регион → кампания → модуль → вектор — эмитирует собственный верифицируемый поток. Потоки агрегируются в общую эффективность программы и в DAO. Так граф знаний, MRV/DePIN и токенизация вместе образуют замкнутую петлю: измеримое знание → верифицируемый актив → управленческое решение.</p>
+<hr>
+<h3 id="foxampyforge-lab-s7">8. Портфель направлений / векторов</h3>
+<p>Лаборатория ведёт <strong>семь направлений</strong> («направлений» в терминах сайта Лаборатории), закрывающих полный цикл — от исследования до жизни продукта в экосистеме:</p>
+<div class='tw'><table><thead><tr><th>Направление</th><th>Фокус</th></tr></thead><tbody><tr><td>Инновационные исследования</td><td>Рынки, отрасли, пользователи, технологии — поиск неочевидных возможностей.</td></tr><tr><td>Бизнес-стратегия</td><td>Бизнес-модель, концепции, архитектура решений.</td></tr><tr><td>Бренд-системы</td><td>Стратегия, вербальная и визуальная идентичность, brandbook.</td></tr><tr><td>Продуктовый дизайн</td><td>UX/UI, прототипы, дизайн-системы.</td></tr><tr><td>AI и автоматизация</td><td>AI-агенты, автоматизация процессов, интеллектуальные системы.</td></tr><tr><td>Цифровая инженерия</td><td>Веб-платформы, SaaS, мобильные приложения, MVP.</td></tr><tr><td>Развитие экосистемы</td><td>Запуск, рост, интеграция в UnicapInvest, масштабирование.</td></tr></tbody></table></div>
+<p>В прикладной плоскости (на примере ArkheOSium/Каракалпакии) эти направления разворачиваются в <strong>пять векторов эффективности</strong>: <strong>научно-исследовательский</strong>, <strong>экономический</strong>, <strong>инженерный</strong>, <strong>экологический</strong> и <strong>социальный</strong>. Каждый вектор наполнен конкретными модулями продуктов — от воды и опреснения, гибридной энергетики и агро-биокуполов до эко-города, логистики/порта, R&amp;D-кампуса и сети мониторинга (52 000 датчиков). Эффект по векторам агрегируется в общую эффективность программы через DAO.</p>
+<hr>
+<h3 id="foxampyforge-lab-s8">9. Как Лаборатория входит в UnicapInvest</h3>
+<p>FoxampyForge — <strong>исследовательско-инновационный контур</strong> группы UnicapInvest. Схема взаимодействия проста и односторонне-восходящая: Лаборатория порождает и вынашивает продукты и программы, доводит их до зрелости и <strong>передаёт в управляющий фонд группы</strong> для масштабирования и превращения в актив портфеля. Обратно Лаборатория получает капитал, доступ к секторам группы (здравоохранение, промышленность, энергетика, инфраструктура, жильё) и связь с флагманскими инициативами (VODPROM). Полная модель встраивания, потоки капитала и права — в документе <strong>03</strong>.</p>
+<hr>
+<h3 id="foxampyforge-lab-s9">10. Заключение</h3>
+<p>FoxampyForge — это не студия и не фонд, а <strong>лаборатория полного цикла</strong>, которая соединяет три обычно разрозненных мира: создание продуктов, управление ими и их финансирование. Фрактальная методология даёт воспроизводимый путь «из идеи в продукт» на любом масштабе; внутренняя экономика (App Hub, услуги, «Искра», стейкинг) делает Лабораторию самодостаточным хабом; DAO превращает управление в прозрачную, верифицируемую и справедливую систему; а ArkheOSium — с её графом знаний, MRV/DePIN и токенизацией — служит и флагманской программой, и витриной инструментов.</p>
+<p>Кампания «Каракалпакия» ($250 млн) как эталонный модуль внутри общей программы на $0,5 трлн показывает главный тезис Лаборатории: <strong>эффективность интегрированной системы мультипликативна, а не аддитивна</strong>. Именно эту мультипликативность FoxampyForge и производит — превращая идеи в продукты, продукты в программы, а программы — во всеобщее процветание.</p></section>
+<section class="doc" id="doc-lab-unicap-dao-partnership"><div class="doc-eyebrow">Документ 03 · whitepaper</div><h2 class="doc-title">Лаборатория FoxampyForge × UnicapInvest: автономный R&amp;D-департамент и DAO-партнёрство</h2><div class="doc-topic">Лаборатория × UnicapInvest — автономия и DAO-партнёрство</div><blockquote>Whitepaper 03 — модель интеграции исследовательской лаборатории FoxampyForge в инвестиционную группу UnicapInvest: автономная работа как R&amp;D-департамент при поставке всех услуг и продуктов через DAO-партнёрство.</blockquote>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s0">1. Аннотация</h3>
+<p>Настоящий документ описывает организационно-экономическую модель, в которой <strong>исследовательская лаборатория FoxampyForge</strong> («Лаборатория», ✦) существует как <strong>инновационное подразделение группы UnicapInvest</strong> («UNICAP», «Группа»), но действует <strong>автономно</strong>: ведёт собственную R&amp;D-повестку, оперирует внутренним токеном «Искра» (✦) и управляет своими проектами и программами через <strong>DAO-механику</strong>. Флагманский проект ArkheOSium <strong>принадлежит Лаборатории</strong>, которая <strong>одновременно работает внутри его среды и создаёт/развивает</strong> его; при этом всё управление проектом ведётся <strong>через DAO</strong>.</p>
+<p>Ключевой тезис: <strong>всё, что Лаборатория производит — услуги, продукты, интеллектуальную собственность и подтверждённую эффективность программ — она поставляет Группе (и внешним партнёрам) через DAO-партнёрство</strong>. Поставка, расчёты, распределение ценности и подтверждение результата совершаются on-chain: смарт-контракты фиксируют услуги и продукты, а верифицируемые потоки данных программ (MRV/DePIN, хеш-якорение, эмиссионные токены модулей) агрегируются в измеримую эффективность и распределяются между Лабораторией и UnicapInvest по прозрачным правилам казначейства.</p>
+<p>Такая конструкция соединяет две логики: <strong>вертикальную</strong> (Лаборатория — департамент Группы, встроенный в её стратегию и капитал) и <strong>горизонтальную</strong> (Лаборатория — самостоятельный участник DAO, продающий результат по факту, а не по обещанию). Эталоном служит кампания «Каракалпакия» (<strong>$250 млн</strong>, самодостаточна), масштабируемая до общей программы (<strong>$0.5 трлн</strong>, мультипликативный эффект).</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s1">2. Стороны партнёрства</h3>
+<div class='tw'><table><thead><tr><th>Сторона</th><th>Что это</th><th>Роль в партнёрстве</th></tr></thead><tbody><tr><td><strong>UnicapInvest (UNICAP)</strong></td><td>Инвестиционная группа — материнская структура. Владеет капиталом, стратегией и портфелем.</td><td><strong>Заказчик и инвестор R&amp;D.</strong> Формирует стратегические приоритеты, предоставляет капитал, принимает результат (продукты, IP, эффективность) и монетизирует его на рынке.</td></tr><tr><td><strong>FoxampyForge (Лаборатория, ✦)</strong></td><td>Исследовательское/инновационное <strong>подразделение группы UnicapInvest</strong> (verbatim из README: «...подразделения группы UnicapInvest»). OS-подобный стартап-хаб: каталог продуктов (App Hub), маркетплейс услуг, аккаунт с кошельком, токен «Искра», стейкинг, поток заказа услуг. <strong>Владелец проекта ArkheOSium</strong>: одновременно работает внутри его среды и создаёт/развивает его.</td><td><strong>Автономный R&amp;D-исполнитель и владелец ArkheOSium.</strong> Превращает «идею и концепцию в проект и продукт», ведёт собственную научную повестку, управляет проектами через DAO, поставляет услуги/продукты Группе и партнёрам.</td></tr></tbody></table></div>
+<p><strong>Разграничение ролей.</strong> UnicapInvest отвечает на вопрос «<strong>что</strong> и <strong>зачем</strong>» на уровне стратегии и капитала; FoxampyForge отвечает на вопрос «<strong>как</strong>» на уровне исследований, инженерии и продукта. Связующим слоем между «зачем» Группы и «как» Лаборатории выступает DAO — именно там встречаются заказ, исполнение и расчёт.</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s2">3. Модель автономии</h3>
+<p>Автономия Лаборатории означает, что она самостоятельно управляет своим внутренним контуром, но синхронизирует стратегические и капиталоёмкие решения с Группой.</p>
+<div class='tw'><table><thead><tr><th>Лаборатория решает <strong>сама</strong> (автономно)</th><th>Согласуется с <strong>UnicapInvest</strong> (совместно)</th></tr></thead><tbody><tr><td>Собственная R&amp;D-повестка: направления, приоритеты, полигоны прототипов</td><td>Стратегические приоритеты портфеля и вход в новые рынки/регионы</td></tr><tr><td>Внутренняя экономика: эмиссия и правила токена «Искра» ✦, стейкинг</td><td>Крупные капитальные транши и финансирование программ ($250M / $0.5T)</td></tr><tr><td>DAO-голосования по проектам и программам внутри Лаборатории</td><td>Условия и ставки распределения эффективности между Лабораторией и Группой</td></tr><tr><td>Выбор технологического стека, методология, состав команд-модулей</td><td>IP-политика верхнего уровня, лицензирование за пределами Группы</td></tr><tr><td>Каталог услуг и продуктов (App Hub, маркетплейс услуг)</td><td>Целевые SLA/KPI по программам, публичные обязательства Группы</td></tr></tbody></table></div>
+<p><strong>Принцип.</strong> Лаборатория автономна в *операциях и исследованиях*, но подотчётна Группе в *стратегии и капитале*. Автономия защищена технически: DAO-голосования и казначейство Лаборатории исполняются on-chain, а UnicapInvest участвует как крупный стейкхолдер с правом голоса, а не как ручной оператор.</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s3">4. DAO-партнёрство: как услуги и продукты поставляются через DAO</h3>
+<p>DAO — это не «надстройка», а <strong>рельсы поставки</strong>. Каждая услуга и каждый продукт Лаборатории оформляются, исполняются и оплачиваются через смарт-контракты. DAO выступает связующим слоем системности и интеграции: управление, консенсус, финансирование, распределение эффективности.</p>
+<h3>4.1. Роли и объекты</h3>
+<div class='tw'><table><thead><tr><th>Компонент DAO</th><th>Назначение</th></tr></thead><tbody><tr><td><strong>Управление (governance)</strong></td><td>Держатели голосуют за приоритеты модулей и распределение ресурсов; UnicapInvest — крупный участник голосования.</td></tr><tr><td><strong>Консенсус (consensus)</strong></td><td>Решения фиксируются on-chain — прозрачно и невозвратно для всех контуров.</td></tr><tr><td><strong>Финансирование (funding)</strong></td><td>Пул капитала направляется в модули <strong>по верифицируемым результатам, а не по обещаниям</strong>.</td></tr><tr><td><strong>Распределение эффективности (distribution)</strong></td><td>Эффект каждого модуля агрегируется и справедливо распределяется между участниками.</td></tr><tr><td><strong>Казначейство (treasury)</strong></td><td>Мультиподписной пул: приём капитала от Группы, выплаты Лаборатории и модулям по достигнутым KPI.</td></tr><tr><td><strong>Смарт-контракты услуг/продуктов</strong></td><td>Оформляют заказ услуги, поставку продукта, передачу IP и триггерят расчёт по факту исполнения.</td></tr></tbody></table></div>
+<h3>4.2. Жизненный цикл поставки</h3>
+<p>1. <strong>Заказ.</strong> UnicapInvest (или партнёр) размещает заказ на услугу/продукт через маркетплейс Лаборатории; смарт-контракт фиксирует условия, KPI и объём эскроу. 2. <strong>Исполнение.</strong> Соответствующий модуль/команда Лаборатории выполняет работу; прогресс привязывается к верифицируемым потокам данных (см. §6). 3. <strong>Верификация.</strong> MRV/DePIN-продукты запечатывают результат хешем или эмиссионным токеном модуля — доказательство факта, а не отчёт-обещание. 4. <strong>Расчёт.</strong> По достижении KPI казначейство высвобождает средства и начисляет распределение эффективности между Лабораторией и Группой. 5. <strong>Учёт IP.</strong> Права на созданный продукт/решение фиксируются on-chain согласно IP-политике (см. §7).</p>
+<p>```mermaid flowchart LR UNICAP["UnicapInvest (UNICAP)\nинвест-группа · капитал · стратегия"] subgraph LAB["FoxampyForge — автономный R&amp;D-департамент ✦"] SVC["Услуги + продукты\n(App Hub · маркетплейс)"] SPARK["Токен «Искра» ✦\nстейкинг"] MOD["Модули / контуры программ\n(ArkheOSium · Каракалпакия)"] end subgraph DAO["DAO-партнёрство"] GOV["Governance\nголосование"] TREZ["Казначейство\n(мультиподпись, эскроу)"] DIST["Распределение\nэффективности"] end MRV["MRV / DePIN\nхеш-якорь · эмиссионные токены"]</p>
+<p>UNICAP -- "капитал · заказ · приоритеты" --&gt; DAO DAO -- "финансирование по результату" --&gt; LAB SVC -- "поставка услуг/продуктов + IP" --&gt; DAO MOD -- "верифицируемые потоки" --&gt; MRV MRV -- "агрегированная эффективность" --&gt; DIST DIST -- "settlement: доля Лаборатории и Группы" --&gt; UNICAP DIST -- "вознаграждение · Искра ✦" --&gt; LAB GOV -. "правила и приоритеты" .-&gt; TREZ SPARK -. "доступ · вес голоса · стимулы" .-&gt; GOV ```</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s4">5. Экономика взаимодействия</h3>
+<h3>5.1. Токен «Искра» (✦) и стейкинг</h3>
+<p>«Искра» — <strong>внутренний токен Лаборатории</strong>, обслуживающий её собственный контур: доступ к услугам маркетплейса, стейкинг, стимулирование участников и вес в DAO-голосованиях по проектам Лаборатории. Это единица внутренней координации, отделённая от капитала Группы: UnicapInvest вносит капитал в казначейство DAO, тогда как «Искра» распределяет *операционную* мотивацию и права внутри Лаборатории.</p>
+<p><strong>Стейкинг</strong> выполняет двойную роль: (1) выравнивает интересы исполнителей-модулей с результатом (застейканная «Искра» «на кону» под KPI), (2) регулирует вес голоса и приоритетный доступ к заказам.</p>
+<h3>5.2. Связь с эмиссионными токенами модулей ArkheOSium</h3>
+<p>Помимо «Искры» как *внутренней* валюты, отдельные модули и контуры программ (ArkheOSium, кампания «Каракалпакия») эмитируют <strong>собственные эмиссионные токены</strong> прямо в точке измерения (например, энергетический оракул токенизирует выработку ВИЭ; экологический MRV эмитирует углеродные токены). Это разные слои:</p>
+<div class='tw'><table><thead><tr><th>Слой</th><th>Токен</th><th>Что представляет</th><th>Где обращается</th></tr></thead><tbody><tr><td><strong>Координационный</strong></td><td>«Искра» ✦</td><td>Труд, доступ, права голоса внутри Лаборатории</td><td>Контур FoxampyForge</td></tr><tr><td><strong>Эмиссионный (модульный)</strong></td><td>Токены модулей/контуров</td><td>Верифицированный физический результат («данные → актив»)</td><td>Программы / DAO</td></tr></tbody></table></div>
+<p>Связь между слоями замыкается в казначействе DAO: эмиссионные токены модулей формируют <strong>измеримую эффективность программы</strong>, которая конвертируется в расчёты между Лабораторией и Группой, а часть возврата поступает исполнителям в «Искре».</p>
+<h3>5.3. Распределение эффективности</h3>
+<p>Эффект каждого модуля агрегируется и распределяется по правилам DAO. Финансирование идёт <strong>по верифицируемым результатам</strong>: чем больше подтверждённой эффективности сгенерировал контур, тем большую долю settlement он получает — и тем большую отдачу фиксирует UnicapInvest как инвестор.</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s5">6. Верификация ценности: от измерения до расчёта</h3>
+<p>Ценность в этой модели не декларируется — она <strong>доказывается</strong> и только затем оплачивается. Механика: <strong>MRV + DePIN → hash-anchoring / эмиссионные токены → агрегация эффективности → settlement в DAO</strong>.</p>
+<ul><li><strong>MRV</strong> (Measurement, Reporting, Verification) — измерение, отчётность, верификация.</li><li><strong>DePIN</strong> (Decentralized Physical Infrastructure) — децентрализованная физическая инфраструктура (датчики, оракулы, контроллеры микрогрида).</li></ul>
+<p>Каждый контур (<strong>регион → кампания → модуль → вектор</strong>) эмитирует собственный верифицируемый поток: измерение сразу запечатывается либо <strong>криптографическим хешем</strong> (неизменяемое доказательство факта), либо <strong>эмиссионным токеном самого модуля</strong> (данные становятся активом прямо в точке замера).</p>
+<div class='tw'><table><thead><tr><th>Продукт данных</th><th>Модуль</th><th>Тип печати</th><th>Смысл</th></tr></thead><tbody><tr><td>Счётчики воды и качества</td><td>Опреснение</td><td>Хеш-якорь</td><td>immutable proof объёма/качества воды</td></tr><tr><td>Энергетический оракул</td><td>ВИЭ</td><td>Токен эмиссии</td><td>data → asset: выработка как актив</td></tr><tr><td>Агро-телеметрия</td><td>Агро-биокупола</td><td>Хеш-якорь</td><td>immutable proof урожайности/расхода</td></tr><tr><td>Экологический MRV</td><td>Мониторинг</td><td>Токен эмиссии</td><td>углеродные токены (CO₂, восстановление)</td></tr><tr><td>Логистический реестр</td><td>Порт</td><td>Хеш-якорь</td><td>immutable proof грузооборота</td></tr><tr><td>Контроллер микрогрида</td><td>Мониторинг</td><td>Токен эмиссии</td><td>DePIN-узлы токенизируют потоки автономно</td></tr></tbody></table></div>
+<p><strong>Цепочка расчёта:</strong> потоки продуктов данных → агрегация в общую эффективность программы → правила распределения в DAO → settlement между Лабораторией (исполнитель) и UnicapInvest (инвестор). Так «отчёт» превращается в «доказательство», а «доказательство» — в «расчёт».</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s6">7. Юридически-организационный контур</h3>
+<p>Модель совмещает два статуса Лаборатории, которые не противоречат, а дополняют друг друга.</p>
+<div class='tw'><table><thead><tr><th>Аспект</th><th>Как департамент UnicapInvest</th><th>Как автономная DAO-структура</th></tr></thead><tbody><tr><td><strong>Статус</strong></td><td>Подразделение Группы, встроенное в её стратегию и отчётность</td><td>Самостоятельный участник DAO с собственным казначейством и голосом</td></tr><tr><td><strong>Услуги</strong></td><td>Внутренний R&amp;D-сервис Группы</td><td>Поставляются через смарт-контракты маркетплейса, в т.ч. внешним партнёрам</td></tr><tr><td><strong>Продукты</strong></td><td>Пополняют портфель Группы</td><td>Оформляются и передаются on-chain по факту приёмки</td></tr><tr><td><strong>IP</strong></td><td>Верхнеуровневая IP-политика Группы</td><td>Права фиксируются on-chain; лицензирование — по правилам DAO</td></tr><tr><td><strong>Расчёты</strong></td><td>Бюджет/трансфертное ценообразование внутри Группы</td><td>Settlement по верифицированной эффективности через казначейство</td></tr></tbody></table></div>
+<blockquote><strong>Модель, подлежит юридическому оформлению.</strong> Конкретная правовая форма DAO (например, обёртка юрлица, статус токенов «Искра» и эмиссионных токенов, трансграничные аспекты, трансфертное ценообразование «департамент ↔ Группа») здесь описана на принципиальном уровне и требует отдельного юридического оформления. Приведённые механизмы задают *логику* отношений, а не готовую правовую конструкцию.</blockquote>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s7">8. Управление рисками и прозрачность</h3>
+<div class='tw'><table><thead><tr><th>Риск</th><th>Механизм снижения</th></tr></thead><tbody><tr><td>Оплата за необеспеченный результат</td><td>Финансирование только по верифицируемым результатам; эскроу до достижения KPI</td></tr><tr><td>Манипуляция данными</td><td>MRV/DePIN с хеш-якорением; данные неизменяемы после запечатывания</td></tr><tr><td>Непрозрачность решений</td><td>Все governance-решения фиксируются on-chain, невозвратно и публично аудируемо</td></tr><tr><td>Конфликт «департамент ↔ автономия»</td><td>Разграничение зон решений (§3); Группа голосует как стейкхолдер, а не оперирует вручную</td></tr><tr><td>Концентрация власти в голосовании</td><td>Веса через стейкинг «Искры»; правила кворума и распределения (подлежат настройке в DAO)</td></tr><tr><td>Правовая неопределённость</td><td>Явная маркировка «модель, подлежит юр-оформлению»; принципиальный уровень до оформления</td></tr></tbody></table></div>
+<p><strong>Прозрачность как продукт.</strong> Аудируемость здесь не побочный эффект, а поставляемое свойство: любая сторона может проверить цепочку «измерение → хеш/токен → агрегация → расчёт» on-chain. Это и есть основа доверия между автономной Лабораторией и инвестирующей Группой.</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s8">9. Масштабирование на другие программы и кампании</h3>
+<p>Модель спроектирована как <strong>тиражируемый шаблон</strong>, а не разовая договорённость.</p>
+<div class='tw'><table><thead><tr><th>Уровень</th><th>Оценка</th><th>Смысл для партнёрства</th></tr></thead><tbody><tr><td><strong>Кампания «Каракалпакия»</strong></td><td><strong>$250 млн</strong></td><td>Самодостаточный эталон: все векторы в одном контуре, каждый модуль подключён к DAO и потоку верифицируемых данных. Рабочий шаблон отношений Лаборатория ↔ Группа.</td></tr><tr><td><strong>Общая программа Проекта</strong></td><td><strong>$0.5 трлн</strong></td><td>Мультипликативный эффект: совместная работа всех модулей и кампаний как единого организма. Рентабельность <strong>в разы выше</strong> отдельной кампании.</td></tr></tbody></table></div>
+<p><strong>Логика масштабирования.</strong> Каждая новая кампания подключается к тем же рельсам: собственный DAO-контур, свои MRV/DePIN-продукты, свой поток эмиссионных токенов, агрегируемый в эффективность и settlement с Группой. Эффективность <strong>не аддитивна, а мультипликативна</strong> — интеграция всех векторов (экология, R&amp;D, экономика, наука, соц. программы) даёт системный множитель. «Каракалпакия» отрабатывает шаблон; общая программа применяет его «где бы мы ни были», вплоть до новых сфер интеграции.</p>
+<hr>
+<h3 id="lab-unicap-dao-partnership-s9">10. Заключение</h3>
+<p>FoxampyForge — это <strong>автономный R&amp;D-департамент UnicapInvest</strong>, который поставляет Группе всё созданное — услуги, продукты, IP и подтверждённую эффективность — <strong>через DAO-партнёрство</strong>. Вертикальная встроенность в стратегию и капитал Группы сочетается с горизонтальной самостоятельностью Лаборатории в исследованиях и операциях, а связующим слоем выступает DAO: заказ, исполнение, верификация и расчёт совершаются on-chain.</p>
+<p>Ключевое преимущество модели — <strong>оплата по доказанному результату</strong>: MRV/DePIN-потоки превращают физический эффект в неизменяемые доказательства и эмиссионные токены, те агрегируются в эффективность программы, а казначейство DAO распределяет ценность между Лабораторией и Группой. Отработанная на кампании «Каракалпакия» ($250 млн, самодостаточна), эта конструкция масштабируется до общей программы ($0.5 трлн) с мультипликативным эффектом — единый, прозрачный и тиражируемый механизм создания и распределения ценности.</p>
+<blockquote>*Конкретные правовые детали DAO, статуса токенов и трансфертных расчётов приведены на принципиальном уровне и подлежат отдельному юридическому оформлению.*</blockquote></section>
+<section class="doc" id="doc-roadmap-unicap-lab-karakalpak"><div class="doc-eyebrow">Документ 04 · roadmap</div><h2 class="doc-title">Дорожная карта UnicapInvest × Лаборатория FoxampyForge</h2><div class="doc-topic">Дорожная карта UnicapInvest × Лаборатория, фокус — Каракалпакия</div><h3>Совместный рабочий план по всем программам и векторам с фокусом на Каракалпакскую кампанию</h3>
+<blockquote>Документ уровня whitepaper / roadmap. Согласован с приложением ArkheOSium: массивом <code>ROADMAP</code> (2025→2040) и данными кампании <code>karakalpak-campaign.ts</code>. Все суммы и метрики приведены к единой канонической базе: кампания «Каракалпакия» — <strong>$250 млн</strong>, общая программа Проекта — <strong>$0,5 трлн</strong>.</blockquote>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s0">1. Аннотация</h3>
+<p>Настоящая дорожная карта фиксирует <strong>совместный рабочий план</strong> инвестиционной группы <strong>UnicapInvest</strong> («UNICAP») и её автономного научно-исследовательского департамента — <strong>Лаборатории FoxampyForge</strong> — по всему циклу «идея → продукт → масштаб» и по всем векторам: инженерному, научно-исследовательскому, экономическому, экологическому и социальному.</p>
+<p>UnicapInvest выступает материнской инвестиционной группой и держателем капитального контура; Лаборатория FoxampyForge <strong>одновременно работает внутри ArkheOSium и создаёт/развивает</strong> её — операционную систему для экосистемы ресурсов и жизни. Проект <strong>принадлежит Лаборатории</strong>, управление ведётся <strong>через DAO</strong>, а продукты и сервисы поставляются через <strong>DAO-партнёрство</strong>.</p>
+<p>Немедленный фокус карты — <strong>Каракалпакская кампания</strong>: самодостаточный региональный эталонный модуль на <strong>$250 млн</strong>, отрабатывающий подход, который затем мультипликативно тиражируется в рамках общей программы на <strong>$0,5 трлн</strong> — по регионам Земли и за её пределами.</p>
+<p>Адресаты документа: инвестиционный комитет UnicapInvest, руководство Лаборатории, участники DAO, региональные и научные партнёры.</p>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s1">2. Принципы совместной работы</h3>
+<p>1. <strong>Лаборатория как департамент + автономия.</strong> FoxampyForge — подразделение UnicapInvest, но с собственным R&amp;D-контуром, бюджетом на исследования и правом на технологический риск. UNICAP задаёт инвестиционные рамки и горизонт возврата; Лаборатория отвечает за инженерию, науку и продукт. 2. <strong>DAO-партнёрство как связующий слой.</strong> Управление приоритетами модулей, консенсус, финансирование по результату и распределение эффективности идут через DAO. Решения фиксируются on-chain — прозрачно и невозвратно для всех контуров. 3. <strong>Полный цикл «идея → продукт → масштаб».</strong> Каждая инициатива проходит путь: гипотеза в Лаборатории → прототип на полигоне R&amp;D → верифицируемый модуль в кампании → тиражируемый шаблон в общей программе. 4. <strong>Верифицируемость по умолчанию.</strong> Любой результат подтверждается потоком MRV/DePIN: измерение запечатывается хеш-якорем либо эмиссионным токеном самого модуля. Капитал направляется по доказанным результатам, а не по обещаниям. 5. <strong>Мультипликативность, а не аддитивность.</strong> Ценность программы — больше суммы кампаний: интеграция векторов даёт системный множитель.</p>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s2">3. Общая карта программ и векторов</h3>
+<p>Матрица «векторы × уровни контуров» связывает пять векторов с четырьмя уровнями системности: <strong>регион → кампания → модуль → программа</strong>.</p>
+<div class='tw'><table><thead><tr><th>Вектор</th><th>Регион (южное Приаралье)</th><th>Кампания «Каракалпакия» ($250M)</th><th>Ключевой модуль</th><th>Программа ($0,5T)</th></tr></thead><tbody><tr><td><strong>Инженерный</strong></td><td>Деградация инфраструктуры, дефицит воды</td><td>Опреснение + микрогриды + логистика</td><td>Вода/опреснение · Энергия · Сеть мониторинга</td><td>Тиражируемый инженерный шаблон «под ключ»</td></tr><tr><td><strong>Научно-исследовательский</strong></td><td>Отсутствие полигона</td><td>R&amp;D-кампус, открытая наука</td><td>R&amp;D-кампус (1 200 исследователей)</td><td>Глобальная открытая наука и патентный пул</td></tr><tr><td><strong>Экономический</strong></td><td>Отток населения, безработица</td><td>Замкнутая экономика, 28 000 рабочих мест</td><td>Агро-биокупола · Логистика и порт</td><td>Мультипликативная рентабельность по всем регионам</td></tr><tr><td><strong>Экологический</strong></td><td>Пыльные бури, потеря воды</td><td>Восстановление 18 000 га</td><td>Био-парк · Экологический MRV</td><td>Разворот деградации в засушливых регионах Земли</td></tr><tr><td><strong>Социальный</strong></td><td>3 млн человек под влиянием</td><td>Эко-город, здоровье, образование</td><td>Эко-город (45 000 жителей)</td><td>Стандарт качества жизни для новых поселений</td></tr></tbody></table></div>
+<p><strong>Сквозные слои</strong> (действуют на всех уровнях): граф знаний / онтология (собственные + партнёрские библиотеки), DAO-управление, MRV/DePIN-верификация с хеш-якорением и эмиссионными токенами модулей.</p>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s3">4. Фокус сейчас — кампания «Каракалпакия»</h3>
+<p><strong>Цель:</strong> превратить южное Приаралье (Каракалпакстан) в самодостаточный, самоокупаемый эталонный контур, где все пять векторов работают как единый организм, а каждый модуль подключён к DAO и потоку верифицируемых данных.</p>
+<p><strong>Стоимость и самодостаточность:</strong> <strong>$250 млн</strong>. Кампания окупается внутри региона — рентабельна сама по себе при интеграции всех модулей. Она служит рабочим шаблоном для тиражирования.</p>
+<h3>4.1. Модули кампании</h3>
+<div class='tw'><table><thead><tr><th>Модуль</th><th>Вектор</th><th>Назначение</th><th>Целевая метрика</th></tr></thead><tbody><tr><td><strong>Вода и опреснение</strong></td><td>Инженерный</td><td>Солнечное опреснение и рециркуляция для города, агрокуполов и водоёмов</td><td>480 000 м³/сут</td></tr><tr><td><strong>Солнце + ветер + накопители</strong></td><td>Инженерный</td><td>Гибридное поле ВИЭ + зелёный водород</td><td>3,2 ГВт</td></tr><tr><td><strong>Агро-биокупола</strong></td><td>Экономический</td><td>Вертикальные фермы, аквапоника, галофиты</td><td>120 га</td></tr><tr><td><strong>Эко-город</strong></td><td>Социальный</td><td>Биоклиматический «15-минутный город»</td><td>45 000 жителей</td></tr><tr><td><strong>Логистика и порт</strong></td><td>Экономический</td><td>Мультимодальный узел, экспорт минералов из рассола</td><td>2,4 млн т/год</td></tr><tr><td><strong>R&amp;D-кампус</strong></td><td>Научный</td><td>Открытая наука, климат-лаборатории, полигон прототипов</td><td>1 200 исследователей</td></tr><tr><td><strong>Сеть мониторинга</strong></td><td>Инженерный</td><td>Датчики, спутники, IoT → цифровой двойник района</td><td>52 000 датчиков</td></tr></tbody></table></div>
+<h3>4.2. MRV/DePIN и токенизация</h3>
+<p>Каждый контур (регион → кампания → модуль → вектор) эмитирует собственный верифицируемый поток. Измерение сразу запечатывается <strong>хеш-якорем</strong> (неизменяемое доказательство факта) либо <strong>токеном эмиссии</strong> самого модуля (данные → актив прямо в точке замера). Примеры: счётчики воды и качества (хеш), энергетический оракул (токен), агро-телеметрия (хеш), экологический MRV — углеродные токены, логистический реестр (хеш), контроллер микрогрида DePIN (токен). Потоки агрегируются в общую эффективность программы и в DAO.</p>
+<h3>4.3. DAO-управление</h3>
+<p>DAO — связующий слой системности: <strong>управление</strong> (голосование за приоритеты модулей), <strong>консенсус</strong> (решения on-chain), <strong>финансирование</strong> (капитал по верифицируемым результатам), <strong>распределение эффективности</strong> (эффект модулей агрегируется и справедливо распределяется между участниками).</p>
+<h3>4.4. Граф знаний</h3>
+<p>Библиотеки семи доменов (собственные + партнёрские) — узлы <strong>онтологической систематизации</strong>, реализованной как граф знаний поверх таксономии и фасетной классификации. Связи между библиотеками задают семантику интеграции модулей.</p>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s4">5. Фазовая дорожная карта 2025 → 2040</h3>
+<p>Фазы согласованы с массивом <code>ROADMAP</code> приложения: <strong>2025</strong> старт/мониторинг → <strong>2028</strong> вода+энергия → <strong>2032</strong> живая экосистема → <strong>2036</strong> эко-город → <strong>2040</strong> тиражирование. Ниже — детализация по векторам, ответственным слоям, KPI/MRV и финансированию.</p>
+<p>``<code>mermaid gantt title Каракалпакская кампания → общая программа (2025–2040) dateFormat YYYY axisFormat %Y section Фаза 1 · Старт и мониторинг Соглашения, финансирование, сеть датчиков, цифровой двойник v1 :f1, 2025, 1095d section Фаза 2 · Вода и энергия Опреснительный кластер, ВИЭ 1 ГВт, наполнение угодий          :f2, 2028, 1460d section Фаза 3 · Живая экосистема Лесополосы, галофиты, возврат фауны, агро-биокупола           :f3, 2032, 1460d section Фаза 4 · Эко-город Жилой квартал, порт и логистика, R&amp;D-кампус                   :f4, 2036, 1460d section Фаза 5 · Тиражирование Экспорт модели, открытая наука, DAO-управление программой     :f5, 2040, 730d </code>``</p>
+<div class='tw'><table><thead><tr><th>Фаза / Год</th><th>Инженерный</th><th>Научный</th><th>Экономический</th><th>Экологический</th><th>Социальный</th><th>Ответственный слой</th><th>KPI / MRV</th><th>Финансирование</th></tr></thead><tbody><tr><td><strong>1 · 2025</strong> Старт и мониторинг</td><td>Сеть датчиков, цифровой двойник v1</td><td>Базовые датасеты, методики</td><td>Соглашения и финансирование</td><td>Стабилизация грунтов (4 000 га)</td><td>Каналы вовлечения населения</td><td>UNICAP (капитал) + Лаборатория (тех.)</td><td>5 000 датчиков; хеш-якорь замеров</td><td>Стартовый транш кампании ($250M)</td></tr><tr><td><strong>2 · 2028</strong> Вода и энергия</td><td>Первый опреснительный кластер; ВИЭ 1 ГВт</td><td>Гидрология, диспетчеризация ВИЭ</td><td>Первый экспорт минералов из рассола</td><td>Наполнение угодий (1 800 га)</td><td>Доступ к чистой воде</td><td>Лаборатория + DAO (казначейство)</td><td>150 000 м³/сут; токен энергооракула</td><td>Транш «вода+энергия» из пула DAO</td></tr><tr><td><strong>3 · 2032</strong> Живая экосистема</td><td>Автоматизация агро, микрогриды</td><td>Биоинженерия, реинтродукция</td><td>Агро-биокупола, занятость</td><td>Лесополосы, галофиты (9 500 га)</td><td>Продовольственная устойчивость</td><td>Лаборатория + партнёры</td><td>120+ видов флоры; экологический MRV-токен</td><td>Реинвест выручки + DAO</td></tr><tr><td><strong>4 · 2036</strong> Эко-город</td><td>Порт, логистика, электрофлот</td><td>R&amp;D-кампус, патенты</td><td>Грузооборот 2,4 млн т/год</td><td>Устойчивая фауна, рыбозапас ↑8x</td><td>45 000 жителей, 28 000 рабочих мест</td><td>UNICAP + DAO</td><td>85 патентов/год; логистический реестр (хеш)</td><td>Смешанное: выручка + внешние инвесторы</td></tr><tr><td><strong>5 · 2040</strong> Тиражирование</td><td>Экспорт инженерного шаблона</td><td>Открытая наука, глобальный пул</td><td>Мультипликатор рентабельности</td><td>Разворот деградации в др. регионах</td><td>Стандарт качества жизни</td><td>DAO-управление программой</td><td>Агрегированная эффективность программы</td><td>Переход к контуру $0,5 трлн</td></tr></tbody></table></div>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s5">6. Переход от кампании к общей программе $0,5T</h3>
+<p>Каракалпакия — эталонный модуль-пример. Общая программа Проекта на <strong>$0,5 трлн</strong> — это <strong>готовность разворачивать такие же кампании где угодно</strong>: по регионам Земли (Сахель, Ближний Восток, бассейн Мёртвого моря, засушливые регионы) и за её пределами (колонизация, новые сферы интегрирования).</p>
+<p><strong>Ключевой тезис ценности:</strong> эффективность не аддитивна, а <strong>мультипликативна</strong>. Общая программа стоит больше суммы кампаний, потому что совместная работа всех модулей, систем и кампаний как единого организма даёт <strong>системный множитель</strong>. Кампания рентабельна сама по себе; программа — мультипликативно рентабельнее.</p>
+<p>Механика тиражирования: (1) кампания отрабатывает модули и граф знаний; (2) верифицированные шаблоны через открытую науку и DAO становятся переносимыми пакетами; (3) UNICAP разворачивает капитал в новых регионах, Лаборатория адаптирует модули под локальные фасеты; (4) MRV-потоки новых кампаний вливаются в общую эффективность.</p>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s6">7. Модель финансирования и распределения эффективности через DAO</h3>
+<ul><li><strong>Казначейство DAO.</strong> Пул капитала UnicapInvest + реинвест выручки кампании. Средства направляются в модули по верифицируемым результатам (MRV), а не по обещаниям.</li><li><strong>Эмиссионные токены модулей.</strong> Каждый модуль контура эмитирует токен в точке замера (энергия, CO₂, микрогрид): данные становятся верифицируемым активом. Эти токены — базовый слой распределения эффективности.</li><li><strong>Стейкинг «Искра» ✦.</strong> Держатели стейкают токен «Искра» в приоритетные модули и кампании; вознаграждение привязано к агрегированной эффективности (MRV-подтверждённой), что выравнивает интересы инвесторов, Лаборатории и региона.</li><li><strong>Распределение эффективности.</strong> Эффект каждого модуля агрегируется on-chain и справедливо распределяется между участниками DAO пропорционально вкладу и стейку.</li><li><strong>Хеш-якорение отчётности.</strong> Финансовая и результатная отчётность запечатывается хешем — прозрачно и невозвратно для инвестиционного комитета и партнёров.</li></ul>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s7">8. Риски, зависимости и критерии готовности фаз (gates)</h3>
+<div class='tw'><table><thead><tr><th>Фаза</th><th>Ключевые риски</th><th>Зависимости</th><th>Gate (критерий перехода)</th></tr></thead><tbody><tr><td><strong>1 · 2025</strong></td><td>Срыв соглашений, недофинансирование</td><td>Региональные партнёры, транш UNICAP</td><td>Подписаны соглашения; 5 000 датчиков онлайн; цифровой двойник v1 верифицирован (хеш)</td></tr><tr><td><strong>2 · 2028</strong></td><td>Технориск опреснения, дефицит ВИЭ-мощности</td><td>Гидробаланс, поставки оборудования</td><td>Опреснение ≥150 000 м³/сут; ВИЭ ≥1 ГВт; MRV-поток воды и энергии стабилен</td></tr><tr><td><strong>3 · 2032</strong></td><td>Экологическая неустойчивость посадок</td><td>Данные фазы 2, партнёрские агро-библиотеки</td><td>≥9 500 га посадок; возврат ≥120 видов; экологический MRV-токен эмитируется</td></tr><tr><td><strong>4 · 2036</strong></td><td>Кассовые разрывы, отток населения</td><td>Выручка порта/агро, внешние инвесторы</td><td>Эко-город заселён; порт 2,4 млн т/год; R&amp;D-кампус выдаёт патенты</td></tr><tr><td><strong>5 · 2040</strong></td><td>Разрыв шаблона при переносе</td><td>Открытая наука, зрелость DAO</td><td>Кампания самоокупаема; шаблон упакован; ≥1 новый регион в пайплайне</td></tr></tbody></table></div>
+<p>Общие зависимости: зрелость DAO-казначейства, непрерывность MRV/DePIN-потоков, доступность собственных и партнёрских библиотек графа знаний.</p>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s8">9. Ближайшие шаги (следующие 90 дней)</h3>
+<p>1. <strong>Соглашения и капитал.</strong> Закрепить рамочные соглашения с регионом и утвердить стартовый транш кампании ($250M) через инвестиционный комитет UNICAP. 2. <strong>Развернуть базовый мониторинг.</strong> Первые ~5 000 датчиков + цифровой двойник v1; включить хеш-якорение замеров. 3. <strong>Запустить казначейство DAO.</strong> Настроить пул, правила финансирования по MRV, пилот стейкинга «Искра» ✦ на 2–3 приоритетных модулях. 4. <strong>Инициализировать граф знаний.</strong> Подключить собственные библиотеки (инженерия, наука, вода, экология) и первые партнёрские (энергия, агро, социум). 5. <strong>Спроектировать Фазу 2.</strong> Лаборатория готовит инженерный проект опреснительного кластера и поля ВИЭ 1 ГВт; определить gate-метрики. 6. <strong>MRV-пилот.</strong> Ввести в строй первые продукты авто-сбора (счётчики воды — хеш, энергооракул — токен) как доказательство концепции верификации.</p>
+<hr>
+<h3 id="roadmap-unicap-lab-karakalpak-s9">10. Заключение</h3>
+<p>Дорожная карта связывает капитальный контур <strong>UnicapInvest</strong> и R&amp;D-контур <strong>Лаборатории FoxampyForge</strong> в единый механизм полного цикла — от идеи до масштаба. Каракалпакская кампания на $250 млн — не пилот ради пилота, а <strong>самодостаточный эталонный модуль</strong>, который через граф знаний, DAO и MRV/DePIN превращается в переносимый шаблон общей программы на $0,5 трлн. Фазы 2025→2040 согласованы с существующим планом приложения ArkheOSium и ведут регион от мониторинга к живой экосистеме, эко-городу и — далее — к мультипликативному тиражированию по Земле и за её пределами. Возрождение начинается с одного решения; интеграция всех векторов превращает его в путь к всеобщему процветанию.</p></section>
+<section class="doc" id="doc-aral-sea-program"><div class="doc-eyebrow">Документ 05 · program</div><h2 class="doc-title">Программа «Аральское море» — флагман экосистемы ArkheOSium</h2><div class="doc-topic">Программа «Аральское море» — флагман (кампании, модули, интеграции)</div><blockquote>Whitepaper 05 — комплексное описание Программы восстановления Приаралья как эталонного контура операционной системы: от региональной кампании «Каракалпакия» ($250 млн) до глобальной интеграции ($0,5 трлн). Кампании, модули, слой знаний, верификация данных и интеграции — в единой архитектуре.</blockquote>
+<hr>
+<h3 id="aral-sea-program-s0">1. Аннотация</h3>
+<p><strong>Программа «Аральское море»</strong> — флагманская инициатива экосистемы <strong>ArkheOSium</strong> и предметная витрина её операционной системы. На конкретной территории южного Приаралья Программа демонстрирует полный цикл ОС: измерение состояния ресурсов, проектирование модулей, их совместную работу, верификацию результатов и справедливое распределение эффективности через DAO.</p>
+<p>Программа устроена как <strong>вложенная структура контуров</strong>: регион → кампания → модуль → вектор. Нижний, полностью отработанный контур — <strong>кампания «Каракалпакия»</strong> стоимостью <strong>$250 млн</strong>, самодостаточная и рентабельная сама по себе. Верхний контур — <strong>общая программа Проекта на $0,5 трлн</strong>, где эффект от совместной работы всех кампаний и систем <strong>мультипликативен, а не аддитивен</strong>: прибыльность интегрированной программы многократно превышает сумму отдельных кампаний.</p>
+<p>Настоящий документ описывает архитектуру Программы, её кампании, семь производственных модулей, слой знаний (онтологическая систематизация), контур верификации данных (MRV + DePIN) и способы интеграции — так, чтобы Программу можно было изучать как целостный проектный организм и как тиражируемый шаблон.</p>
+<hr>
+<h3 id="aral-sea-program-s1">2. Контекст и вызов</h3>
+<p>Высыхание Аральского моря — одна из наиболее масштабных антропогенных экологических катастроф XX–XXI веков. Сокращение водного зеркала обнажило солончак <strong>Аралкум</strong>, породив пыльно-солевые бури, деградацию почв, коллапс рыболовства и системное ухудшение здоровья населения южного Приаралья.</p>
+<p>Вызов носит <strong>мультидоменный</strong> характер: он одновременно про воду, энергию, агрокультуру, экологию, экономику, науку и социальную среду. Ни один из этих векторов не решается изолированно — попытка «починить воду» без энергии, экономики и мониторинга не даёт устойчивого результата. Именно поэтому регион выбран флагманом ArkheOSium: он требует <strong>операционной системы</strong>, которая связывает домены в единый управляемый контур, а не набора разрозненных проектов.</p>
+<p>Программа не рассматривает восстановление как разовую гуманитарную акцию. Она проектирует <strong>самоокупаемый региональный организм</strong>, который сначала стабилизирует территорию, затем делает её экономически продуктивной, а после — превращает в тиражируемый эталон для других засушливых регионов Земли.</p>
+<hr>
+<h3 id="aral-sea-program-s2">3. Архитектура Программы: контуры и стоимость</h3>
+<p>Программа масштабируется по принципу вложенных контуров, каждый из которых самодостаточен на своём уровне и служит модулем для следующего.</p>
+<div class='tw'><table><thead><tr><th>Контур</th><th>Масштаб</th><th>Стоимость</th><th>Роль</th></tr></thead><tbody><tr><td><strong>Кампания «Каракалпакия»</strong></td><td>Один регион как отработанный эталон</td><td><strong>$250 млн</strong></td><td>Самодостаточный, рентабельный внутри региона; рабочий шаблон</td></tr><tr><td><strong>Общая программа Проекта</strong></td><td>Тиражирование по регионам Земли и далее</td><td><strong>$0,5 трлн</strong></td><td>Совместная работа всех кампаний и систем как единого организма</td></tr></tbody></table></div>
+<p>Ключевой экономический принцип Программы — <strong>мультипликативность</strong>. Общая программа на $0,5 трлн — это не арифметическая сумма кампаний по $250 млн, а системный множитель: модули, данные, знания и капитал одной кампании усиливают все остальные. Отработанная в Каракалпакии модель разворачивается «под ключ» где угодно, а рентабельность интегрированной программы оказывается <strong>в разы выше</strong> даже полной стоимости отдельной флагманской кампании.</p>
+<p>Такая архитектура делает Программу одновременно <strong>осторожной</strong> (каждый контур доказывает состоятельность прежде, чем масштабироваться) и <strong>амбициозной</strong> (верхний предел — глобальная интеграция, новые сферы и колонизация новых сред).</p>
+<hr>
+<h3 id="aral-sea-program-s3">4. Кампания «Каракалпакия» — эталонный контур</h3>
+<p>Кампания «Каракалпакия» — нижний, полностью отработанный контур Программы. Она объединяет все векторы (вода, энергия, агро, эко-город, наука) в одном замкнутом контуре, окупается внутри региона и служит рабочим шаблоном тиражирования. Каждый её модуль подключён к DAO и к потоку верифицируемых данных.</p>
+<p>Эффекты кампании измеряются по пяти направлениям:</p>
+<div class='tw'><table><thead><tr><th>Вектор</th><th>Ключевая метрика</th><th>Содержание</th></tr></thead><tbody><tr><td><strong>Научно-исследовательский</strong></td><td>~85 патентов/год</td><td>Международный кампус климатологии, гидрологии и биоинженерии — живая лаборатория тиражируемых решений</td></tr><tr><td><strong>Экономический</strong></td><td>28 000 рабочих мест</td><td>Замкнутая экономика воды, энергии и минералов; устойчивая занятость и экспортная выручка</td></tr><tr><td><strong>Инженерный</strong></td><td>52 000 датчиков в сети</td><td>Опреснение, микрогриды и логистика под AI-оркестрацией в реальном времени</td></tr><tr><td><strong>Экологический</strong></td><td>18 000 га восстановлено</td><td>Водно-болотные угодья, лесополосы против пыльных бурь, возврат биоразнообразия</td></tr><tr><td><strong>Социальный</strong></td><td>~3 млн человек под влиянием</td><td>Чистая вода и воздух, новые компетенции, качество жизни южного Приаралья</td></tr></tbody></table></div>
+<p>Самодостаточность — принципиальная черта кампании: она рентабельна как автономный региональный контур и не зависит от внешних дотаций для поддержания работы. Именно это делает её пригодной как эталон: тиражируется не обещание, а проверенная, окупающаяся модель.</p>
+<hr>
+<h3 id="aral-sea-program-s4">5. Модули контура</h3>
+<p>Кампания собрана из семи производственных модулей. Каждый модуль решает свою инженерную или отраслевую задачу, но проектируется как часть единого организма — с общими данными, энергетическим и водным балансом и подключением к DAO.</p>
+<div class='tw'><table><thead><tr><th>Модуль</th><th>Назначение</th><th>Мощность / масштаб</th></tr></thead><tbody><tr><td><strong>Вода и опреснение</strong></td><td>Солнечное опреснение и рециркуляция для города, агрокуполов и восстановления водоёмов</td><td>480 000 м³/сут</td></tr><tr><td><strong>Солнце + ветер + накопители</strong></td><td>Гибридное поле ВИЭ с зелёным водородом питает опреснение, промышленность и город</td><td>3,2 ГВт</td></tr><tr><td><strong>Агро-биокупола</strong></td><td>Климатические купола с вертикальными фермами, аквапоникой и солеустойчивыми культурами</td><td>120 га</td></tr><tr><td><strong>Эко-город</strong></td><td>Биоклиматический «15-минутный город» с локальной генерацией и оборотом серых вод</td><td>45 000 жителей</td></tr><tr><td><strong>Логистика и порт</strong></td><td>Мультимодальный узел на восстановленной береговой линии, экспорт минералов из рассола</td><td>2,4 млн т/год</td></tr><tr><td><strong>R&amp;D-кампус</strong></td><td>Открытая наука, климат-лаборатории и полигон прототипов</td><td>1 200 исследователей</td></tr><tr><td><strong>Сеть мониторинга</strong></td><td>Датчики, спутники и IoT формируют цифровой двойник района</td><td>52 000 датчиков</td></tr></tbody></table></div>
+<p>Модули связаны потоками ресурсов: энергия ВИЭ питает опреснение; опреснённая вода идёт в город и агрокупола; рассол опреснения даёт минералы для порта; сеть мониторинга формирует цифровой двойник, на котором AI-оркестрация балансирует все потоки. Совместная работа модулей — источник того самого мультипликативного эффекта, ради которого выстраивается вся Программа.</p>
+<hr>
+<h3 id="aral-sea-program-s5">6. Слой знаний: онтологическая систематизация</h3>
+<p>Над модулями Программы разворачивается <strong>слой знаний</strong>, организованный как <strong>онтологическая систематизация</strong> — граф знаний (knowledge graph) поверх таксономии и фасетной классификации. Библиотеки каждого вектора — узлы онтологии; связи между ними задают семантику интеграции модулей.</p>
+<p>Программа опирается на семь предметных библиотек — собственных и партнёрских:</p>
+<div class='tw'><table><thead><tr><th>Библиотека</th><th>Домен</th><th>Тип</th><th>Фасетная ось</th></tr></thead><tbody><tr><td>Инженерная библиотека</td><td>Инженерия</td><td>собственная</td><td>технология · TRL · модуль</td></tr><tr><td>Научно-исследовательская</td><td>Наука</td><td>собственная</td><td>дисциплина · метод · датасет</td></tr><tr><td>Библиотека воды</td><td>Вода</td><td>собственная</td><td>процесс · источник · качество</td></tr><tr><td>Энергетическая</td><td>Энергия</td><td>партнёрская</td><td>генерация · хранение · баланс</td></tr><tr><td>Агро-биологическая</td><td>Агро</td><td>партнёрская</td><td>культура · цикл · субстрат</td></tr><tr><td>Экологическая</td><td>Экология</td><td>собственная</td><td>экосистема · вид · индикатор</td></tr><tr><td>Социально-правовая</td><td>Социум</td><td>партнёрская</td><td>сектор · норма · практика</td></tr></tbody></table></div>
+<p>Смысл графа — в рёбрах: инженерия связана с наукой, водой и энергией; наука — с экологией и водой; вода — с агро; энергия — с агро; экология — с социумом. Эти связи превращают набор отдельных дисциплин в <strong>связную систему знаний</strong>, где решение из одного домена автоматически обогащает смежные. DAO выступает связующим слоем этой системности, удерживая онтологию согласованной между всеми участниками.</p>
+<hr>
+<h3 id="aral-sea-program-s6">7. Верификация и токенизация данных (MRV + DePIN)</h3>
+<p>Программа рассматривает <strong>данные как первичный актив</strong>. Каждый контур — регион → кампания → модуль → вектор — эмитирует собственный верифицируемый поток по принципу <strong>MRV</strong> (Measurement, Reporting, Verification) поверх <strong>DePIN</strong> (Decentralized Physical Infrastructure).</p>
+<p>Измерение запечатывается двумя способами:</p>
+<ul><li><strong>Хеш-якорь</strong> — измерение сразу фиксируется криптографическим хешем on-chain: неизменяемое доказательство факта.</li><li><strong>Токен эмиссии</strong> — данные токенизируются самим модулем прямо в точке замера: измерение становится верифицируемым активом «data → asset».</li></ul>
+<div class='tw'><table><thead><tr><th>Продукт данных</th><th>Модуль</th><th>Запечатывание</th><th>Результат</th></tr></thead><tbody><tr><td>Счётчики воды и качества</td><td>Опреснение</td><td>Хеш-якорь</td><td>immutable proof</td></tr><tr><td>Энергетический оракул</td><td>ВИЭ</td><td>Токен эмиссии</td><td>data → asset</td></tr><tr><td>Агро-телеметрия</td><td>Агро-биокупола</td><td>Хеш-якорь</td><td>immutable proof</td></tr><tr><td>Экологический MRV</td><td>Мониторинг</td><td>Токен эмиссии</td><td>верифицируемые углеродные токены</td></tr><tr><td>Логистический реестр</td><td>Порт</td><td>Хеш-якорь</td><td>immutable proof</td></tr><tr><td>Контроллер микрогрида</td><td>Мониторинг</td><td>Токен эмиссии</td><td>data → asset</td></tr></tbody></table></div>
+<p>Потоки не остаются локальными: они <strong>агрегируются</strong> в общую эффективность программы и поступают в DAO. Так финансирование направляется в модули <strong>по верифицируемым результатам, а не по обещаниям</strong>, а эффект каждого модуля справедливо распределяется между участниками. Именно этот контур делает мультипликативность Программы измеримой, а не декларативной.</p>
+<hr>
+<h3 id="aral-sea-program-s7">8. DAO — связующий слой интеграции</h3>
+<p>Все контуры Программы сшиваются единым управленческим слоем — <strong>DAO</strong>, который выполняет четыре функции:</p>
+<ul><li><strong>Управление</strong> — держатели голосуют за приоритеты модулей и распределение ресурсов кампании.</li><li><strong>Консенсус</strong> — решения фиксируются on-chain: прозрачно и невозвратно для всех контуров.</li><li><strong>Финансирование</strong> — пул капитала направляется в модули по верифицируемым результатам.</li><li><strong>Распределение эффективности</strong> — эффект каждого модуля агрегируется и справедливо распределяется между участниками.</li></ul>
+<p>DAO — не надстройка, а несущая конструкция интеграции: он связывает граф знаний, потоки MRV/DePIN и капитал в один управляемый организм. Через DAO Программа взаимодействует и с Лабораторией <strong>FoxampyForge</strong> (R&amp;D-контур), и с группой <strong>UnicapInvest</strong> (инвестиционный контур), сохраняя прозрачность и проверяемость на каждом уровне.</p>
+<hr>
+<h3 id="aral-sea-program-s8">9. Интеграции: карта, глобус и партнёрские контуры</h3>
+<p>Программа существует не как статичный документ, а как <strong>живой интерфейс операционной системы</strong>:</p>
+<ul><li><strong>2D-карта Центральной Азии</strong> — рабочий слой, который масштабируется по главам повествования: от общего вида Приаралья до конкретного контура Каракалпакии.</li><li><strong>3D-глобус</strong> — планетарный контекст, в котором флагманская Программа связывается с другими регионами тиражирования (Сахель, Ближний Восток, бассейн Мёртвого моря, засушливые регионы).</li><li><strong>Партнёрские контуры</strong> — энергетические, агро-биологические и социально-правовые библиотеки и стандарты подключаются как узлы общей онтологии, а не как внешние подрядчики.</li><li><strong>Цифровой двойник района</strong> — сеть из 52 000 датчиков и спутников формирует непрерывную модель территории, на которой проверяются сценарии до их реализации в физическом мире.</li></ul>
+<p>Интеграционный слой обеспечивает главное свойство Программы — <strong>связность</strong>: каждый модуль, каждая библиотека и каждый поток данных видны в едином контексте и работают как части одного организма.</p>
+<hr>
+<h3 id="aral-sea-program-s9">10. Другие кампании и тиражирование</h3>
+<p>Каракалпакия — первый, но не единственный контур Программы. Отработанный шаблон разворачивается в других кампаниях и регионах:</p>
+<ul><li><strong>Город-остров</strong> — эко-город на восстановленной акватории как автономный самодостаточный контур.</li><li><strong>Переброс избыточных вод</strong> — инженерные сценарии перенаправления паводковых и избыточных водных ресурсов в засушливый бассейн.</li><li><strong>Тиражирование по регионам</strong> — Сахель (зелёный пояс против опустынивания на 8 000 км), Ближний Восток (солнечное опреснение для засушливых мегаполисов), бассейн Мёртвого моря (стабилизация уровня и минералы из рассола), прочие засушливые регионы (эко-город «под ключ»).</li></ul>
+<p>Каждая новая кампания использует ту же архитектуру контуров, тот же граф знаний и тот же контур верификации — поэтому запуск последующих кампаний быстрее и дешевле первой. В этом и состоит переход от кампании к общей программе: не линейное сложение, а мультипликативное усиление за счёт переиспользования модулей, данных и знаний.</p>
+<hr>
+<h3 id="aral-sea-program-s10">11. Дорожная карта 2025 → 2040</h3>
+<p>Фазы Программы синхронизированы с интерфейсом приложения и распределяют развёртывание модулей во времени.</p>
+<div class='tw'><table><thead><tr><th>Год</th><th>Фаза</th><th>Ключевые шаги</th></tr></thead><tbody><tr><td><strong>2025</strong></td><td>Старт и мониторинг</td><td>Соглашения и финансирование · Сеть датчиков · Цифровой двойник v1</td></tr><tr><td><strong>2028</strong></td><td>Вода и энергия</td><td>Первый опреснительный кластер · Солнце+ветер 1 ГВт · Наполнение угодий</td></tr><tr><td><strong>2032</strong></td><td>Живая экосистема</td><td>Лесополосы и галофиты · Возврат фауны · Агро-биокупола</td></tr><tr><td><strong>2036</strong></td><td>Эко-город</td><td>Жилой квартал · Порт и логистика · R&amp;D-кампус</td></tr><tr><td><strong>2040</strong></td><td>Тиражирование</td><td>Экспорт модели · Открытая наука · DAO-управление</td></tr></tbody></table></div>
+<p>Дорожная карта отражает логику контуров: сначала измерение и цифровой двойник (нельзя управлять тем, что не измеряешь), затем несущие ресурсные модули (вода и энергия), после — живая экосистема и человеческая среда, и наконец — переход от одного региона к тиражируемой модели под управлением DAO.</p>
+<hr>
+<h3 id="aral-sea-program-s11">12. Заключение</h3>
+<p>Программа «Аральское море» — это не проект восстановления одного водоёма, а <strong>эталонный контур операционной системы ArkheOSium</strong>. Она показывает, как мультидоменный кризис решается связной системой модулей, знаний и верифицируемых данных, а не набором изолированных инициатив.</p>
+<p>Кампания «Каракалпакия» ($250 млн) доказывает состоятельность модели на уровне одного региона; общая программа ($0,5 трлн) превращает эту модель в мультипликативный планетарный организм. Слой знаний удерживает систему связной, контур MRV/DePIN делает её эффект измеримым, а DAO — управляемым и справедливым.</p>
+<p>Именно поэтому Программа выбрана флагманом: изучая её, можно понять всю операционную систему — и увидеть шаблон, готовый к тиражированию там, где ресурсы и жизнь планеты нуждаются в восстановлении.</p>
+<hr>
+<p><em>Связанные документы: <a href="#doc-arkheosium-ecosystem">01 — Экосистема ArkheOSium</a> · <a href="#doc-foxampyforge-lab">02 — Лаборатория FoxampyForge</a> · <a href="#doc-lab-unicap-dao-partnership">03 — Лаборатория × UnicapInvest (DAO)</a> · <a href="#doc-roadmap-unicap-lab-karakalpak">04 — Дорожная карта</a></em></p></section>
+
+  <footer>
+    <hr>
+    Сгенерировано из markdown-источников · машиночитаемые версии: arkheosium-kb.json · arkheosium-kb.jsonl · arkheosium-graph.json · пересборка: <code>python build-kb.py &amp;&amp; python build-html.py</code>
+  </footer>
+</main>
+</div>
+<script>
+(function(){
+  var g=document.getElementById('graph'); if(!g) return;
+  var nodes=[].slice.call(g.querySelectorAll('.node'));
+  var edges=[].slice.call(g.querySelectorAll('.edge'));
+  function clear(){g.classList.remove('dim');edges.forEach(function(e){e.classList.remove('hl');});
+    nodes.forEach(function(n){n.classList.remove('hl');});}
+  nodes.forEach(function(node){
+    var id=node.getAttribute('data-id');
+    node.addEventListener('mouseenter',function(){
+      g.classList.add('dim');node.classList.add('hl');
+      var nb={};nb[id]=1;
+      edges.forEach(function(e){
+        if(e.getAttribute('data-s')===id||e.getAttribute('data-t')===id){
+          e.classList.add('hl');nb[e.getAttribute('data-s')]=1;nb[e.getAttribute('data-t')]=1;}
+      });
+      nodes.forEach(function(nn){if(nb[nn.getAttribute('data-id')])nn.classList.add('hl');});
+    });
+    node.addEventListener('mouseleave',clear);
+    node.addEventListener('click',function(){
+      if(id.indexOf('doc:')===0){var t=document.getElementById('doc-'+id.slice(4));if(t)t.scrollIntoView();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

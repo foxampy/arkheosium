@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Settings, Bell, Globe, Shield,
-  Moon, Smartphone, ChevronRight,
+  Moon, Smartphone, ChevronRight, Sparkles,
 } from 'lucide-react';
+import { resetPlatformOnboarding } from '@/components/onboarding/usePlatformOnboarding';
 
 export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true);
@@ -33,6 +34,16 @@ export default function SettingsPage() {
 
           <SettingCard icon={Shield} color="#f97316" title="Конфиденциальность" description="Управление данными">
             <ChevronRight className="w-4 h-4 text-slate-600" />
+          </SettingCard>
+
+          <SettingCard icon={Sparkles} color="#00e6c8" title="Онбординг" description="Знакомство с платформой">
+            <button
+              onClick={() => { resetPlatformOnboarding(); window.location.assign('/'); }}
+              className="h-8 px-3 rounded-lg text-xs font-semibold text-[#001018] transition active:scale-95"
+              style={{ background: 'linear-gradient(120deg, #00e6c8, #00d4ff)' }}
+            >
+              Пройти заново
+            </button>
           </SettingCard>
 
           <div className="rounded-2xl p-4 mt-6" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(0,200,230,0.08)' }}>
