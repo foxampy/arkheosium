@@ -29,7 +29,16 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // The realistic-Earth textures (esp. clouds.png ~5 MB) are far too large
+        // to precache into the service worker. Skip them at build time and cache
+        // them on demand via the runtime rule below instead.
+        globIgnores: ['**/textures/earth/**'],
         runtimeCaching: [
+          {
+            urlPattern: /\/textures\/earth\/.*\.(?:png|jpg|jpeg|webp)$/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'earth-textures', expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 24 * 30 } },
+          },
           {
             urlPattern: /^https:\/\/api\.maptiler\.com\/.*/i,
             handler: 'CacheFirst',
