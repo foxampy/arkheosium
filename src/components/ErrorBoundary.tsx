@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { isChunkLoadError } from '@/lib/lazyRoute';
 
 interface Props {
   children: ReactNode;
@@ -43,6 +44,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      // Сбой загрузки чанка и падение кода внутри страницы — разные беды.
+      // В первом случае страница цела, не доехали файлы; во втором виноват код.
+      // Смешивать их в одном «что-то пошло не так» — значит скрывать причину.
+      const isChunk = isChunkLoadError(this.state.error);
+      const title = isChunk ? 'Страница не догрузилась' : 'Что-то пошло не так';
+      const text = isChunk
+        ? 'Не удалось получить файлы страницы. Обычно это обрыв связи или вышедшее обновление приложения. Обновление подтянет актуальную версию.'
+        : 'Произошла непредвиденная ошибка. Попробуйте вернуться на главную или перезагрузить приложение.';
+
       return (
         <div
           style={{
@@ -79,7 +89,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 marginBottom: 8,
               }}
             >
-              Что-то пошло не так
+              {title}
             </h1>
             <p
               style={{
@@ -89,8 +99,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 marginBottom: 32,
               }}
             >
-              Произошла непредвиденная ошибка. Попробуйте вернуться на главную
-              или перезагрузить приложение.
+              {text}
             </p>
 
             <div
@@ -99,6 +108,9 @@ export class ErrorBoundary extends Component<Props, State> {
                 gap: 12,
                 justifyContent: 'center',
                 flexWrap: 'wrap',
+                // При сбое загрузки главное действие — обновить, а не уйти
+                // на главную: на главной будет ровно то же самое.
+                flexDirection: isChunk ? 'row-reverse' : 'row',
               }}
             >
               <button
@@ -106,9 +118,9 @@ export class ErrorBoundary extends Component<Props, State> {
                 style={{
                   padding: '12px 28px',
                   borderRadius: 14,
-                  background: 'rgba(0,230,200,0.15)',
-                  color: '#00e6c8',
-                  border: '1px solid rgba(0,230,200,0.3)',
+                  background: isChunk ? 'rgba(255,255,255,0.06)' : 'rgba(0,230,200,0.15)',
+                  color: isChunk ? 'rgba(255,255,255,0.7)' : '#00e6c8',
+                  border: `1px solid ${isChunk ? 'rgba(255,255,255,0.12)' : 'rgba(0,230,200,0.3)'}`,
                   fontSize: 14,
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -121,15 +133,15 @@ export class ErrorBoundary extends Component<Props, State> {
                 style={{
                   padding: '12px 28px',
                   borderRadius: 14,
-                  background: 'rgba(255,255,255,0.06)',
-                  color: 'rgba(255,255,255,0.7)',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  background: isChunk ? 'rgba(0,230,200,0.15)' : 'rgba(255,255,255,0.06)',
+                  color: isChunk ? '#00e6c8' : 'rgba(255,255,255,0.7)',
+                  border: `1px solid ${isChunk ? 'rgba(0,230,200,0.3)' : 'rgba(255,255,255,0.12)'}`,
                   fontSize: 14,
                   fontWeight: 700,
                   cursor: 'pointer',
                 }}
               >
-                Перезагрузить
+                {isChunk ? 'Обновить' : 'Перезагрузить'}
               </button>
             </div>
 
