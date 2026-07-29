@@ -21,7 +21,10 @@ import { Droplets, MapPin, ArrowRight, X } from 'lucide-react';
 import { getAllMapMarkers } from '@/data/map-markers';
 import { DOMAIN_CONFIG, normalizeDomain } from '@/lib/domains';
 import type { MapMarker } from '@/components/map/types';
-import { groupMarkersByRegion, findCentralAsia, type RegionGroup } from '@/lib/regionGrouping';
+import { groupMarkersByGeography, findCentralAsia } from '@/lib/regionGrouping';
+import { useWorldBorders } from '@/lib/geo/useWorldBorders';
+import type { WorldBorders } from '@/lib/geo/worldBorders';
+import { GeoRegionMarker } from '@/components/geo/GeoRegionMarker';
 
 const ACCENT = '#00e6c8';
 const ACCENT_2 = '#00d4ff';
@@ -89,138 +92,6 @@ function SingleMarker({ marker }: { marker: MapMarker }) {
   );
 }
 
-// ── Region contour ring (mirror of EarthGlobePage.buildRing) ───
-function buildRing(center: THREE.Vector3, angRad: number, color: string): THREE.Line {
-  const normal = center.clone().normalize();
-  const seed = Math.abs(normal.y) > 0.92 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
-  const u = new THREE.Vector3().crossVectors(normal, seed).normalize();
-  const v = new THREE.Vector3().crossVectors(normal, u).normalize();
-  const pts: THREE.Vector3[] = [];
-  const SEG = 72;
-  const rSurf = GLOBE_R * 1.01;
-  for (let i = 0; i <= SEG; i++) {
-    const t = (i / SEG) * Math.PI * 2;
-    const dir = normal
-      .clone()
-      .multiplyScalar(Math.cos(angRad))
-      .add(u.clone().multiplyScalar(Math.sin(angRad) * Math.cos(t)))
-      .add(v.clone().multiplyScalar(Math.sin(angRad) * Math.sin(t)));
-    pts.push(dir.multiplyScalar(rSurf));
-  }
-  const geometry = new THREE.BufferGeometry().setFromPoints(pts);
-  return new THREE.Line(
-    geometry,
-    new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.85, toneMapped: false }),
-  );
-}
-
-// ── Region marker (contour + name/count label) ─────────────────
-function RegionMarker({
-  group, onZoom, pulse,
-}: {
-  group: RegionGroup;
-  onZoom: (pos: THREE.Vector3) => void;
-  pulse?: boolean;
-}) {
-  const { camera } = useThree();
-  const groupRef = useRef<THREE.Group>(null);
-  const [hovered, setHovered] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const visRef = useRef(true);
-  const pos = useMemo(
-    () => latLngToVec3(group.centerLat, group.centerLng),
-    [group.centerLat, group.centerLng],
-  );
-  const normal = useMemo(() => pos.clone().normalize(), [pos]);
-  const angRad = THREE.MathUtils.clamp(0.12 + Math.log10(group.count + 1) * 0.05, 0.12, 0.34);
-
-  const rings = useMemo(() => {
-    const core = buildRing(pos, angRad, group.color);
-    const halo = buildRing(pos, angRad, group.color);
-    (halo.material as THREE.LineBasicMaterial).opacity = 0.28;
-    return [halo, core];
-  }, [pos, angRad, group.color]);
-
-  useEffect(() => {
-    return () => {
-      for (const l of rings) {
-        l.geometry?.dispose();
-        (l.material as THREE.Material)?.dispose();
-      }
-    };
-  }, [rings]);
-
-  useFrame((state) => {
-    const camDir = camera.position.clone().normalize();
-    const vis = normal.dot(camDir) > 0.02;
-    if (vis !== visRef.current) { visRef.current = vis; setVisible(vis); }
-    // gentle blink/pulse for the focus sector (Central Asia)
-    if (pulse && groupRef.current) {
-      const p = 0.7 + 0.3 * Math.sin(state.clock.elapsedTime * 2.4);
-      const s = 1 + 0.12 * Math.sin(state.clock.elapsedTime * 2.4);
-      groupRef.current.scale.setScalar(s);
-      for (const l of rings) {
-        const mat = l.material as THREE.LineBasicMaterial;
-        mat.opacity = mat === (rings[1].material as THREE.LineBasicMaterial) ? p : p * 0.35;
-      }
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      {rings.map((l, i) => (
-        <primitive key={i} object={l} />
-      ))}
-      <mesh
-        position={pos}
-        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'zoom-in'; }}
-        onPointerOut={() => { setHovered(false); document.body.style.cursor = 'auto'; }}
-        onClick={(e) => { e.stopPropagation(); onZoom(pos); }}
-      >
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
-      {visible && (
-        <Html position={pos} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-          <div style={{
-            transform: 'translateY(-38px)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '3px 9px',
-            borderRadius: 999,
-            background: 'rgba(4,12,26,0.88)',
-            border: `1.5px solid ${group.color}`,
-            color: '#fff',
-            fontSize: 11,
-            fontWeight: 700,
-            whiteSpace: 'nowrap',
-            boxShadow: pulse
-              ? `0 0 20px ${group.color}, 0 0 8px ${group.color}`
-              : `0 0 14px ${group.color}66`,
-            backdropFilter: 'blur(6px)',
-            opacity: hovered ? 1 : 0.92,
-          }}>
-            <span style={{ letterSpacing: '0.01em' }}>{group.name}</span>
-            <span style={{
-              minWidth: 16,
-              padding: '0 5px',
-              borderRadius: 999,
-              background: group.color,
-              color: '#04121a',
-              fontSize: 10,
-              fontWeight: 900,
-              textAlign: 'center',
-            }}>
-              {group.count > 999 ? '999+' : group.count}
-            </span>
-          </div>
-        </Html>
-      )}
-    </group>
-  );
-}
-
 // ── Earth mesh (mirror of CleanGlobe / EarthGlobePage) ─────────
 function EarthMesh() {
   const earthTex = useTexture(
@@ -244,21 +115,29 @@ function EarthMesh() {
 interface FlyTarget { camPos: THREE.Vector3; }
 
 function Scene({
-  markers, controlsRef, flyToken, aralFlyToken, onArrivedAral,
+  markers, controlsRef, flyToken, aralFlyToken, onArrivedAral, world,
 }: {
   markers: MapMarker[];
   controlsRef: React.MutableRefObject<any>;
   flyToken: number;        // unused external fly (reserved)
   aralFlyToken: number;    // increments to trigger the Aral fly-to
   onArrivedAral: () => void;
+  world: WorldBorders | null;
 }) {
   const { camera } = useThree();
   const [camDist, setCamDist] = useState(4.3);
   const flyRef = useRef<FlyTarget | null>(null);
   const aralRef = useRef(0);
 
-  const regionGroups = useMemo(() => groupMarkersByRegion(markers), [markers]);
-  const showRegions = camDist > 3.0;
+  // Территории по настоящим границам: издалека — макрорегионы ООН, ближе —
+  // отдельные государства, вплотную — сами объекты.
+  const level = camDist > 3.6 ? 'macro' : 'country';
+  const { groups, ungrouped } = useMemo(
+    () => groupMarkersByGeography(markers, world, level),
+    [markers, world, level],
+  );
+  const focus = useMemo(() => findCentralAsia(groups), [groups]);
+  const regionsReady = camDist > 2.6 && groups.length > 0;
 
   // trigger the Aral fly-to when the token changes
   useEffect(() => {
@@ -292,7 +171,8 @@ function Scene({
   });
 
   const handleRegionZoom = (pos: THREE.Vector3) => {
-    flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(2.75) };
+    const next = camDist > 3.6 ? 3.2 : 2.4;
+    flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(next) };
   };
 
   return (
@@ -321,19 +201,26 @@ function Scene({
         <meshStandardMaterial color="#001133" transparent opacity={0.14} side={THREE.BackSide} />
       </Sphere>
 
-      {/* Region contours (zoomed out) → individual markers (zoomed in) */}
-      {showRegions
-        ? regionGroups.map((g) => (
-            <RegionMarker
-              key={g.id}
+      {/* Территории по настоящим границам → объекты вблизи */}
+      {regionsReady ? (
+        <>
+          {groups.map((g) => (
+            <GeoRegionMarker
+              key={`${g.level}:${g.id}`}
               group={g}
-              onZoom={handleRegionZoom}
-              pulse={g.id === 'central-asia'}
+              onSelect={handleRegionZoom}
+              pulse={focus ? g.id === focus.id : false}
             />
-          ))
-        : markers.map((m) => (
+          ))}
+          {ungrouped.map((m) => (
             <SingleMarker key={`${m.type}:${m.id}`} marker={m} />
           ))}
+        </>
+      ) : (
+        markers.map((m) => (
+          <SingleMarker key={`${m.type}:${m.id}`} marker={m} />
+        ))
+      )}
     </>
   );
 }
@@ -351,7 +238,11 @@ export default function PresentRevealScene({
   const [showAralPopup, setShowAralPopup] = useState(false);
 
   const markers: MapMarker[] = useMemo(() => getAllMapMarkers(), []);
-  const groups = useMemo(() => groupMarkersByRegion(markers), [markers]);
+  const { world } = useWorldBorders();
+  const groups = useMemo(
+    () => groupMarkersByGeography(markers, world, 'macro').groups,
+    [markers, world],
+  );
   const centralAsia = useMemo(() => findCentralAsia(groups), [groups]);
 
   const goToAral = () => {
@@ -389,6 +280,7 @@ export default function PresentRevealScene({
           flyToken={0}
           aralFlyToken={aralFlyToken}
           onArrivedAral={() => setShowAralPopup(true)}
+          world={world}
         />
         <OrbitControls
           ref={controlsRef}

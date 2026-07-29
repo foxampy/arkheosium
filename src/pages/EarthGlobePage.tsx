@@ -17,7 +17,10 @@ import { getAllMapMarkers } from '@/data/map-markers';
 import { DOMAIN_CONFIG, normalizeDomain } from '@/lib/domains';
 import type { MapMarker } from '@/components/map/types';
 import OSDesktop from '@/components/os/OSDesktop';
-import { groupMarkersByRegion, type RegionGroup } from '@/lib/regionGrouping';
+import { groupMarkersByGeography } from '@/lib/regionGrouping';
+import { useWorldBorders } from '@/lib/geo/useWorldBorders';
+import type { WorldBorders } from '@/lib/geo/worldBorders';
+import { GeoRegionMarker } from '@/components/geo/GeoRegionMarker';
 
 // ── OS modules grid ────────────────────────────────────────────
 const OS_MODULES = [
@@ -195,198 +198,6 @@ function SingleMarker({
   );
 }
 
-// ── Cluster marker (mesh halo + HTML count badge) ──────────────
-function ClusterMarker({
-  lat, lng, count, color, onHover, onZoom,
-}: {
-  lat: number; lng: number; count: number; color: string;
-  onHover: (h: boolean) => void;
-  onZoom: (pos: THREE.Vector3) => void;
-}) {
-  const { camera } = useThree();
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const visRef = useRef(true);
-  const pos = useMemo(() => latLngToVec3(lat, lng), [lat, lng]);
-  const normal = useMemo(() => pos.clone().normalize(), [pos]);
-  const r = THREE.MathUtils.clamp(0.03 + Math.log10(count) * 0.02, 0.032, 0.08);
-
-  // hide the HTML badge when the cluster is on the far side of the globe;
-  // also keep the halo a constant apparent size (scale ∝ camera distance).
-  useFrame(() => {
-    const camDir = camera.position.clone().normalize();
-    const v = normal.dot(camDir) > -0.05;
-    if (v !== visRef.current) { visRef.current = v; setVisible(v); }
-    if (meshRef.current) {
-      const d = camera.position.distanceTo(pos);
-      const s = THREE.MathUtils.clamp(d / REF_CAM_DIST, 0.45, 1.6);
-      meshRef.current.scale.setScalar(s);
-    }
-  });
-
-  return (
-    <group position={pos}>
-      <mesh
-        ref={meshRef}
-        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); onHover(true); document.body.style.cursor = 'zoom-in'; }}
-        onPointerOut={() => { setHovered(false); onHover(false); document.body.style.cursor = 'auto'; }}
-        onClick={(e) => { e.stopPropagation(); onZoom(pos); }}
-      >
-        <sphereGeometry args={[r, 18, 18]} />
-        <meshBasicMaterial color={color} transparent opacity={hovered ? 0.5 : 0.32} />
-      </mesh>
-      {visible && (
-        <Html center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-          <div style={{
-            minWidth: 20,
-            padding: '2px 7px',
-            borderRadius: 999,
-            background: 'rgba(4,12,26,0.9)',
-            border: `1.5px solid ${color}`,
-            color: '#fff',
-            fontSize: 12,
-            fontWeight: 800,
-            textAlign: 'center',
-            boxShadow: `0 0 12px ${color}77`,
-            whiteSpace: 'nowrap',
-          }}>
-            {count > 999 ? '999+' : count}
-          </div>
-        </Html>
-      )}
-    </group>
-  );
-}
-
-// ── Region contour ring ────────────────────────────────────────
-// A small-circle outline drawn on the sphere surface around a region's
-// predefined centre. This replaces the number-in-a-circle cluster: instead
-// interconnected structures are grouped into a territorial region marked by a
-// glowing contour + a name/count label. Ring geometry is built imperatively
-// (THREE.Line loop) and rendered via <primitive> — same pattern as GraphArcs.
-function buildRing(center: THREE.Vector3, angRad: number, color: string): THREE.Line {
-  const normal = center.clone().normalize();
-  // stable tangent basis perpendicular to the region normal
-  const seed = Math.abs(normal.y) > 0.92 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
-  const u = new THREE.Vector3().crossVectors(normal, seed).normalize();
-  const v = new THREE.Vector3().crossVectors(normal, u).normalize();
-  const pts: THREE.Vector3[] = [];
-  const SEG = 72;
-  const rSurf = GLOBE_R * 1.01; // hover just above the surface to avoid z-fight
-  for (let i = 0; i <= SEG; i++) {
-    const t = (i / SEG) * Math.PI * 2;
-    const dir = normal
-      .clone()
-      .multiplyScalar(Math.cos(angRad))
-      .add(u.clone().multiplyScalar(Math.sin(angRad) * Math.cos(t)))
-      .add(v.clone().multiplyScalar(Math.sin(angRad) * Math.sin(t)));
-    pts.push(dir.multiplyScalar(rSurf));
-  }
-  const geometry = new THREE.BufferGeometry().setFromPoints(pts);
-  return new THREE.Line(
-    geometry,
-    new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.85, toneMapped: false }),
-  );
-}
-
-function RegionMarker({
-  group, onHover, onZoom,
-}: {
-  group: RegionGroup;
-  onHover: (h: boolean) => void;
-  onZoom: (pos: THREE.Vector3, group: RegionGroup) => void;
-}) {
-  const { camera } = useThree();
-  const [hovered, setHovered] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const visRef = useRef(true);
-  const pos = useMemo(
-    () => latLngToVec3(group.centerLat, group.centerLng),
-    [group.centerLat, group.centerLng],
-  );
-  const normal = useMemo(() => pos.clone().normalize(), [pos]);
-  // angular radius scales gently with object count (bigger regions → wider ring)
-  const angRad = THREE.MathUtils.clamp(0.12 + Math.log10(group.count + 1) * 0.05, 0.12, 0.34);
-
-  // build ring (halo + core) once per group/zoom-size change
-  const rings = useMemo(() => {
-    const core = buildRing(pos, angRad, group.color);
-    const halo = buildRing(pos, angRad, group.color);
-    (halo.material as THREE.LineBasicMaterial).opacity = 0.28;
-    return [halo, core];
-  }, [pos, angRad, group.color]);
-
-  useEffect(() => {
-    return () => {
-      for (const l of rings) {
-        l.geometry?.dispose();
-        (l.material as THREE.Material)?.dispose();
-      }
-    };
-  }, [rings]);
-
-  // cull the label on the far hemisphere (like ClusterMarker)
-  useFrame(() => {
-    const camDir = camera.position.clone().normalize();
-    const vis = normal.dot(camDir) > 0.02;
-    if (vis !== visRef.current) { visRef.current = vis; setVisible(vis); }
-  });
-
-  return (
-    <group>
-      {rings.map((l, i) => (
-        <primitive key={i} object={l} />
-      ))}
-      {/* invisible hit target at the region centre for click-to-zoom */}
-      <mesh
-        position={pos}
-        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); onHover(true); document.body.style.cursor = 'zoom-in'; }}
-        onPointerOut={() => { setHovered(false); onHover(false); document.body.style.cursor = 'auto'; }}
-        onClick={(e) => { e.stopPropagation(); onZoom(pos, group); }}
-      >
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
-      {visible && (
-        <Html position={pos} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-          <div style={{
-            transform: 'translateY(-38px)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '3px 9px',
-            borderRadius: 999,
-            background: 'rgba(4,12,26,0.88)',
-            border: `1.5px solid ${group.color}`,
-            color: '#fff',
-            fontSize: 11,
-            fontWeight: 700,
-            whiteSpace: 'nowrap',
-            boxShadow: `0 0 14px ${group.color}66`,
-            backdropFilter: 'blur(6px)',
-            opacity: hovered ? 1 : 0.92,
-          }}>
-            <span style={{ letterSpacing: '0.01em' }}>{group.name}</span>
-            <span style={{
-              minWidth: 16,
-              padding: '0 5px',
-              borderRadius: 999,
-              background: group.color,
-              color: '#04121a',
-              fontSize: 10,
-              fontWeight: 900,
-              textAlign: 'center',
-            }}>
-              {group.count > 999 ? '999+' : group.count}
-            </span>
-          </div>
-        </Html>
-      )}
-    </group>
-  );
-}
-
 // ── Real Earth Globe ───────────────────────────────────────────
 function EarthMesh() {
   const earthTex = useTexture(
@@ -410,7 +221,7 @@ function EarthMesh() {
 interface FlyTarget { camPos: THREE.Vector3; }
 
 function Scene({
-  markers, onHover, onSelect, controlsRef, graphEdges, showGraph,
+  markers, onHover, onSelect, controlsRef, graphEdges, showGraph, world,
 }: {
   markers: MapMarker[];
   onHover: (h: boolean) => void;
@@ -418,6 +229,7 @@ function Scene({
   controlsRef: React.MutableRefObject<any>;
   graphEdges: GeoJSON.FeatureCollection;
   showGraph: boolean;
+  world: WorldBorders | null;
 }) {
   const { camera } = useThree();
   const [camDist, setCamDist] = useState(4.3);
@@ -443,16 +255,29 @@ function Scene({
     flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(newDist) };
   };
 
-  // ── Region grouping (replaces number-in-a-circle clusters) ──
-  // Interconnected structures are grouped into predefined territorial regions.
-  // Zoomed out → show region contours + name/count labels. Zoomed in → reveal
-  // the individual markers inside.
-  const regionGroups = useMemo(() => groupMarkersByRegion(markers), [markers]);
-  const showRegions = camDist > 3.0;
+  // ── Географическая группировка ──────────────────────────────
+  // Три уровня детализации по расстоянию камеры:
+  //   далеко  → макрорегионы ООН («Центральная Азия»);
+  //   средне  → отдельные государства («Узбекистан»);
+  //   близко  → сами объекты.
+  // Границы настоящие: принадлежность объекта определяется попаданием точки
+  // внутрь контура страны, а не близостью к выдуманному центру региона.
+  const level = camDist > 3.6 ? 'macro' : 'country';
+  const showRegions = camDist > 2.6;
+
+  const { groups, ungrouped } = useMemo(
+    () => groupMarkersByGeography(markers, world, level),
+    [markers, world, level],
+  );
+
+  // Пока атлас границ не доехал, показываем объекты по отдельности — это
+  // честное промежуточное состояние, а не пустой глобус.
+  const regionsReady = showRegions && groups.length > 0;
 
   const handleRegionZoom = (pos: THREE.Vector3) => {
-    // fly close enough to cross the showRegions threshold and reveal markers
-    flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(2.75) };
+    // подлетаем так, чтобы пересечь порог и раскрыть следующий уровень
+    const next = camDist > 3.6 ? 3.2 : 2.4;
+    flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(next) };
   };
 
   return (
@@ -485,17 +310,20 @@ function Scene({
       {/* Knowledge-graph arcs (world space — orbits with the globe like markers) */}
       {showGraph && <GraphArcs edges={graphEdges} />}
 
-      {/* Region contours (zoomed out) → individual markers (zoomed in) */}
-      {showRegions
-        ? regionGroups.map((g) => (
-            <RegionMarker
-              key={g.id}
+      {/* Территории по настоящим границам (издалека) → объекты (вблизи) */}
+      {regionsReady ? (
+        <>
+          {groups.map((g) => (
+            <GeoRegionMarker
+              key={`${g.level}:${g.id}`}
               group={g}
               onHover={onHover}
-              onZoom={handleRegionZoom}
+              onSelect={handleRegionZoom}
             />
-          ))
-        : markers.map((m) => (
+          ))}
+          {/* Объекты вне суши — буи, суда, платформы. Они не принадлежат ни
+              одной стране, поэтому показываются как есть на любом зуме. */}
+          {ungrouped.map((m) => (
             <SingleMarker
               key={`${m.type}:${m.id}`}
               marker={m}
@@ -503,6 +331,17 @@ function Scene({
               onSelect={onSelect}
             />
           ))}
+        </>
+      ) : (
+        markers.map((m) => (
+          <SingleMarker
+            key={`${m.type}:${m.id}`}
+            marker={m}
+            onHover={onHover}
+            onSelect={onSelect}
+          />
+        ))
+      )}
     </>
   );
 }
@@ -518,6 +357,8 @@ export default function EarthGlobePage() {
 
   const { markers: supabaseMarkers } = useSupabaseMarkers();
   const { edges: graphEdges, count: graphCount } = useSupabaseGraph();
+  // Атлас государственных границ. Пока грузится — объекты видны по отдельности.
+  const { world } = useWorldBorders();
 
   // Feed the globe from the local aggregator (all objects/subjects/projects)
   // merged with Supabase rows. Deduped by `${type}:${id}` via a Set so the
@@ -574,6 +415,7 @@ export default function EarthGlobePage() {
           controlsRef={controlsRef}
           graphEdges={graphEdges}
           showGraph={showGraph}
+          world={world}
         />
         <OrbitControls
           ref={controlsRef}
