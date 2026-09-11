@@ -87,6 +87,11 @@ const LandingPromoPage = lazyRoute(() => import('@/pages/LandingPromoPage'));
 const AralSeaProjectPage = lazyRoute(() => import('@/pages/AralSeaProjectPage'));
 const InnovationsPage = lazyRoute(() => import('@/pages/InnovationsPage'));
 const TokenomicsPage = lazyRoute(() => import('@/pages/TokenomicsPage'));
+// Читалка вайтпейпера. Одна страница на все виды документа: полный текст,
+// короткая презентация, отдельная глава, тематический срез. Собственного
+// текста у неё нет — содержимое берётся из реестра глав, поэтому виды
+// документа не могут разойтись между собой.
+const DocPage = lazyRoute(() => import('@/pages/DocPage'));
 const NewsFeedPage = lazyRoute(() => import('@/pages/NewsFeedPage'));
 const RoadmapPage = lazyRoute(() => import('@/pages/RoadmapPage'));
 const SatellitePage = lazyRoute(() => import('@/pages/SatellitePage'));
@@ -204,7 +209,30 @@ export default function App() {
               <Route path="/invite/:code">
                 {(params) => <PartnerEntryPage inviteCode={params.code} />}
               </Route>
+              {/*
+                По адресу /whitepaper раньше открывался обзор платформы —
+                страница с регионами и разделами, а не документ. Ссылка при
+                этом называлась «Whitepaper» в одном месте и «Обзор
+                платформы» в другом: читатель, пришедший за документом,
+                документа не находил. Теперь /whitepaper — это документ,
+                а обзор остался на /explore, куда и вёл по смыслу.
+
+                Порядок маршрутов важен: /doc/short обязан стоять раньше
+                /doc/:id, иначе «short» будет принят за идентификатор главы.
+              */}
               <Route path="/whitepaper">
+                <DocPage mode="full" />
+              </Route>
+              <Route path="/doc">
+                <DocPage mode="full" />
+              </Route>
+              <Route path="/doc/short">
+                <DocPage mode="short" />
+              </Route>
+              <Route path="/doc/:id">
+                {(params) => <DocPage chapterId={params.id} />}
+              </Route>
+              <Route path="/explore">
                 <ExplorePage />
               </Route>
               <Route path="/whitepaper-full">
