@@ -6,7 +6,7 @@ import {
   Edit3, Save, X, Loader2, LogOut, MessageSquare, FileText, Briefcase,
   ChevronDown, Shield,
 } from 'lucide-react';
-import { useAuth, ROLES, type UserProfile } from '@/hooks/useAuth';
+import { useAuth, ROLES, SELECTABLE_ROLES, type UserProfile } from '@/hooks/useAuth';
 import { useMessages } from '@/hooks/useMessages';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -144,7 +144,7 @@ export default function ProfilePage() {
                   onChange={(e) => updateField('role', e.target.value)}
                   className="h-9 px-3 pr-8 rounded-xl bg-white/5 border border-white/15 text-sm text-white appearance-none outline-none focus:border-cyan-500/40"
                 >
-                  {ROLES.map((r) => (
+                  {SELECTABLE_ROLES.map((r) => (
                     <option key={r.id} value={r.id}>{r.label}</option>
                   ))}
                 </select>

@@ -4,7 +4,7 @@ import {
   Mail, Lock, User, ArrowRight, Loader2,
   Eye, EyeOff, Sparkles, ChevronDown,
 } from 'lucide-react';
-import { useAuth, ROLES } from '@/hooks/useAuth';
+import { useAuth, ROLES, SELECTABLE_ROLES } from '@/hooks/useAuth';
 import { useLocation } from 'wouter';
 
 type AuthMode = 'login' | 'register' | 'magic';
@@ -142,7 +142,7 @@ export default function AuthPage() {
                     <div className="relative">
                       <select value={role} onChange={(e) => setRole(e.target.value)}
                         className="w-full h-10 px-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white appearance-none outline-none focus:border-cyan-500/40 transition cursor-pointer">
-                        {ROLES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+                        {SELECTABLE_ROLES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
                     </div>
@@ -260,7 +260,7 @@ function ProfileView() {
             <div className="mt-3 flex gap-2">
               <select value={newRole} onChange={(e) => setNewRole(e.target.value)}
                 className="flex-1 h-9 px-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white appearance-none outline-none">
-                {ROLES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+                {SELECTABLE_ROLES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
               </select>
               <button onClick={handleSaveRole}
                 className="px-4 h-9 rounded-xl text-xs font-semibold text-white"

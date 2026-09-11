@@ -7,8 +7,9 @@ import {
   LayoutDashboard, Users, MessageSquare, Briefcase,
   BarChart2, FileText, Cpu, ShoppingCart, Leaf, QrCode, Activity,
   Bell, Globe, Database, Building2, Newspaper, Droplets, Network,
-  Search, Milestone, ScrollText,
+  Search, Milestone, ScrollText, Flame, Store,
   Zap, Cloud, Satellite, Radio, Waves, Truck, Bot, Sprout, Recycle, Telescope, Sparkles,
+  Fingerprint, TreePine, Compass, AudioWaveform, Handshake,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMessages } from '@/hooks/useMessages';
@@ -41,10 +42,13 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { nameKey: 'nav.globe',     path: '/',          icon: Globe,           color: '#00d4ff', label: 'Глобус' },
       { nameKey: 'nav.map',       path: '/map',       icon: Map,             color: '#00e6c8', label: 'Карта' },
+      { nameKey: 'nav.oilgas',    path: '/oilgas',    icon: Flame,           color: '#fb923c', label: '🛢 Газнефть' },
       { nameKey: 'nav.dashboard', path: '/dashboard', icon: LayoutDashboard, color: '#60a5fa', label: 'Дашборд' },
       { nameKey: 'nav.analytics', path: '/analytics', icon: BarChart2,       color: '#00e6c8', label: 'Аналитика' },
       { nameKey: 'nav.updates',   path: '/updates',   icon: Newspaper,       color: '#06b6d4', label: 'Обновления' },
       { nameKey: 'nav.roadmap',   path: '/roadmap',   icon: Milestone,       color: '#f59e0b', label: 'Дорожная карта' },
+      { nameKey: 'nav.ecology',   path: '/ecology',   icon: TreePine,        color: '#4ade80', label: '🌍 Экология' },
+      { nameKey: 'nav.resources', path: '/resources', icon: Compass,         color: '#00e6c8', label: '🧭 Ресурсы' },
     ],
   },
   {
@@ -82,6 +86,10 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'knowledge',
     title: '🔬 Знания и разработки',
     items: [
+      { nameKey: 'nav.showcase',    path: '/showcase',         icon: Store,        color: '#a78bfa', label: '🏛 Витрина' },
+      { nameKey: 'nav.partners',    path: '/partners',         icon: Handshake,    color: '#34d399', label: '🤝 Партнёрские входы' },
+      { nameKey: 'nav.tokenization', path: '/tokenization',    icon: Fingerprint,  color: '#22d3ee', label: '⛓ Токенизация' },
+      { nameKey: 'nav.diagnostics', path: '/diagnostics',      icon: AudioWaveform, color: '#22d3ee', label: '〰 Вибродиагностика' },
       { nameKey: 'nav.rd',          path: '/rd',               icon: FlaskConical, color: '#f59e0b', label: 'R&D / Методологии' },
       { nameKey: 'nav.catalog',     path: '/catalog',          icon: BookOpen,     color: '#a78bfa', label: 'Каталог тех/оборуд.' },
       { nameKey: 'nav.tech_market', path: '/tech-marketplace', icon: ShoppingCart, color: '#f59e0b', label: 'Тех-маркет' },
@@ -97,8 +105,13 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { nameKey: 'nav.constructor', path: '/constructor', icon: Briefcase,  color: '#4ade80', label: 'Конструктор проектов' },
       { nameKey: 'nav.invest',      path: '/invest',      icon: TrendingUp, color: '#fbbf24', label: 'Инвестиции' },
-      { nameKey: 'nav.token',       path: '/token-sale',  icon: Cpu,        color: '#a78bfa', label: 'Токенсейл' },
-      { nameKey: 'nav.blockchain',  path: '/blockchain',  icon: Network,    color: '#a78bfa', label: 'Блокчейн / DAO' },
+      // «Токенсейл» убран из навигации: продажи нет, цена не утверждена,
+      // эмиссии не было. Маршрут /token-sale сохранён и отдаёт прямой отказ —
+      // но вести туда людей из меню значило бы предлагать несуществующее.
+      // «Блокчейн / DAO» тоже убран из навигации: токен не выпущен, торгов и
+      // стейкинга нет, DAO не учреждено. Маршруты /blockchain и /dao сохранены
+      // и отдают разбор снятого — но звать туда из меню как в работающий
+      // раздел значило бы продолжать то же утверждение.
       { nameKey: 'nav.regulatory',  path: '/regulatory',  icon: FileText,   color: '#fbbf24', label: 'Регуляторика' },
     ],
   },

@@ -238,35 +238,36 @@ export default function StakeholderDetailPage() {
                     </span>
                   );
                 })()}
+                {/*
+                  Здесь стояла зелёная плашка «Верифицирован». Критерием было
+                  вот это: isVerified = !!(photo_url && position) — то есть у
+                  записи есть фотография и указана должность. Личность человека
+                  никто не подтверждал, согласия на упоминание не спрашивал,
+                  данные ни с кем не сверял. Плашка называла заполненность
+                  карточки проверкой человека — это неправда.
+                  Осталось то, что действительно известно: насколько заполнена
+                  запись. Слово «верификация» убрано целиком, включая статус
+                  «Ожидает верификации» — очереди на проверку не существует.
+                */}
                 {(() => {
-                  const isVerified = !!(stakeholder.photo_url && stakeholder.position);
-                  const isFilled = !isVerified && (stakeholder.tags && stakeholder.tags.length > 0);
-                  if (isVerified) {
-                    return (
-                      <span
-                        className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                        style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
-                      >
-                        Верифицирован
-                      </span>
-                    );
-                  }
-                  if (isFilled) {
-                    return (
-                      <span
-                        className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                        style={{ background: 'rgba(96,165,250,0.12)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.25)' }}
-                      >
-                        Профиль заполнен
-                      </span>
-                    );
-                  }
+                  const hasCore = !!(stakeholder.photo_url && stakeholder.position);
+                  const hasSome = !hasCore && !!(stakeholder.tags && stakeholder.tags.length > 0);
+                  const label = hasCore
+                    ? 'Карточка заполнена'
+                    : hasSome
+                      ? 'Карточка заполнена частично'
+                      : 'Карточка почти пуста';
                   return (
                     <span
                       className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                      style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.25)' }}
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        color: 'rgba(255,255,255,0.45)',
+                        border: '1px solid rgba(255,255,255,0.10)',
+                      }}
+                      title="Пометка о полноте записи в корпусе, а не о проверке человека: платформа личность не подтверждала."
                     >
-                      Ожидает верификации
+                      {label}
                     </span>
                   );
                 })()}

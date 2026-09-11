@@ -3,7 +3,7 @@
 //  - Water resources AND partnerships (organizations) as markers
 //  - Differentiated icons per type (Dam, Reservoir, Treatment Plant,
 //    Organization/Company, Investment Project, Startup)
-//  - Cluster markers when zoomed out (count badge)
+//  - Geographic clustering by country / region / district, driven by zoom
 //  - Progressive layer loading (water first, then organizations)
 //  - Rich popup mini-cards: name, country, type, status, funding
 //  - Accepts MapFilters for filtering markers client-side
@@ -14,6 +14,13 @@ import maplibregl, { Map as MapLibreMap, Marker } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MAP_TILES, MAP_DEFAULTS } from '@/lib/map-config';
 import type { MapFilters } from './MapFilterPanel';
+import { DOMAIN_CONFIG } from '@/lib/domains';
+import { useWorldBorders } from '@/lib/geo/useWorldBorders';
+import {
+  clusterByGeography,
+  clampDrilldownZoom,
+  type GeoCluster,
+} from '@/lib/map/geo-cluster';
 
 // ── Marker types ──────────────────────────────────────────────
 
@@ -35,6 +42,8 @@ export interface EnhancedMapMarker {
   name: string;
   country?: string;
   region?: string;
+  district?: string;
+  domain?: string;
   status?: string;
   funding?: number;
   layer: 'water' | 'organization';
@@ -70,59 +79,6 @@ const MARKER_STYLES: Record<EnhancedMarkerType, MarkerStyle> = {
   startup:          { emoji: '🚀', color: '#a855f7', bg: 'rgba(168,85,247,0.2)',  label: 'Startup' },
   investment_project:{ emoji: '💰', color: '#eab308', bg: 'rgba(234,179,8,0.2)', label: 'Investment Project' },
 };
-
-// ── Clustering logic (client-side) ────────────────────────────
-
-interface ClusterGroup {
-  markers: EnhancedMapMarker[];
-  lat: number;
-  lng: number;
-}
-
-function clusterMarkers(
-  markers: EnhancedMapMarker[],
-  zoom: number,
-): { single: EnhancedMapMarker[]; clusters: ClusterGroup[] } {
-  // Cluster radius in degrees — shrinks as zoom increases
-  const radius = zoom < 4 ? 8 : zoom < 6 ? 4 : zoom < 8 ? 1.5 : 0;
-
-  if (radius === 0) {
-    return { single: markers, clusters: [] };
-  }
-
-  const visited = new Set<number>();
-  const clusters: ClusterGroup[] = [];
-  const single: EnhancedMapMarker[] = [];
-
-  markers.forEach((m, i) => {
-    if (visited.has(i)) return;
-    const neighbors = markers.filter((n, j) => {
-      if (visited.has(j) || j === i) return false;
-      return (
-        Math.abs(m.lat - n.lat) < radius &&
-        Math.abs(m.lng - n.lng) < radius
-      );
-    });
-
-    if (neighbors.length > 0) {
-      const group = [m, ...neighbors];
-      const indices = [i, ...neighbors.map((_, j) =>
-        markers.findIndex((x) => x === neighbors[j]))];
-      indices.forEach(idx => visited.add(idx));
-      visited.add(i);
-      clusters.push({
-        markers: group,
-        lat: group.reduce((s, x) => s + x.lat, 0) / group.length,
-        lng: group.reduce((s, x) => s + x.lng, 0) / group.length,
-      });
-    } else {
-      visited.add(i);
-      single.push(m);
-    }
-  });
-
-  return { single, clusters };
-}
 
 // ── HTML helpers ──────────────────────────────────────────────
 
@@ -178,23 +134,28 @@ function buildMarkerPopup(m: EnhancedMapMarker): string {
   `;
 }
 
-function buildClusterPopup(cluster: ClusterGroup): string {
-  const types = Array.from(new Set(cluster.markers.map(m => MARKER_STYLES[m.type].emoji))).slice(0, 5).join(' ');
+function buildClusterPopup(cluster: GeoCluster<EnhancedMapMarker>): string {
   return `
-    <div style="font-family:Inter,system-ui,sans-serif;color:#e2e8f0;padding:2px 0;min-width:160px;">
-      <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:#f8fafc;">
-        ${types} Cluster (${cluster.markers.length})
+    <div style="font-family:Inter,system-ui,sans-serif;color:#e2e8f0;padding:2px 0;min-width:180px;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:2px;color:#f8fafc;">
+        ${escHtml(cluster.label)}
       </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px;">
-        Zoom in to see individual markers
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:8px;">
+        ${cluster.markers.length} объектов
       </div>
-      <div style="display:flex;flex-direction:column;gap:3px;max-height:120px;overflow:auto;">
-        ${cluster.markers.slice(0, 5).map(m => `
-          <div style="display:flex;align-items:center;gap:6px;padding:3px 0;">
-            <span style="font-size:12px">${MARKER_STYLES[m.type].emoji}</span>
-            <span style="font-size:11px;color:#e2e8f0;line-clamp:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">${escHtml(m.name)}</span>
-          </div>`).join('')}
-        ${cluster.markers.length > 5 ? `<div style="font-size:10px;color:rgba(255,255,255,0.35);padding-top:4px;">+${cluster.markers.length - 5} more</div>` : ''}
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        ${cluster.byDomain.map(({ domain, count }) => {
+          const meta = DOMAIN_CONFIG[domain];
+          return `
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;">${meta.emoji}</span>
+              <span style="flex:1;font-size:11px;color:#e2e8f0;">${escHtml(meta.labelRu)}</span>
+              <span style="font-size:11px;font-weight:700;color:${meta.color};">${count}</span>
+            </div>`;
+        }).join('')}
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;">
+        Клик по метке — приблизить
       </div>
     </div>
   `;
@@ -244,41 +205,65 @@ function createMarkerEl(m: EnhancedMapMarker, onClick?: () => void): HTMLElement
   return el;
 }
 
-function createClusterEl(count: number, types: EnhancedMarkerType[]): HTMLElement {
-  const primaryType = types[0] ?? 'organization';
-  const style = MARKER_STYLES[primaryType];
+/** Чип региона: название места и разбивка по доменам вместо кружка с числом. */
+function createClusterEl(
+  cluster: GeoCluster<EnhancedMapMarker>,
+  onClick: () => void,
+): HTMLElement {
+  // Цвет преобладающего домена группы приходит готовым из `clusterByGeography`,
+  // чтобы обе карты красили чипы по одному правилу.
+  const accent = cluster.color;
 
   const el = document.createElement('div');
-  el.style.cssText = `
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; pointer-events: auto;
+  el.style.cssText = 'cursor: pointer; pointer-events: auto;';
+
+  const chip = document.createElement('div');
+  chip.style.cssText = `
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: rgba(0,8,24,0.88);
+    border: 1.5px solid ${accent}80;
+    box-shadow: 0 0 16px ${accent}40;
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
   `;
 
-  const circle = document.createElement('div');
-  circle.style.cssText = `
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: rgba(0,8,24,0.9);
-    border: 2.5px solid ${style.color};
-    box-shadow: 0 0 16px ${style.color}50;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column;
-    transition: transform 0.15s ease;
+  const title = document.createElement('div');
+  title.style.cssText = `
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 11px; font-weight: 700; line-height: 1;
+    color: #f8fafc;
   `;
+  title.textContent = cluster.label;
+  chip.appendChild(title);
 
-  const countEl = document.createElement('div');
-  countEl.style.cssText = `
-    font-size: 12px; font-weight: 900;
-    color: ${style.color};
-    line-height: 1;
-  `;
-  countEl.textContent = String(count);
+  const row = document.createElement('div');
+  row.style.cssText = 'display: flex; align-items: center; gap: 6px;';
+  for (const { domain, count } of cluster.byDomain.slice(0, 4)) {
+    const meta = DOMAIN_CONFIG[domain];
+    const item = document.createElement('span');
+    item.style.cssText = `
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 10px; font-weight: 700; line-height: 1;
+      color: ${meta.color};
+    `;
+    item.textContent = `${meta.emoji} ${count}`;
+    row.appendChild(item);
+  }
+  chip.appendChild(row);
+  el.appendChild(chip);
 
-  circle.appendChild(countEl);
-  el.appendChild(circle);
-
-  el.addEventListener('mouseenter', () => { circle.style.transform = 'scale(1.15)'; });
-  el.addEventListener('mouseleave', () => { circle.style.transform = 'scale(1)'; });
+  el.addEventListener('mouseenter', () => {
+    chip.style.transform = 'scale(1.06)';
+    chip.style.boxShadow = `0 0 24px ${accent}70`;
+  });
+  el.addEventListener('mouseleave', () => {
+    chip.style.transform = 'scale(1)';
+    chip.style.boxShadow = `0 0 16px ${accent}40`;
+  });
+  el.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
 
   return el;
 }
@@ -341,6 +326,7 @@ export function Map({
   const markerInstancesRef = useRef<Marker[]>([]);
   const loadedRef = useRef(false);
   const onMarkerClickRef = useRef(onMarkerClick);
+  const { world } = useWorldBorders();
 
   useEffect(() => { onMarkerClickRef.current = onMarkerClick; }, [onMarkerClick]);
 
@@ -386,20 +372,31 @@ export function Map({
     const filtered = applyFilters(markers, filters);
     const currentZoom = map.getZoom();
 
-    // Separate by layer
-    const waterMarkers = filtered.filter(m => m.layer === 'water');
-    const orgMarkers = filtered.filter(m => m.layer === 'organization');
+    // Все слои кластеризуются вместе: чип региона один, а не по чипу на слой,
+    // иначе два чипа встали бы в одну и ту же точку центра области.
+    const { single, clusters } = clusterByGeography(filtered, world, currentZoom);
 
-    // Cluster each layer independently
-    const { single: wSingle, clusters: wClusters } = clusterMarkers(waterMarkers, currentZoom);
-    const { single: oSingle, clusters: oClusters } = clusterMarkers(orgMarkers, currentZoom);
+    clusters.forEach(cluster => {
+      const el = createClusterEl(cluster, () => {
+        // Приближаем на охват меток группы, а не на точку подписи.
+        const camera = map.cameraForBounds(cluster.bounds, { padding: 64 });
+        map.easeTo({
+          center: camera?.center ?? [cluster.lng, cluster.lat],
+          zoom: clampDrilldownZoom(cluster.level, camera?.zoom, MAP_DEFAULTS.maxZoom),
+          duration: 700,
+        });
+      });
+      const popup = new maplibregl.Popup({ offset: 20, closeButton: true, maxWidth: '260px' })
+        .setHTML(buildClusterPopup(cluster));
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([cluster.lng, cluster.lat])
+        .setPopup(popup)
+        .addTo(map);
+      markerInstancesRef.current.push(marker);
+    });
 
-    const addDelay = (fn: () => void, delay: number) =>
-      setTimeout(fn, delay);
-
-    // Layer 1: water resources (immediate)
-    const addWater = () => {
-      wSingle.forEach(m => {
+    const addSingles = (layer: EnhancedMapMarker['layer']) => () => {
+      single.filter(m => m.layer === layer).forEach(m => {
         const el = createMarkerEl(m, () => onMarkerClickRef.current?.(m));
         const popup = new maplibregl.Popup({ offset: 16, closeButton: true, maxWidth: '260px' })
           .setHTML(buildMarkerPopup(m));
@@ -409,50 +406,12 @@ export function Map({
           .addTo(map);
         markerInstancesRef.current.push(marker);
       });
-
-      wClusters.forEach(cluster => {
-        const types = cluster.markers.map(m => m.type);
-        const el = createClusterEl(cluster.markers.length, types);
-        const popup = new maplibregl.Popup({ offset: 20, closeButton: true, maxWidth: '240px' })
-          .setHTML(buildClusterPopup(cluster));
-        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([cluster.lng, cluster.lat])
-          .setPopup(popup)
-          .addTo(map);
-        markerInstancesRef.current.push(marker);
-      });
     };
 
-    // Layer 2: organizations (slight delay for progressive effect)
-    const addOrgs = () => {
-      oSingle.forEach(m => {
-        const el = createMarkerEl(m, () => onMarkerClickRef.current?.(m));
-        const popup = new maplibregl.Popup({ offset: 16, closeButton: true, maxWidth: '260px' })
-          .setHTML(buildMarkerPopup(m));
-        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([m.lng, m.lat])
-          .setPopup(popup)
-          .addTo(map);
-        markerInstancesRef.current.push(marker);
-      });
+    addSingles('water')();
+    setTimeout(addSingles('organization'), 300);
 
-      oClusters.forEach(cluster => {
-        const types = cluster.markers.map(m => m.type);
-        const el = createClusterEl(cluster.markers.length, types);
-        const popup = new maplibregl.Popup({ offset: 20, closeButton: true, maxWidth: '240px' })
-          .setHTML(buildClusterPopup(cluster));
-        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([cluster.lng, cluster.lat])
-          .setPopup(popup)
-          .addTo(map);
-        markerInstancesRef.current.push(marker);
-      });
-    };
-
-    addWater();
-    addDelay(addOrgs, 300);
-
-  }, [markers, filters]);
+  }, [markers, filters, world]);
 
   // Run renderMarkers on markers / filters change
   useEffect(() => {

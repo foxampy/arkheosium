@@ -28,6 +28,16 @@ const AuthPage = lazyRoute(() => import('@/pages/AuthPage'));
 const ObjectDetailPage = lazyRoute(() => import('@/pages/ObjectDetailPage'));
 const SubjectDetailPage = lazyRoute(() => import('@/pages/SubjectDetailPage'));
 const ProjectDetailPage = lazyRoute(() => import('@/pages/ProjectDetailPage'));
+const OilGasPage = lazyRoute(() => import('@/pages/OilGasPage'));
+const OilGasIntegrationPage = lazyRoute(() => import('@/pages/OilGasIntegrationPage'));
+const TokenizationPage = lazyRoute(() => import('@/pages/TokenizationPage'));
+const DiagnosticsPage = lazyRoute(() => import('@/pages/DiagnosticsPage'));
+// Партнёрские входы: обзор всех восьми и отдельная страница входа.
+// Одна и та же страница открывается двумя маршрутами — по сегменту и
+// по пригласительному коду. Код не проверяется на сервере: он только
+// выбирает вход и подписывает, от кого пришло приглашение.
+const PartnersIndexPage = lazyRoute(() => import('@/pages/PartnersIndexPage'));
+const PartnerEntryPage = lazyRoute(() => import('@/pages/PartnerEntryPage'));
 const RDPage = lazyRoute(() => import('@/pages/RDPage'));
 const RDDetailPage = lazyRoute(() => import('@/pages/RDDetailPage'));
 const CatalogPage = lazyRoute(() => import('@/pages/CatalogPage'));
@@ -92,6 +102,9 @@ const CityPage = lazyRoute(() => import('@/pages/CityPage'));
 const CircularPage = lazyRoute(() => import('@/pages/CircularPage'));
 const ObservatoryPage = lazyRoute(() => import('@/pages/ObservatoryPage'));
 const EcoJourneyPage = lazyRoute(() => import('@/pages/EcoJourneyPage'));
+const ShowcasePage = lazyRoute(() => import('@/pages/ShowcasePage'));
+const EcologyPage = lazyRoute(() => import('@/pages/EcologyPage'));
+const ResourceExplorerPage = lazyRoute(() => import('@/pages/ResourceExplorerPage'));
 
 // UX/UI style prototypes (linked from /updates)
 const ObjectTwinHUD = lazyRoute(() => import('@/pages/prototypes/ObjectTwinHUD'));
@@ -165,6 +178,32 @@ export default function App() {
               <Route path="/map">
                 <MapPage />
               </Route>
+              {/* Вложенный маршрут объявлен до /oilgas: wouter сопоставляет
+                  путь точно, но в <Switch> порядок решает при любом изменении
+                  паттерна — так вложенная страница не будет перехвачена. */}
+              <Route path="/oilgas/integration">
+                <OilGasIntegrationPage />
+              </Route>
+              <Route path="/oilgas">
+                <OilGasPage />
+              </Route>
+              {/* Токенизация измерений — вторая линия LabForge (OG-RD-HASH-001). */}
+              <Route path="/tokenization">
+                <TokenizationPage />
+              </Route>
+              {/* Вибро-волновая диагностика состояния оборудования — первая линия LabForge. */}
+              <Route path="/diagnostics">
+                <DiagnosticsPage />
+              </Route>
+              <Route path="/partners">
+                <PartnersIndexPage />
+              </Route>
+              <Route path="/partner/:segment">
+                {(params) => <PartnerEntryPage segment={params.segment} />}
+              </Route>
+              <Route path="/invite/:code">
+                {(params) => <PartnerEntryPage inviteCode={params.code} />}
+              </Route>
               <Route path="/whitepaper">
                 <ExplorePage />
               </Route>
@@ -200,6 +239,9 @@ export default function App() {
               </Route>
               <Route path="/catalog">
                 <CatalogPage />
+              </Route>
+              <Route path="/showcase">
+                <ShowcasePage />
               </Route>
               <Route path="/catalog/technology/:id">
                 {(params) => <CatalogDetailPage type="technology" id={params.id} />}
@@ -404,6 +446,14 @@ export default function App() {
               </Route>
               <Route path="/proto/rd-bento">
                 <RDBento />
+              </Route>
+              {/* Экологический модуль — корпус ECOLOGY_OBJECTS. */}
+              <Route path="/ecology">
+                <EcologyPage />
+              </Route>
+              {/* Обозреватель ресурсов: домен → объекты, субъекты, география, связи. */}
+              <Route path="/resources">
+                <ResourceExplorerPage />
               </Route>
               <Route>
                 <NotFoundPage />

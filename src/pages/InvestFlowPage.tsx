@@ -16,6 +16,7 @@ import {
   Globe,
   Calculator,
 } from "lucide-react";
+import { Handshake } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { VODPROM_PROJECTS, VODPROM_SUBJECTS } from "@/data/vodprom-data";
 import ROICalculator from "@/components/projects/ROICalculator";
@@ -407,10 +408,17 @@ function ProjectDetailModal({
           </div>
         </div>
 
-        {/* Owners */}
+        {/*
+          Owners. Здесь перечислены МВХР Узбекистана, World Bank, ЕБРР, UNDP,
+          IFAS и другие. Это стороны, названные в описании проекта, а не
+          подтверждённые соглашения платформы: соглашений с международными
+          институтами у платформы нет, подключённых партнёров ноль. Заголовок
+          и подпись сказаны так, чтобы список нельзя было прочитать как
+          состав участников на нашей стороне.
+        */}
         <div className="mb-5">
           <h4 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2">
-            {t("invest.modal_participants")}
+            Стороны, названные в описании проекта
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {project.owners.map((owner, i) => (
@@ -422,6 +430,11 @@ function ProjectDetailModal({
               </span>
             ))}
           </div>
+          <p className="mt-2 text-[10px] leading-snug text-white/30">
+            Перечисление не означает соглашения с платформой и не подтверждает
+            участия этих организаций в её работе. Источники описаний в корпусе
+            пока не закреплены: ⟨заполнить⟩.
+          </p>
         </div>
 
         {/* Risks */}
@@ -535,6 +548,13 @@ export default function InvestFlowPage() {
           <p className="text-white/35 text-sm">
             {t("invest.subtitle")}
           </p>
+          <p className="mx-auto mt-4 max-w-2xl text-[12.5px] leading-relaxed text-white/40">
+            Платформа не привлекает средства, не выпускала токен и не обещает доходности.
+            Ниже — отраслевые проекты Центральной Азии, которые платформа описывает, а не
+            продаёт. Бюджеты и показатели вроде IRR взяты из описаний самих проектов; их
+            источники в корпусе пока не закреплены: ⟨заполнить⟩. Читать их следует как
+            заявленные, а не как проверенные платформой.
+          </p>
         </motion.div>
 
         {/* ── Stats ──────────────────────────────────────────── */}
@@ -553,11 +573,20 @@ export default function InvestFlowPage() {
             color="#22d3ee"
             delay={0.15}
           />
+          {/*
+            Здесь стояла карточка «Средний IRR» — усреднённая доходность по
+            проектам, вынесенная в шапку страницы с названием «Инвестиции».
+            Платформа не привлекает средства и не может обещать доходность,
+            а сами значения IRR лежат в описаниях проектов без указания
+            источника расчёта. Усреднять их и показывать как показатель
+            платформы значило бы делать предложение, которого нет.
+            Вместо доходности — число подключённых партнёров, и оно ноль.
+          */}
           <StatCard
-            icon={TrendingUp}
-            label={t("invest.avg_irr")}
-            value={stats.avgIRR}
-            color="#4ade80"
+            icon={Handshake}
+            label="Подключено партнёров"
+            value="0"
+            color="#94a3b8"
             delay={0.2}
           />
         </div>
@@ -710,21 +739,35 @@ export default function InvestFlowPage() {
           className="rounded-2xl p-6 text-center"
           style={{ background: "rgba(0,230,200,0.06)", border: "1px solid rgba(0,230,200,0.18)" }}
         >
-          <div className="text-3xl mb-2">📋</div>
-          <h3 className="text-white font-black text-lg mb-1">{t("invest.cta_title")}</h3>
-          <p className="text-white/45 text-sm mb-4">
-            {t("invest.cta_desc")}
+          {/*
+            Здесь была крупная кнопка «Подать заявку», ведущая на форму с
+            реквизитами для перевода. Форма снята, приём средств прекращён.
+            Кнопка заменена на вход, с которого разговор действительно
+            начинается, — и на ссылку с разбором того, что было снято.
+          */}
+          <h3 className="text-white font-black text-lg mb-1">
+            Платформа не привлекает средства
+          </h3>
+          <p className="text-white/45 text-sm mb-4 max-w-xl mx-auto leading-relaxed">
+            Заявки на инвестицию не принимаются: юридической формы привлечения нет, токен не
+            выпущен, доходность не обещается. Разговор о совместной работе начинается с
+            партнёрского входа, и денег на входе не просят.
           </p>
           <button
-            onClick={() => setLocation("/invest/apply")}
+            onClick={() => setLocation("/partners")}
             className="px-8 py-3 rounded-xl font-bold text-black text-sm transition-all hover:scale-105"
             style={{ background: "linear-gradient(135deg, #00e6c8, #00b4ff)" }}
           >
-            {t("invest.cta_button")}
+            Партнёрские входы
           </button>
-          <p className="text-white/25 text-xs mt-3">
-            {t("invest.cta_email")}
-          </p>
+          <div className="mt-3">
+            <button
+              onClick={() => setLocation("/invest/apply")}
+              className="text-xs text-white/40 hover:text-white/70 underline underline-offset-2"
+            >
+              Что было на форме заявки и почему она снята
+            </button>
+          </div>
         </div>
       </motion.div>
 

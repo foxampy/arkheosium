@@ -35,27 +35,15 @@ const TOC_ITEMS_DEF: TocItem[] = [
   { id: 'team',        labelKey: 'whitepaper.toc_team',        icon: <Handshake size={14} /> },
 ];
 
-const ALLOCATION_DEFS = [
-  { labelKey: 'whitepaper.alloc_public',    pct: 40, color: '#00e6c8' },
-  { labelKey: 'whitepaper.alloc_ecosystem', pct: 20, color: '#0099ff' },
-  { labelKey: 'whitepaper.alloc_team',      pct: 20, color: '#7c3aed' },
-  { labelKey: 'whitepaper.alloc_reserve',   pct: 10, color: '#f59e0b' },
-  { labelKey: 'whitepaper.alloc_early',     pct: 10, color: '#ef4444' },
-];
-
-const STAGES_DEFS = [
-  { stage: 'Stage 1', price: '$0.20', amount: '100M VOD', statusKey: 'whitepaper.stage_active', active: true  },
-  { stage: 'Stage 2', price: '$0.40', amount: '100M VOD', statusKey: 'whitepaper.stage_soon',   active: false },
-  { stage: 'Stage 3', price: '$0.80', amount: '100M VOD', statusKey: 'whitepaper.stage_soon',   active: false },
-  { stage: 'Stage 4', price: '$1.20', amount: '100M VOD', statusKey: 'whitepaper.stage_tba',    active: false },
-];
-
+// Пункты про пресейл, листинг и «интеграцию с EBRD/ADB» убраны: пресейла не
+// было, листинга нет, соглашений с этими институтами нет. Отмечено выполненным
+// только то, что действительно сделано.
 const ROADMAP = [
-  { period: 'Q2 2026', text: 'Запуск платформы + пресейл Stage 1',                  done: true  },
-  { period: 'Q3 2026', text: 'Конференция ЦА + маркетинговая кампания',             done: false },
-  { period: 'Q4 2026', text: 'Stage 2 + интеграция с партнёрами (EBRD, ADB)',       done: false },
-  { period: '2027',    text: 'DEX листинг + запуск DAO',                            done: false },
-  { period: '2028',    text: 'Глобальная экспансия',                                done: false },
+  { period: 'Q2 2026', text: 'Запуск платформы: карта, глобус, каталоги, разделы корпуса', done: true  },
+  { period: 'Q3 2026', text: 'Партнёрские входы по восьми сегментам; подключено ноль',     done: false },
+  { period: 'Q4 2026', text: 'Запечатывание измерений: приборы, поверка, хэш-ноды',        done: false },
+  { period: '2027',    text: 'Юридическая форма выпуска — не определена: ⟨заполнить⟩',     done: false },
+  { period: '2028',    text: 'Дальнейшие этапы не утверждены: ⟨заполнить⟩',                done: false },
 ];
 
 // ─── Pie SVG ─────────────────────────────────────────────────────
@@ -119,8 +107,6 @@ export default function WhitepaperPage() {
   const [activeSection, setActiveSection] = useState('intro');
   const articleRef = useRef<HTMLDivElement>(null);
 
-  const allocation = ALLOCATION_DEFS.map((a) => ({ ...a, label: t(a.labelKey) }));
-  const stages = STAGES_DEFS.map((s) => ({ ...s, status: t(s.statusKey) }));
 
   // Intersection observer for TOC highlight
   useEffect(() => {
@@ -198,16 +184,23 @@ export default function WhitepaperPage() {
           {/* ── Section 1: Введение ── */}
           <Section id="intro" title={t('whitepaper.section_intro')}>
             <div className="space-y-4 text-gray-300 leading-relaxed">
-              <p>
-                <span className="text-[#00e6c8] font-semibold">VOD (Voda/Water)</span> — первый
-                цифровой актив, привязанный к реальным водным ресурсам Центральной Азии. В отличие от
-                спекулятивных криптовалют, каждый токен обеспечен конкретными правами на использование
-                воды, верифицированными государственными органами и международными организациями.
-              </p>
-              <div className="bg-[#000d24] border border-[#00e6c8]/20 rounded-xl p-5 font-mono text-sm">
-                <div className="text-[#00e6c8] text-2xl font-bold mb-1">1 VOD = 4 600 м³</div>
-                <div className="text-gray-400">права на использование воды</div>
+              <div className="rounded-xl border p-5" style={{ borderColor: 'rgba(248,113,113,0.33)', background: 'rgba(248,113,113,0.06)' }}>
+                <div className="text-sm font-semibold text-white mb-2">
+                  Снято: «1 VOD = 4 600 м³ права на использование воды»
+                </div>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  Здесь утверждалось, что VOD — первый цифровой актив, привязанный к реальным водным
+                  ресурсам Центральной Азии, и что каждый токен обеспечен правами на использование
+                  воды, «верифицированными государственными органами и международными
+                  организациями». Ни привязки, ни верификации не существует: токен не выпущен, права
+                  на воду за ним не закреплены, и ни один государственный орган и ни одна
+                  международная организация ничего о нём не подтверждали.
+                </p>
               </div>
+              <p>
+                Ниже описан водный кризис Центральной Азии — предмет, которым платформа занимается на
+                самом деле. Он изложен как проблема, а не как обоснование стоимости токена.
+              </p>
               <p>
                 Центральная Азия столкнулась с острейшим водным кризисом. По прогнозам ООН, к 2030 году
                 регион будет испытывать дефицит воды в объёме <span className="text-[#00e6c8] font-semibold">7 млрд м³</span> ежегодно.
@@ -227,95 +220,74 @@ export default function WhitepaperPage() {
                   </div>
                 ))}
               </div>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Оценки приведены со ссылкой на ООН, но конкретные документы-источники в корпусе
+                платформы пока не закреплены: ⟨заполнить⟩. До этого числа следует читать как
+                заявленные, а не как проверенные платформой.
+              </p>
             </div>
           </Section>
 
           {/* ── Section 2: Токеномика ── */}
           <Section id="tokenomics" title={t('whitepaper.section_tokenomics')}>
-            <div className="space-y-6">
-              <div className="bg-[#000d24] border border-white/10 rounded-xl p-5 font-mono text-center">
-                <div className="text-xs text-gray-500 mb-1">Total Supply</div>
-                <div className="text-[#00e6c8] text-3xl font-bold tracking-wider">1 000 000 000 VOD</div>
-              </div>
-
-              {/* Pie + Legend */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 bg-[#000d24] border border-white/10 rounded-xl p-6">
-                <div className="flex-shrink-0">
-                  <AllocationPie allocation={allocation} />
+            <div className="space-y-4">
+            <div className="rounded-xl border p-5" style={{ borderColor: 'rgba(248,113,113,0.33)', background: 'rgba(248,113,113,0.06)' }}>
+                <div className="text-sm font-semibold text-white mb-2">
+                  Раздел снят: величины не утверждены
                 </div>
-                <div className="flex-1 space-y-2.5">
-                  {allocation.map((a) => (
-                    <div key={a.labelKey} className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ background: a.color }} />
-                      <span className="text-sm text-gray-300 flex-1">{a.label}</span>
-                      <span className="font-mono text-sm font-bold" style={{ color: a.color }}>{a.pct}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Presale table */}
-              <div className="overflow-x-auto rounded-xl border border-white/10">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-[#000d24] text-gray-400 text-left">
-                      <th className="px-4 py-3 font-medium">{t('whitepaper.table_stage')}</th>
-                      <th className="px-4 py-3 font-medium">{t('whitepaper.table_price')}</th>
-                      <th className="px-4 py-3 font-medium">{t('whitepaper.table_amount')}</th>
-                      <th className="px-4 py-3 font-medium">{t('whitepaper.table_status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stages.map((s) => (
-                      <tr key={s.stage} className={`border-t border-white/5 ${s.active ? 'bg-[#00e6c8]/5' : ''}`}>
-                        <td className="px-4 py-3 font-semibold text-white">{s.stage}</td>
-                        <td className="px-4 py-3 font-mono text-[#00e6c8]">{s.price}</td>
-                        <td className="px-4 py-3 font-mono text-gray-300">{s.amount}</td>
-                        <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                            s.active
-                              ? 'border-[#00e6c8]/40 text-[#00e6c8] bg-[#00e6c8]/10'
-                              : 'border-white/10 text-gray-500'
-                          }`}>
-                            {s.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  Здесь публиковались общая эмиссия 1 000 000 000 VOD, распределение на пять долей и
+                  таблица пресейла из четырёх стадий с ценой от 0,20 до 1,20 USD за токен. Ни одна
+                  из этих величин не утверждена. Токен не выпущен: эмиссия равна нулю, поэтому её
+                  нельзя ни распределить по долям, ни продать по стадиям.
+                </p>
+                <p className="text-sm text-gray-400 leading-relaxed mt-3">
+                  Лестница цен от стадии к стадии создавала ощущение, что промедление обходится
+                  дороже. При неутверждённой цене это давление, а не условие.
+                </p>
+                <p className="text-sm text-gray-500 leading-relaxed mt-3">
+                  Заявленный объём эмиссии на разных страницах платформы был разным: миллиард здесь,
+                  пятьсот миллионов в разделе «Блокчейн», сто миллионов на странице токенсейла. Одно
+                  это показывает, что число не выводилось ни из какого документа.
+                </p>
+                <button
+                  onClick={() => navigate('/tokenomics')}
+                  className="mt-4 text-xs font-semibold text-[#f87171] hover:underline"
+                >
+                  Полный разбор снятых величин →
+                </button>
               </div>
             </div>
           </Section>
 
           {/* ── Section 3: Механизм ценности ── */}
           <Section id="mechanism" title={t('whitepaper.section_mechanism')}>
-            <div className="space-y-5 text-gray-300 leading-relaxed">
-              <p>
-                Каждый VOD обеспечен правом на{' '}
-                <span className="text-[#00e6c8] font-semibold">4 600 м³ воды</span> в бассейне
-                Аральского моря / рек Сырдарья и Амударья, зарегистрированным в соответствии
-                с межгосударственным соглашением о водопользовании стран ЦА.
-              </p>
-              <div className="bg-[#000d24] border border-[#00e6c8]/20 rounded-xl p-5 space-y-4">
-                <div className="text-sm text-gray-400 mb-2">Расчёт реальной стоимости:</div>
-                {[
-                  { label: 'Объём воды на 1 VOD',          val: '4 600 м³' },
-                  { label: 'Рыночная цена воды в ЦА',      val: '$0.003 – $0.012 / м³' },
-                  { label: 'Реальная стоимость (max)',      val: '$55.20 / VOD', highlight: true },
-                  { label: 'Цена пресейла Stage 1',         val: '$0.20 / VOD' },
-                  { label: 'Дисконт к реальной стоимости', val: '99.6%', highlight: true },
-                ].map((row) => (
-                  <div key={row.label} className={`flex justify-between items-center py-2 border-b border-white/5 last:border-0 ${row.highlight ? 'text-[#00e6c8]' : ''}`}>
-                    <span className="text-sm text-gray-400">{row.label}</span>
-                    <span className={`font-mono font-semibold ${row.highlight ? 'text-[#00e6c8] text-lg' : 'text-gray-200'}`}>{row.val}</span>
-                  </div>
-                ))}
+            <div className="space-y-4">
+            <div className="rounded-xl border p-5" style={{ borderColor: 'rgba(248,113,113,0.33)', background: 'rgba(248,113,113,0.06)' }}>
+                <div className="text-sm font-semibold text-white mb-2">
+                  Раздел снят: обеспечение токена не подтверждено
+                </div>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  Здесь утверждалось, что каждый VOD обеспечен правом на 4 600 м³ воды в бассейне
+                  Аральского моря и рек Сырдарья и Амударья, «зарегистрированным в соответствии с
+                  межгосударственным соглашением о водопользовании стран ЦА». Из этого выводилась
+                  «реальная стоимость» 55,20 USD за токен, дисконт 99,6 % к цене пресейла 0,20 USD
+                  и прогноз роста стоимости воды на 8–15 % в год.
+                </p>
+                <p className="text-sm text-gray-400 leading-relaxed mt-3">
+                  Ни одно из этих утверждений не имеет основания. Право на воду за токеном не
+                  закреплено, регистрации не проводилось, а межгосударственные соглашения о
+                  водопользовании в Центральной Азии не предусматривают передачи объёмов частному
+                  эмитенту. Ссылка на реальный документ, стороной которого платформа не является, —
+                  самое тяжёлое из снятых здесь утверждений.
+                </p>
+                <p className="text-sm text-gray-500 leading-relaxed mt-3">
+                  Расчёт «реальной стоимости» и «дисконта 99,6 %» был выводом из непроверенной
+                  посылки: он умножал неподтверждённый объём воды на цену из непроверенного
+                  диапазона. Прогноз роста 8–15 % в год не опирался ни на один источник и являлся
+                  обещанием доходности.
+                </p>
               </div>
-              <p className="text-sm text-gray-400">
-                Прирост стоимости воды прогнозируется на уровне 8–15% в год до 2030 года, что
-                делает VOD одним из наиболее защищённых от инфляции активов в регионе.
-              </p>
             </div>
           </Section>
 
@@ -386,18 +358,18 @@ export default function WhitepaperPage() {
           {/* ── Section 6: Team ── */}
           <Section id="team" title={t('whitepaper.section_team')}>
             <div className="space-y-5">
-              <div className="flex flex-wrap gap-3">
-                {['EBRD', 'World Bank', 'ADB', 'Plug and Play Uzbekistan', 'IT Park Uzbekistan'].map((p) => (
-                  <div key={p} className="px-4 py-2 rounded-xl border border-[#00e6c8]/20 bg-[#00e6c8]/5 text-sm text-gray-300 flex items-center gap-2">
-                    <ExternalLink size={12} className="text-[#00e6c8]" />
-                    {p}
-                  </div>
-                ))}
-              </div>
               <p className="text-gray-400 text-sm leading-relaxed">
-                VODPROM взаимодействует с ведущими международными финансовыми институтами и
-                технологическими акселераторами региона для обеспечения соответствия лучшим
-                мировым стандартам прозрачности и устойчивого развития.
+                Здесь публиковался список институтов — EBRD, World Bank, ADB, Plug and Play
+                Uzbekistan, IT Park Uzbekistan — с утверждением, что платформа с ними
+                взаимодействует. Список снят: соглашений с этими организациями нет, переговоров
+                не велось, и ни одна из них не подтверждала отношений с платформой. Называть
+                чужое имя рядом со своим без соглашения — приписывание отношений, которых не
+                существует.
+              </p>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Подключённых партнёров — ноль. Это написано числом здесь и в разделе партнёрских
+                входов, и будет изменено только тогда, когда появится подписанное соглашение,
+                которое можно назвать.
               </p>
               <div className="bg-[#000d24] border border-[#00e6c8]/20 rounded-xl p-4 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#00e6c8]/10 flex items-center justify-center text-[#00e6c8]">

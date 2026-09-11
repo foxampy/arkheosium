@@ -621,23 +621,33 @@ export default function MarketplacePage() {
             <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
               <Waves className="w-5 h-5 text-cyan-400" /> Новая заявка
             </h3>
-            <p className="text-white/40 text-sm mb-4">
-              Для размещения заявки необходима аутентификация и верификация организации.
+            {/*
+              Стояло: «необходима аутентификация и верификация организации» и
+              кнопка «Войти / Верифицировать», которая просто закрывала окно.
+              Ни аутентификации, ни процедуры верификации организаций нет —
+              окно изображало барьер, за которым ничего не стоит. Текст
+              приведён к тому, что есть на самом деле: приём заявок не
+              запущен, обращаться нужно напрямую.
+            */}
+            <p className="text-white/45 text-sm mb-4 leading-relaxed">
+              Приём заявок ещё не запущен: формы подачи, проверки организации и
+              обработки на стороне платформы не существует. Кнопка ниже раньше
+              называлась «Войти / Верифицировать» и не делала ничего.
+              Пока — пишите напрямую через раздел «Партнёрам».
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowNewOrder(false)}
                 className="flex-1 py-2 rounded-xl text-sm text-white/50 border border-white/10 hover:bg-white/5 transition"
               >
-                Отмена
+                Закрыть
               </button>
-              <button
-                onClick={() => setShowNewOrder(false)}
-                className="flex-1 py-2 rounded-xl text-sm font-medium transition"
-                style={{ background: 'linear-gradient(135deg, #00e6c8, #0080ff)', color: '#000' }}
+              <a
+                href="/partners"
+                className="flex-1 py-2 rounded-xl text-sm font-medium transition text-center border border-white/10 text-white/70 hover:bg-white/5"
               >
-                Войти / Верифицировать
-              </button>
+                Партнёрам
+              </a>
             </div>
           </div>
         </div>

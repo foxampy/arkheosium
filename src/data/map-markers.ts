@@ -66,6 +66,11 @@ function pickDescription(entry: Record<string, unknown>): string | undefined {
   return desc.length > 160 ? desc.slice(0, 157) + '…' : desc;
 }
 
+function pickString(entry: Record<string, unknown>, key: string): string | undefined {
+  const v = entry[key];
+  return typeof v === 'string' && v.trim() ? v : undefined;
+}
+
 function makeMarker(
   entry: Record<string, unknown>,
   type: EntityType,
@@ -81,6 +86,12 @@ function makeMarker(
     lng: coords.lng,
     title: pickTitle(entry),
     description: pickDescription(entry),
+    // Домен и административная привязка нужны группировке и легенде: без них
+    // метка на уровне области падает в общую группу страны.
+    domain: pickString(entry, 'domain'),
+    country: pickString(entry, 'country'),
+    region: pickString(entry, 'region'),
+    district: pickString(entry, 'district'),
   };
 }
 

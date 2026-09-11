@@ -3,58 +3,17 @@ import { FileText, Download, Eye, X, FileSpreadsheet } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { FullObjectData, ObjectDocument } from '@/types/object-full';
 
-// Demo documents for Charvakoye (used if object has no docs)
-const DEMO_DOCS: ObjectDocument[] = [
-  {
-    id: 'd1',
-    title: 'Технический паспорт — Чарвакское водохранилище',
-    type: 'pdf',
-    url: '#',
-    preview_url: '#',
-    size_kb: 2840,
-    date: '2024-03',
-    category: 'technical',
-  },
-  {
-    id: 'd2',
-    title: 'Отчёт экологической экспертизы 2024',
-    type: 'pdf',
-    url: '#',
-    preview_url: '#',
-    size_kb: 1250,
-    date: '2024-06',
-    category: 'environmental',
-  },
-  {
-    id: 'd3',
-    title: 'Инвестиционный меморандум',
-    type: 'pdf',
-    url: '#',
-    preview_url: '#',
-    size_kb: 890,
-    date: '2025-01',
-    category: 'financial',
-  },
-  {
-    id: 'd4',
-    title: 'Финансовая модель (Excel)',
-    type: 'xlsx',
-    url: '#',
-    size_kb: 340,
-    date: '2025-02',
-    category: 'financial',
-  },
-  {
-    id: 'd5',
-    title: 'Акт состояния инфраструктуры',
-    type: 'pdf',
-    url: '#',
-    preview_url: '#',
-    size_kb: 520,
-    date: '2024-11',
-    category: 'technical',
-  },
-];
+/**
+ * Здесь стоял DEMO_DOCS — набор из пяти документов «Чарвакского
+ * водохранилища» (технический паспорт, отчёт экологической экспертизы,
+ * инвестиционный меморандум, финансовая модель, акт состояния
+ * инфраструктуры) с размерами в килобайтах, датами и url: '#'. Он
+ * подставлялся ЛЮБОМУ объекту, у которого нет документов, — то есть каждый
+ * объект платформы выглядел документированным, а ссылки никуда не вели.
+ *
+ * Набор удалён. Если у объекта нет документов, так и написано: ноль.
+ */
+const DEMO_DOCS: ObjectDocument[] = [];
 
 const CATEGORY_LABELS: Record<string, string> = {
   technical: 'Технический',
@@ -128,6 +87,23 @@ export default function DocumentsSection({ object }: { object: FullObjectData })
 
       {/* Document list */}
       <div className="space-y-2">
+        {filtered.length === 0 && (
+          <div
+            className="rounded-xl p-4"
+            style={{ background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.15)' }}
+          >
+            <p className="text-white/60 text-sm">
+              Документов по объекту — <span className="text-white/80 font-semibold">ноль</span>.
+            </p>
+            <p className="text-white/40 text-xs leading-relaxed mt-2">
+              Раньше сюда подставлялся демонстрационный набор — техпаспорт,
+              экологическая экспертиза, инвестиционный меморандум, финансовая
+              модель — одинаковый для любого объекта, со ссылками в никуда. Он
+              убран: документ появится здесь, только когда будет получен, с
+              источником и проверяемой ссылкой.
+            </p>
+          </div>
+        )}
         {filtered.map((doc) => (
           <motion.div
             key={doc.id}

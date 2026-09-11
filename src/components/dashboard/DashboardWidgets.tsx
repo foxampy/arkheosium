@@ -207,10 +207,12 @@ export function ProjectsWidget({ onNavigate }: WidgetProps) {
   const total = data.length;
   const active = data.filter(p => p.status === 'active').length;
   const sumFunding = data.reduce((acc, p) => acc + (p.total_funding ?? 0), 0);
-  const validApy = data.filter(p => (p.apy ?? 0) > 0);
-  const avgApy = validApy.length
-    ? validApy.reduce((acc, p) => acc + (p.apy ?? 0), 0) / validApy.length
-    : 0;
+  // Здесь считался «средний APY» по всем проектам и показывался как показатель
+  // платформы. Платформа не обещает доходности и не может публиковать среднюю
+  // ставку: числа apy приходят из описаний самих проектов, не проверялись и
+  // ничем не утверждены. Вместо ставки показываем, у скольких проектов
+  // доходность вообще заявлена, — это факт о данных, а не обещание.
+  const withDeclaredApy = data.filter(p => (p.apy ?? 0) > 0).length;
 
   const fmt = (n: number) =>
     n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `$${(n / 1000).toFixed(0)}K` : `$${n}`;
@@ -247,8 +249,8 @@ export function ProjectsWidget({ onNavigate }: WidgetProps) {
             <div className="text-[10px] text-white/40">Финансирование</div>
           </div>
           <div className="p-2 rounded-xl bg-amber-500/8 border border-amber-500/12">
-            <div className="text-lg font-bold text-amber-400">{avgApy.toFixed(1)}%</div>
-            <div className="text-[10px] text-white/40">Средний APY</div>
+            <div className="text-lg font-bold text-amber-400">{withDeclaredApy}</div>
+            <div className="text-[10px] text-white/40">С заявленной доходностью</div>
           </div>
         </div>
       )}
@@ -624,8 +626,15 @@ export function InvestmentWidget({ onNavigate }: WidgetProps) {
       <div className="flex items-center gap-2 mb-3">
         <span className="text-base">💰</span>
         <span className="text-sm font-semibold text-white/80">Инвестиции</span>
+        {/*
+          Стояло «топ APY»: подпись превращала список в рейтинг доходности, а
+          жёлтая жирная ставка справа читалась как предложение платформы.
+          Проценты приходят из описаний самих проектов, платформа их не
+          проверяла и доходности не обещает — поэтому число названо заявленным
+          и снято с акцента.
+        */}
         {!loading && (
-          <span className="ml-auto text-[10px] text-white/30">топ APY</span>
+          <span className="ml-auto text-[10px] text-white/30">заявлено в проектах</span>
         )}
       </div>
       {loading ? (
@@ -633,15 +642,21 @@ export function InvestmentWidget({ onNavigate }: WidgetProps) {
       ) : data.length === 0 ? (
         <p className="text-white/30 text-xs">Нет инвестиционных предложений</p>
       ) : (
-        <div className="space-y-1.5">
-          {data.map(p => (
-            <div key={p.id} className="flex items-center gap-2 text-xs">
-              <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shrink-0" />
-              <span className="text-white/60 truncate flex-1">{p.name}</span>
-              <span className="text-yellow-400 font-bold shrink-0">{(p.apy ?? 0).toFixed(1)}%</span>
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="space-y-1.5">
+            {data.map(p => (
+              <div key={p.id} className="flex items-center gap-2 text-xs">
+                <div className="w-1.5 h-1.5 rounded-full bg-white/25 shrink-0" />
+                <span className="text-white/60 truncate flex-1">{p.name}</span>
+                <span className="text-white/45 shrink-0">заявл. {(p.apy ?? 0).toFixed(1)}%</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[9px] leading-snug text-white/25">
+            Числа взяты из описаний проектов, не проверены и не утверждены.
+            Платформа не привлекает средства и не обещает доходности.
+          </p>
+        </>
       )}
     </div>
   );

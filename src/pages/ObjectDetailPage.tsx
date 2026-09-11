@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
@@ -7,7 +7,7 @@ import {
   Zap, TrendingUp, DollarSign, Clock, AlertTriangle, Activity,
   Cpu, Wrench, BarChart2, Leaf, Sparkles, Brain,
   Link2, Sun, Settings, Shield, ChevronDown, ChevronUp,
-  CheckCircle2, AlertCircle, Newspaper,
+  CheckCircle2, AlertCircle, Newspaper, Crosshair,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -23,7 +23,12 @@ import {
 import type { FullObjectData } from '@/types/object-full';
 import { PremiumOverlay } from '@/components/PremiumOverlay';
 import { localizedField } from '@/lib/i18n-utils';
-import { FULL_OBJECTS_MAP } from '../data/objects-data';
+import { FULL_OBJECTS_MAP, OBJECTS_DATA, type PlatformObject } from '../data/objects-data';
+import { DOMAIN_CONFIG, normalizeDomain } from '@/lib/domains';
+import { CoordPrecisionBlock, COORD_PRECISION_SHORT } from '@/components/object/CoordPrecisionBlock';
+import { SourcesBlock } from '@/components/object/SourcesBlock';
+import { RelatedEntitiesBlock } from '@/components/object/RelatedEntitiesBlock';
+import { GapText } from '@/components/object/GapText';
 import { supabase } from '@/lib/supabase';
 import { MiniMap } from '@/components/map/MiniMap';
 import { ObjectHistoryTimeline } from '@/components/objects/ObjectHistoryTimeline';
@@ -71,6 +76,64 @@ function mapSupabaseRow(row: Record<string, any>): FullObjectData {
   };
 }
 
+// ─── Новый корпус: поля, которых нет в водной модели ─────────────────────────
+//
+// Нефтегазовые и экологические объекты живут в `OBJECTS_DATA` как
+// `PlatformObject` и несут собственный набор полей: домен, признак точности
+// координаты, источники, связи. `FullObjectData` описывает водную модель и
+// этих полей не знает, поэтому они читаются отдельным «окном» — без
+// расширения водного типа и без подстановки умолчаний.
+
+interface CorpusFields {
+  domain?: string;
+  coord_precision?: string;
+  sources?: unknown;
+  related_subjects?: unknown;
+  related_projects?: unknown;
+  operator?: string;
+  district?: string;
+  type_label?: string;
+}
+
+function corpusOf(o: FullObjectData): CorpusFields {
+  return o as unknown as CorpusFields;
+}
+
+/**
+ * Объект относится к новому корпусу, если несёт хотя бы один его признак.
+ * Водные объекты из `FULL_OBJECTS_MAP` не несут ни одного — и рендерятся
+ * ровно так же, как раньше.
+ */
+function isCorpusObject(o: FullObjectData): boolean {
+  const c = corpusOf(o);
+  return c.domain != null || c.coord_precision != null || c.sources !== undefined;
+}
+
+/**
+ * PlatformObject → форма, которую понимает страница детали.
+ *
+ * Исходная запись раскрывается целиком: поля корпуса (`coord_precision`,
+ * `sources`, `related_*`, `domain`) должны дойти до блоков нетронутыми.
+ * Ничего не достраивается: чего в записи нет, того нет и на карточке.
+ */
+function mapPlatformObject(o: PlatformObject): FullObjectData {
+  return {
+    ...(o as Record<string, unknown>),
+    id: o.id,
+    name_ru: o.name_ru || o.name,
+    name_en: o.name,
+    type: o.type as FullObjectData['type'],
+    status: o.status as FullObjectData['status'],
+    description_ru: o.description ?? '',
+    region: o.region ?? '',
+    country: o.country,
+    coordinates: o.coordinates ?? o.coordinates_start,
+    construction_year: typeof o.year_built === 'number' ? o.year_built : undefined,
+    tags: o.tags,
+    last_updated: o.last_updated,
+  } as unknown as FullObjectData;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type TabId = 'overview' | 'financials' | 'technology' | 'operations' | 'ai' | 'history' | 'monitoring' | 'news' | 'climate';
@@ -113,6 +176,20 @@ function statusConfig(s: string) {
     offline:          { color: '#94a3b8', bg: 'rgba(148,163,184,0.1)',  border: 'rgba(148,163,184,0.2)', label: 'Offline' },
     under_construction:{ color: '#60a5fa', bg: 'rgba(96,165,250,0.15)', border: 'rgba(96,165,250,0.3)',  label: 'Under Construction' },
     investment:       { color: '#a78bfa', bg: 'rgba(167,139,250,0.15)', border: 'rgba(167,139,250,0.3)', label: 'Investment' },
+    // Статусы нового корпуса: нефтегаз и экология. Без них ключ выводился
+    // сырым машинным словом.
+    exploration:      { color: '#fed7aa', bg: 'rgba(254,215,170,0.12)', border: 'rgba(254,215,170,0.28)', label: 'Разведка' },
+    construction:     { color: '#60a5fa', bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  label: 'Строительство' },
+    planned:          { color: '#93c5fd', bg: 'rgba(147,197,253,0.12)', border: 'rgba(147,197,253,0.28)', label: 'Планируется' },
+    ongoing:          { color: '#60a5fa', bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  label: 'Продолжается' },
+    closed:           { color: '#94a3b8', bg: 'rgba(148,163,184,0.1)',  border: 'rgba(148,163,184,0.24)', label: 'Закрыт' },
+    protected:        { color: '#4ade80', bg: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.28)', label: 'Под охраной' },
+    observed:         { color: '#7dd3fc', bg: 'rgba(125,211,252,0.12)', border: 'rgba(125,211,252,0.28)', label: 'Наблюдение' },
+    recovering:       { color: '#34d399', bg: 'rgba(52,211,153,0.12)',  border: 'rgba(52,211,153,0.28)', label: 'Восстановление' },
+    remediation:      { color: '#a3e635', bg: 'rgba(163,230,53,0.12)',  border: 'rgba(163,230,53,0.28)', label: 'Рекультивация' },
+    legacy:           { color: '#a16207', bg: 'rgba(161,98,7,0.18)',    border: 'rgba(161,98,7,0.4)',    label: 'Наследие' },
+    retreating:       { color: '#38bdf8', bg: 'rgba(56,189,248,0.12)',  border: 'rgba(56,189,248,0.28)', label: 'Отступает' },
+    catastrophe:      { color: '#ff4d6d', bg: 'rgba(255,77,109,0.18)',  border: 'rgba(255,77,109,0.45)', label: 'Катастрофа' },
   };
   return m[s] ?? { color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.2)', label: s };
 }
@@ -133,20 +210,42 @@ function typeLabel(t: string): string {
   return map[t] ?? t;
 }
 
+/**
+ * Подпись типа. У нового корпуса есть готовая русская формулировка
+ * (`type_label`) — она точнее машинного ключа и используется как есть.
+ */
+function objectTypeLabel(o: FullObjectData): string {
+  const tl = corpusOf(o).type_label;
+  return tl && tl.trim() ? tl : typeLabel(o.type);
+}
+
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
 function StatCard({
-  label, value, icon: Icon, color = '#00e6c8',
-}: { label: string; value: string; icon: React.ElementType; color?: string }) {
+  label, value, icon: Icon, color = '#00e6c8', dim = false, title,
+}: {
+  label: string; value: string; icon: React.ElementType; color?: string;
+  /** Значения нет в корпусе — показываем приглушённо, а не выдаём за данные. */
+  dim?: boolean;
+  title?: string;
+}) {
   return (
     <motion.div
       whileHover={{ y: -3 }}
       className="rounded-2xl p-4 flex-1 min-w-0"
       style={{ background: 'rgba(0,6,20,0.85)', border: `1px solid ${color}25`, backdropFilter: 'blur(12px)' }}
+      title={title}
     >
       <Icon size={14} style={{ color }} className="mb-2 opacity-80" />
       <div className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-1 truncate">{label}</div>
-      <div className="font-black text-lg tabular-nums leading-tight" style={{ color }}>{value}</div>
+      <div
+        className={dim
+          ? 'text-sm leading-tight italic'
+          : 'font-black text-lg tabular-nums leading-tight'}
+        style={{ color: dim ? 'rgba(255,255,255,0.35)' : color }}
+      >
+        {value}
+      </div>
     </motion.div>
   );
 }
@@ -192,6 +291,14 @@ function HeroSection({ object }: { object: FullObjectData }) {
   const sc = statusConfig(object.status);
   const age = object.construction_year ? new Date().getFullYear() - object.construction_year : null;
 
+  const c = corpusOf(object);
+  const isCorpus = isCorpusObject(object);
+  // Домен определяет цвет шапки: нефтегаз оранжевый, экология зелёная,
+  // вода бирюзовая. Для водных объектов без поля `domain` normalizeDomain
+  // возвращает 'water' — прежний бирюзовый акцент сохраняется.
+  const dm = DOMAIN_CONFIG[normalizeDomain(c.domain)];
+  const accent = dm.color;
+
   return (
     <div className="relative overflow-hidden" style={{ minHeight: 360 }}>
       {/* BG */}
@@ -204,6 +311,14 @@ function HeroSection({ object }: { object: FullObjectData }) {
       )}
       <div className="absolute inset-0"
         style={{ background: 'linear-gradient(to bottom, rgba(0,8,18,0.5) 0%, rgba(0,8,18,0.95) 100%)' }} />
+      {/* Доменная подсветка шапки — только там, где домен объявлен */}
+      {isCorpus && (
+        <>
+          <div className="absolute inset-x-0 top-0" style={{ height: 3, background: accent, opacity: 0.9 }} />
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: `radial-gradient(120% 80% at 50% 0%, ${accent}1f 0%, transparent 70%)` }} />
+        </>
+      )}
 
       <div className="relative z-10 max-w-5xl mx-auto px-5 pt-6 pb-8">
         {/* Breadcrumb */}
@@ -227,6 +342,13 @@ function HeroSection({ object }: { object: FullObjectData }) {
           className="mb-6"
         >
           <div className="flex flex-wrap items-center gap-2 mb-3">
+            {/* Domain badge — только для объектов нового корпуса */}
+            {isCorpus && (
+              <span className="px-3 py-1 rounded-full text-xs font-semibold"
+                style={{ background: `${accent}22`, color: accent, border: `1px solid ${accent}55` }}>
+                {dm.emoji} {dm.labelRu}
+              </span>
+            )}
             {/* Country badge */}
             <span className="px-3 py-1 rounded-full text-xs font-semibold"
               style={{ background: 'rgba(96,165,250,0.15)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.3)' }}>
@@ -234,8 +356,8 @@ function HeroSection({ object }: { object: FullObjectData }) {
             </span>
             {/* Type badge */}
             <span className="px-3 py-1 rounded-full text-xs font-semibold"
-              style={{ background: 'rgba(0,230,200,0.1)', color: '#00e6c8', border: '1px solid rgba(0,230,200,0.2)' }}>
-              {typeLabel(object.type)}
+              style={{ background: `${accent}1a`, color: accent, border: `1px solid ${accent}33` }}>
+              {objectTypeLabel(object)}
             </span>
             {/* Status badge */}
             <span className="px-3 py-1 rounded-full text-xs font-semibold"
@@ -265,32 +387,74 @@ function HeroSection({ object }: { object: FullObjectData }) {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
-          <StatCard
-            label="Year Built"
-            value={object.construction_year ? String(object.construction_year) : '—'}
-            icon={Calendar}
-            color="#fbbf24"
-          />
-          <StatCard
-            label="Capacity"
-            value={object.actual_capacity_m3_per_day
-              ? fmtNum(object.actual_capacity_m3_per_day) + ' m³/d'
-              : '—'}
-            icon={Droplets}
-            color="#00e6c8"
-          />
-          <StatCard
-            label="Beneficiaries"
-            value={fmtNum(object.serves_population)}
-            icon={Users}
-            color="#60a5fa"
-          />
-          <StatCard
-            label="Age"
-            value={age ? `${age} yrs` : '—'}
-            icon={Activity}
-            color="#a78bfa"
-          />
+          {isCorpus ? (
+            /* У объектов нового корпуса водных показателей нет, и заполнять
+               их прочерками бессмысленно. Показываем то, что корпус реально
+               несёт: оператора, год ввода, район и уровень точности точки. */
+            <>
+              <StatCard
+                label="Оператор"
+                value={c.operator ?? 'не указан'}
+                dim={!c.operator}
+                icon={Briefcase}
+                color={accent}
+                title={c.operator}
+              />
+              <StatCard
+                label="Год ввода"
+                value={object.construction_year ? String(object.construction_year) : 'не указан'}
+                dim={!object.construction_year}
+                icon={Calendar}
+                color="#fbbf24"
+              />
+              <StatCard
+                label="Район"
+                value={c.district ?? object.region ?? 'не указан'}
+                dim={!c.district && !object.region}
+                icon={MapPin}
+                color="#60a5fa"
+                title={c.district ?? object.region}
+              />
+              <StatCard
+                label="Точность точки"
+                value={c.coord_precision
+                  ? (COORD_PRECISION_SHORT[c.coord_precision] ?? c.coord_precision)
+                  : 'не указана'}
+                dim={!c.coord_precision}
+                icon={Crosshair}
+                color={c.coord_precision === 'exact' ? '#4ade80' : '#fb923c'}
+              />
+            </>
+          ) : (
+            <>
+              <StatCard
+                label="Year Built"
+                value={object.construction_year ? String(object.construction_year) : '—'}
+                icon={Calendar}
+                color="#fbbf24"
+              />
+              <StatCard
+                label="Capacity"
+                value={object.actual_capacity_m3_per_day
+                  ? fmtNum(object.actual_capacity_m3_per_day) + ' m³/d'
+                  : '—'}
+                icon={Droplets}
+                color="#00e6c8"
+              />
+              <StatCard
+                label="Beneficiaries"
+                value={fmtNum(object.serves_population)}
+                icon={Users}
+                color="#60a5fa"
+              />
+              <StatCard
+                label="Age"
+                value={age ? `${age} yrs` : '—'}
+                icon={Activity}
+                color="#a78bfa"
+              />
+            </>
+          )}
         </motion.div>
       </div>
     </div>
@@ -302,26 +466,66 @@ function HeroSection({ object }: { object: FullObjectData }) {
 // ═══════════════════════════════════════════════════════════════
 
 function OverviewTab({ object }: { object: FullObjectData }) {
+  const c = corpusOf(object);
+  const isCorpus = isCorpusObject(object);
+  const accent = DOMAIN_CONFIG[normalizeDomain(c.domain)].color;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
+      {/* Точность координаты — первым блоком: это рамка достоверности
+          всего, что показано ниже, и она не должна теряться в конце страницы. */}
+      {c.coord_precision && (
+        <CoordPrecisionBlock
+          precision={c.coord_precision}
+          coordinates={object.coordinates}
+          region={object.region}
+          district={c.district}
+        />
+      )}
+
       {/* Description */}
       <div className="rounded-2xl p-5"
-        style={{ background: 'rgba(0,6,20,0.85)', border: '1px solid rgba(0,230,200,0.1)' }}>
+        style={{ background: 'rgba(0,6,20,0.85)', border: `1px solid ${accent}1a` }}>
         <h3 className="text-white font-bold text-sm uppercase tracking-widest mb-3 flex items-center gap-2">
-          <Info size={14} style={{ color: '#00e6c8' }} />
-          Description
+          <Info size={14} style={{ color: accent }} />
+          {isCorpus ? 'Описание' : 'Description'}
         </h3>
-        <p className="text-white/65 text-sm leading-relaxed">
-          {localizedField(object, 'description') || 'No description available.'}
+        <p className="text-white/65 text-sm leading-relaxed whitespace-pre-line">
+          {localizedField(object, 'description')
+            ? <GapText text={localizedField(object, 'description')} />
+            : (isCorpus ? 'Описание не заполнено.' : 'No description available.')}
         </p>
         {object.description_en && (
           <p className="text-white/40 text-xs leading-relaxed mt-2 italic">{object.description_en}</p>
         )}
       </div>
+
+      {/* Оператор — отдельной строкой: для нового корпуса это ключевая
+          атрибуция, а не технический параметр. */}
+      {isCorpus && c.operator && (
+        <div className="rounded-2xl p-4 flex items-center gap-3"
+          style={{ background: 'rgba(0,6,20,0.85)', border: `1px solid ${accent}1a` }}>
+          <Briefcase size={14} style={{ color: accent }} className="flex-shrink-0" />
+          <span className="text-white/35 text-xs font-semibold uppercase tracking-widest">Оператор</span>
+          <span className="text-white/85 text-sm font-semibold">
+            <GapText text={c.operator} />
+          </span>
+        </div>
+      )}
+
+      {/* Источники */}
+      {isCorpus && <SourcesBlock sources={c.sources ?? []} accent={accent} />}
+
+      {/* Связи корпуса */}
+      <RelatedEntitiesBlock
+        relatedSubjects={c.related_subjects}
+        relatedProjects={c.related_projects}
+        accent={accent}
+      />
 
       {/* Map mini-preview */}
       {object.coordinates && (
@@ -340,10 +544,23 @@ function OverviewTab({ object }: { object: FullObjectData }) {
             <div className="flex items-center gap-1.5">
               <MapPin size={12} className="text-blue-400" />
               <span className="text-white/50 text-xs">
-                {object.coordinates.lat.toFixed(4)}°N, {object.coordinates.lng.toFixed(4)}°E
+                {/* У объектов корпуса координата печатается как есть: дописать
+                    нули до четырёх знаков значило бы придумать точность. */}
+                {isCorpus
+                  ? `${object.coordinates.lat}°N, ${object.coordinates.lng}°E`
+                  : `${object.coordinates.lat.toFixed(4)}°N, ${object.coordinates.lng.toFixed(4)}°E`}
                 {object.region ? ` — ${object.region}` : ''}
               </span>
             </div>
+            {c.coord_precision && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-lg"
+                style={{
+                  background: c.coord_precision === 'exact' ? 'rgba(74,222,128,0.14)' : 'rgba(251,146,60,0.14)',
+                  color: c.coord_precision === 'exact' ? '#4ade80' : '#fb923c',
+                }}>
+                {COORD_PRECISION_SHORT[c.coord_precision] ?? c.coord_precision}
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -356,19 +573,46 @@ function OverviewTab({ object }: { object: FullObjectData }) {
         style={{ background: 'rgba(0,6,20,0.85)', border: '1px solid rgba(167,139,250,0.1)' }}>
         <h3 className="text-white font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
           <BarChart2 size={14} style={{ color: '#a78bfa' }} />
-          Key Facts
+          {isCorpus ? 'Паспорт записи' : 'Key Facts'}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <FactRow label="Data Source" value={object.data_sources?.[0] ?? '—'} />
-          <FactRow label="Category" value={typeLabel(object.type)} />
-          <FactRow label="Last Updated"
-            value={object.last_updated ? new Date(object.last_updated).toLocaleDateString() : '—'} />
-          <FactRow label="Region" value={object.region ?? '—'} />
-          <FactRow label="Basin" value={object.basin ?? '—'} />
-          <FactRow label="Data Completeness"
-            value={object.completion_pct ? `${object.completion_pct}%` : '—'} />
+          {isCorpus ? (
+            <>
+              <FactRow label="Идентификатор" value={object.id} />
+              <FactRow label="Тип" value={objectTypeLabel(object)} />
+              <FactRow label="Домен" value={DOMAIN_CONFIG[normalizeDomain(c.domain)].labelRu} />
+              <FactRow label="Страна" value={object.country ?? '—'} />
+              <FactRow label="Область" value={object.region || '—'} />
+              <FactRow label="Район" value={c.district ?? '—'} />
+              <FactRow label="Статус" value={statusConfig(object.status).label} />
+              <FactRow label="Обновлено" value={object.last_updated ?? '—'} />
+            </>
+          ) : (
+            <>
+              <FactRow label="Data Source" value={object.data_sources?.[0] ?? '—'} />
+              <FactRow label="Category" value={typeLabel(object.type)} />
+              <FactRow label="Last Updated"
+                value={object.last_updated ? new Date(object.last_updated).toLocaleDateString() : '—'} />
+              <FactRow label="Region" value={object.region ?? '—'} />
+              <FactRow label="Basin" value={object.basin ?? '—'} />
+              <FactRow label="Data Completeness"
+                value={object.completion_pct ? `${object.completion_pct}%` : '—'} />
+            </>
+          )}
         </div>
       </div>
+
+      {/* Теги корпуса */}
+      {isCorpus && Array.isArray(object.tags) && object.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {object.tags.map((t, i) => (
+            <span key={i} className="px-2.5 py-1 rounded-lg text-xs"
+              style={{ background: `${accent}12`, color: `${accent}cc`, border: `1px solid ${accent}25` }}>
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -1380,17 +1624,30 @@ function AITab({ object }: { object: FullObjectData }) {
 //  MAIN PAGE
 // ═══════════════════════════════════════════════════════════════
 
-export default function ObjectDetailPage() {
+export default function ObjectDetailPage({ id: idProp }: { id?: string } = {}) {
   const [, setLocation] = useLocation();
   const params = useParams<{ id: string }>();
-  const id = params.id ?? '';
+  const id = idProp ?? params.id ?? '';
 
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   // 1. Try local map first
   const localData: FullObjectData | undefined = (FULL_OBJECTS_MAP as Record<string, FullObjectData>)[id];
 
-  // 2. Fetch from Supabase if not in local map
+  // 2. Каталог корпуса. `FULL_OBJECTS_MAP` собран только из водной модели
+  //    (`ALL_FULL_OBJECTS`), поэтому нефтегазовые и экологические записи в
+  //    него не попадают и раньше уходили в «Object not found». Ищем их в
+  //    `OBJECTS_DATA` — там они и живут.
+  const corpusRow = useMemo(
+    () => (localData ? undefined : OBJECTS_DATA.find(o => o.id === id)),
+    [id, localData],
+  );
+  const corpusData = useMemo(
+    () => (corpusRow ? mapPlatformObject(corpusRow) : undefined),
+    [corpusRow],
+  );
+
+  // 3. Fetch from Supabase if not found locally
   const { data: apiData, isLoading } = useQuery<FullObjectData>({
     queryKey: ['object-full', id],
     queryFn: async () => {
@@ -1417,14 +1674,27 @@ export default function ObjectDetailPage() {
       }
       throw new Error('Not found');
     },
-    enabled: !localData,
+    enabled: !localData && !corpusData,
     retry: false,
   });
 
-  const object: FullObjectData | undefined = localData ?? apiData;
+  const object: FullObjectData | undefined = localData ?? corpusData ?? apiData;
 
-  if (!localData && isLoading) return <LoadingSkeleton />;
+  if (!localData && !corpusData && isLoading) return <LoadingSkeleton />;
   if (!object) return <NotFound onBack={() => setLocation('/hub')} />;
+
+  const domainMeta = DOMAIN_CONFIG[normalizeDomain(corpusOf(object).domain)];
+  const isCorpus = isCorpusObject(object);
+  const accent = domainMeta.color;
+
+  // Финансовая, технологическая и операционная вкладки построены на водной
+  // модели и при отсутствии данных достраивают показатели сами (в графике
+  // выручки стоит подстановка). Для объектов нового корпуса таких данных нет,
+  // и показывать вместо них смоделированные значения было бы выдумыванием.
+  const visibleTabs = isCorpus
+    ? TABS.filter(t => ['overview', 'climate', 'history', 'monitoring', 'news'].includes(t.id))
+    : TABS;
+  const currentTab: TabId = visibleTabs.some(t => t.id === activeTab) ? activeTab : 'overview';
 
   return (
     <div className="min-h-screen">
@@ -1434,12 +1704,12 @@ export default function ObjectDetailPage() {
 
       {/* Sticky Tabs */}
       <div className="sticky top-0 z-30 overflow-x-auto"
-        style={{ background: 'rgba(0,6,20,0.92)', borderBottom: '1px solid rgba(0,230,200,0.1)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: 'rgba(0,6,20,0.92)', borderBottom: `1px solid ${accent}1a`, backdropFilter: 'blur(16px)' }}>
         <div className="max-w-5xl mx-auto px-5">
           <div className="flex gap-0.5 py-2 min-w-max">
-            {TABS.map(tab => {
+            {visibleTabs.map(tab => {
               const Icon = tab.icon;
-              const active = activeTab === tab.id;
+              const active = currentTab === tab.id;
               const isAI = tab.id === 'ai';
               return (
                 <button
@@ -1448,9 +1718,9 @@ export default function ObjectDetailPage() {
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm transition-all"
                   style={active
                     ? {
-                      background: isAI ? 'linear-gradient(135deg,rgba(167,139,250,0.2),rgba(0,230,200,0.15))' : 'rgba(0,230,200,0.14)',
-                      color: isAI ? '#a78bfa' : '#00e6c8',
-                      border: `1px solid ${isAI ? 'rgba(167,139,250,0.3)' : 'rgba(0,230,200,0.25)'}`,
+                      background: isAI ? 'linear-gradient(135deg,rgba(167,139,250,0.2),rgba(0,230,200,0.15))' : `${accent}24`,
+                      color: isAI ? '#a78bfa' : accent,
+                      border: `1px solid ${isAI ? 'rgba(167,139,250,0.3)' : `${accent}40`}`,
                     }
                     : { background: 'transparent', color: 'rgba(255,255,255,0.45)', border: '1px solid transparent' }
                   }
@@ -1476,12 +1746,14 @@ export default function ObjectDetailPage() {
           onClick={() => setLocation(`/hub/object/${id}/twin`)}
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all w-full justify-center mb-2"
           style={{
-            background: 'linear-gradient(135deg, rgba(0,230,200,0.1), rgba(0,128,255,0.1))',
-            border: '1px solid rgba(0,230,200,0.25)',
-            color: '#00e6c8',
+            background: isCorpus
+              ? `linear-gradient(135deg, ${accent}1a, ${accent}0d)`
+              : 'linear-gradient(135deg, rgba(0,230,200,0.1), rgba(0,128,255,0.1))',
+            border: `1px solid ${isCorpus ? `${accent}40` : 'rgba(0,230,200,0.25)'}`,
+            color: isCorpus ? accent : '#00e6c8',
           }}
         >
-          <span>🌊</span>
+          <span>{isCorpus ? domainMeta.emoji : '🌊'}</span>
           Открыть Цифровой двойник объекта
           <span style={{ color: 'rgba(255,255,255,0.3)' }}>→</span>
         </button>

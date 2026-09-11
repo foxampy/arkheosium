@@ -1043,7 +1043,18 @@ export const OBJECTS_DATA: PlatformObject[] = [
     programs: ["Ecology of Volga Federal Program (2019-2024, $5B)", "Caspian Convention Environmental Protocol", "Volga Basin Integrated Water Resources Management"],
     tags: ["river", "water-crisis", "russia", "volga", "caspian", "dams", "pollution"],
     last_updated: "2026-05-07"
-  }
+  },
+  // Нефтегазовые объекты живут в отдельном файле: у них своя дисциплина
+  // источников и точности координат, и смешивать их с водной базой в одном
+  // литерале значило бы потерять её из виду.
+  ...OILGAS_OBJECTS,
+  ...OILGAS_OBJECTS_EXT,
+  ...OILGAS_OBJECTS_UZ,
+  // Экологический слой: Аральская катастрофа, промышленное и радиационное
+  // наследие, ООПТ, точки приборного и спутникового наблюдения, деградация
+  // земель. Держится отдельным файлом по той же причине, что и нефтегаз:
+  // у него своя дисциплина источников и своя шкала точности координат.
+  ...ECOLOGY_OBJECTS,
 ];
 
 export const OBJECT_TYPE_COLORS: Record<string, string> = {
@@ -1057,6 +1068,49 @@ export const OBJECT_TYPE_COLORS: Record<string, string> = {
   river: "#38bdf8",
   lake_crisis: "#ff4d6d",
   aquifer: "#f97316",
+  // Нефтегаз: оттенки одного семейства, чтобы домен читался на карте единым
+  // пятном, но переделы отличались от пласта.
+  gas_field: "#fb923c",
+  oil_field: "#f97316",
+  oil_gas_field: "#fdba74",
+  refinery: "#f59e0b",
+  gas_processing_plant: "#fbbf24",
+  gas_chemical_complex: "#facc15",
+  gtl_plant: "#eab308",
+  gas_storage: "#d97706",
+  pipeline: "#c2410c",
+  compressor_station: "#b45309",
+  exploration_block: "#fed7aa",
+  // Экология: одно зелёное семейство, но с внутренним делением по смыслу.
+  // Насыщенные зелёные — охраняемые территории; бирюза и лайм — Арал
+  // (от воды к обнажившемуся дну); олива — загрязнение и наследие, чтобы
+  // «охраняемое» и «загрязнённое» не читались на карте одинаково.
+  protected_area: "#4ade80",
+  nature_reserve: "#22c55e",
+  biosphere_reserve: "#16a34a",
+  national_park: "#15803d",
+  geological_reserve: "#059669",
+  tugai_forest: "#10b981",
+  shrinking_sea: "#2dd4bf",
+  restoration_dam: "#14b8a6",
+  restoration_site: "#5eead4",
+  river_delta: "#99f6e4",
+  dried_seabed: "#bef264",
+  dust_source: "#d9f99d",
+  salinization: "#a3a635",
+  desertification: "#a16207",
+  // Ледник намеренно выпадает из зелёной гаммы: он читается как лёд и как
+  // индикатор, а не как охраняемая территория.
+  glacier: "#7dd3fc",
+  tailings: "#65a30d",
+  contaminated_site: "#4d7c0f",
+  industrial_pollution: "#5c7a1e",
+  coal_mine: "#4b5320",
+  ash_dump: "#6b7d3a",
+  nuclear_test_site: "#365314",
+  biohazard_site: "#3f6212",
+  air_monitoring: "#86efac",
+  methane_emitter: "#a7f3d0",
   default: "#94a3b8"
 };
 
@@ -1096,6 +1150,10 @@ export function getObjectColor(type: string): string {
 // ─── Full Object Data Map ─────────────────────────────────────
 import type { FullObjectData } from '@/types/object-full';
 import { ALL_FULL_OBJECTS } from './objects/index';
+import { OILGAS_OBJECTS } from './objects/oilgas-objects';
+import { OILGAS_OBJECTS_EXT } from './objects/oilgas-objects-ext';
+import { OILGAS_OBJECTS_UZ } from './objects/oilgas-objects-uz';
+import { ECOLOGY_OBJECTS } from './objects/ecology-objects';
 
 // Map of ALL object IDs → FullObjectData (Charvak + 7 UZ + 7 Regional)
 // Used by ObjectDetailPage and object creator

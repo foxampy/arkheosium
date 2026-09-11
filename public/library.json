@@ -1,0 +1,283 @@
+{
+ "version": "1.0",
+ "generated": "2026-08-11",
+ "namespaces": {
+  "D": "Водный диссертационный контур UNICAP — 21 тема D1–D21",
+  "Z": "Ветеринарно-экологический контур департамента Laboratory — 21 тема Z1–Z21",
+  "G": "Грантовые направления — реестр W-01…P-02 и заявки G-01…G-12"
+ },
+ "categories": [
+  "Уставы",
+  "Регламенты",
+  "Юрисдикция",
+  "Whitepapers",
+  "Диссертации",
+  "Гранты",
+  "Дорожные карты",
+  "Финансы",
+  "Презентации"
+ ],
+ "counts": {
+  "total": 15,
+  "written": 14,
+  "unwritten": 1,
+  "bytes": 635114
+ },
+ "docs": [
+  {
+   "id": "UNICAP-CHR-PLT-001",
+   "title": "Устав платформы UNICAP",
+   "cat": "Уставы",
+   "scope": "Платформа",
+   "st": "draft",
+   "owner": "Governance & Legal",
+   "file": "UNICAP-CHR-PLT-001-ustav-platformy.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 29170,
+   "lines": 344,
+   "sha": "72c642dc46a4"
+  },
+  {
+   "id": "UNICAP-CHR-LAB-001",
+   "title": "Устав департамента Laboratory",
+   "cat": "Уставы",
+   "scope": "Департамент Laboratory",
+   "st": "draft",
+   "owner": "Laboratory",
+   "file": "UNICAP-CHR-LAB-001-ustav-laboratory.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 18791,
+   "lines": 192,
+   "sha": "d605ff35c5d3"
+  },
+  {
+   "id": "UNICAP-CHR-ARK-001",
+   "title": "Устав экосистемы ArkheOSium",
+   "cat": "Уставы",
+   "scope": "Экосистема ArkheOSium",
+   "st": "не написан",
+   "owner": "Laboratory",
+   "file": null,
+   "shells": [
+    "unicap",
+    "arkheosium"
+   ],
+   "bytes": 0,
+   "lines": 0,
+   "sha": null
+  },
+  {
+   "id": "UNICAP-CHR-ULAB-001",
+   "title": "Устав UNICAP.Lab",
+   "cat": "Уставы",
+   "scope": "UNICAP.Lab · Ташкент",
+   "st": "draft",
+   "owner": "Governance & Legal",
+   "file": "UNICAP-CHR-ULAB-001-ustav-unicap-lab.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 26755,
+   "lines": 273,
+   "sha": "4a7b2b8e0148"
+  },
+  {
+   "id": "UNICAP-REG-ULAB-001",
+   "title": "Регламент работы UNICAP.Lab",
+   "cat": "Регламенты",
+   "scope": "UNICAP.Lab · Ташкент",
+   "st": "draft",
+   "owner": "Governance & Legal",
+   "file": "UNICAP-REG-ULAB-001-reglament-unicap-lab.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 13066,
+   "lines": 186,
+   "sha": "c4daae89597b"
+  },
+  {
+   "id": "UNICAP-JUR-PLT-001",
+   "title": "Юрисдикция платформы",
+   "cat": "Юрисдикция",
+   "scope": "Платформа",
+   "st": "draft",
+   "owner": "Governance & Legal",
+   "file": "UNICAP-JUR-PLT-001-jurisdiction.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 10710,
+   "lines": 118,
+   "sha": "4ad441f56531"
+  },
+  {
+   "id": "UNICAP-WPR-PLT-001",
+   "title": "Мастер-whitepaper библиотеки DAO",
+   "cat": "Whitepapers",
+   "scope": "DAO целиком",
+   "st": "alpha",
+   "owner": "Совет платформы",
+   "file": "UNICAP-WPR-PLT-001-master-whitepaper-biblioteki.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 120642,
+   "lines": 1136,
+   "sha": "80672d81bad1"
+  },
+  {
+   "id": "UNICAP-DIS-LAB-001",
+   "title": "Паспорт диссертационной программы D1–D21",
+   "cat": "Диссертации",
+   "scope": "Департамент Laboratory",
+   "st": "draft",
+   "owner": "Laboratory",
+   "file": "UNICAP-DIS-LAB-001-pasport-dissertacionnoy-programmy.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 38404,
+   "lines": 420,
+   "sha": "1876a512795b"
+  },
+  {
+   "id": "UNICAP-DIS-LAB-002",
+   "title": "Общая полевая программа наблюдений",
+   "cat": "Диссертации",
+   "scope": "Департамент Laboratory",
+   "st": "draft",
+   "owner": "Laboratory",
+   "file": "UNICAP-DIS-LAB-002-obschaya-polevaya-programma.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 130080,
+   "lines": 925,
+   "sha": "dc80baa59032"
+  },
+  {
+   "id": "UNICAP-DIS-D02",
+   "title": "D2 · Трансграничное управление водными ресурсами",
+   "cat": "Диссертации",
+   "scope": "Water & Basin",
+   "st": "approved",
+   "owner": "Laboratory",
+   "file": "UNICAP-DIS-D02-transgranichnoe-upravlenie-vodnymi-resursami.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 107625,
+   "lines": 969,
+   "sha": "e0de7dd24a88"
+  },
+  {
+   "id": "UNICAP-DIS-D12",
+   "title": "D12 · Экономика водных ресурсов и тарифообразование",
+   "cat": "Диссертации",
+   "scope": "Water & Basin",
+   "st": "draft",
+   "owner": "Laboratory",
+   "file": "UNICAP-DIS-D12-ekonomika-vodnyh-resursov-i-tarifoobrazovanie.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 65471,
+   "lines": 509,
+   "sha": "e5a66e0cd3ef"
+  },
+  {
+   "id": "UNICAP-GRT-000",
+   "title": "Грантовый контур · документ 1: партнёры, программы, принципы",
+   "cat": "Гранты",
+   "scope": "DAO целиком",
+   "st": "alpha",
+   "owner": "Finance & Reporting",
+   "file": "UNICAP-GRT-000-grantovyy-kontur-obschiy-uroven.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 14611,
+   "lines": 125,
+   "sha": "fe0dd5c8976a"
+  },
+  {
+   "id": "UNICAP-GRT-002",
+   "title": "Грантовый контур · документ 2: диссертации, расчёты, бюджеты",
+   "cat": "Гранты",
+   "scope": "DAO целиком",
+   "st": "alpha",
+   "owner": "Finance & Reporting",
+   "file": "UNICAP-GRT-002-dissertacii-i-raschety-byudzhetov.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 23484,
+   "lines": 264,
+   "sha": "1cf450b461e6"
+  },
+  {
+   "id": "UNICAP-GRT-003",
+   "title": "Грантовый контур · документ 3: экосистемы и продукты",
+   "cat": "Гранты",
+   "scope": "DAO целиком",
+   "st": "alpha",
+   "owner": "Finance & Reporting",
+   "file": "UNICAP-GRT-003-ekosistemy-i-produkty.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 17780,
+   "lines": 165,
+   "sha": "f4b01c68ee7f"
+  },
+  {
+   "id": "UNICAP-RDM-DAO-001",
+   "title": "Хакатоны UNICAP и экономическая дорожная карта DAO",
+   "cat": "Дорожные карты",
+   "scope": "DAO целиком",
+   "st": "alpha",
+   "owner": "Совет платформы",
+   "file": "UNICAP-RDM-DAO-001-hakatony-i-dorozhnaya-karta-dao.md",
+   "shells": [
+    "unicap",
+    "terros",
+    "arkheosium"
+   ],
+   "bytes": 18525,
+   "lines": 129,
+   "sha": "b2ffcd689fa4"
+  }
+ ],
+ "shell": "arkheosium"
+}

@@ -28,7 +28,16 @@ const ROLES = [
   { id: 'other', label: 'Другое' },
 ] as const;
 
-export { ROLES };
+// Роли, которые человек выбирает сам при регистрации и в профиле.
+// «Администратор» из этого списка исключён намеренно: пока он в нём стоял,
+// зарегистрироваться администратором мог кто угодно — форма писала выбранное
+// значение прямо в `profiles.role`, а политика `profiles_update_own` этого
+// не запрещала. Со стороны базы вход теперь закрыт триггером
+// `guard_profile_role` (миграция 28.08.2026); здесь убирается сама приманка.
+// `ROLES` остаётся полным — по нему ищется подпись уже назначенной роли.
+const SELECTABLE_ROLES = ROLES.filter((r) => r.id !== 'admin');
+
+export { ROLES, SELECTABLE_ROLES };
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);

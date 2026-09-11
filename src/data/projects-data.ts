@@ -2,6 +2,8 @@
 //  VODecology — Projects Database
 // ═══════════════════════════════════════════════════════════════
 
+import { OILGAS_PROJECTS } from './projects/oilgas-projects';
+
 export interface PlatformProject {
   id: string;
   name: string;
@@ -827,7 +829,11 @@ export const PROJECTS_DATA: PlatformProject[] = [
     related_objects: ["OBJ-AMU-DARYA-001", "OBJ-SYR-DARYA-001", "OBJ-ARAL-LAKE-001"],
     tags: ["transboundary", "central-asia", "water-diplomacy", "governance", "water-energy-nexus"],
     last_updated: "2026-05-07"
-  }
+  },
+  // Нефтегазовые проекты вынесены в отдельный файл: у них своя дисциплина
+  // источников и своя шкала достоверности координаты — для трубопровода
+  // точка на карте это опорный узел маршрута, а не адрес проекта.
+  ...OILGAS_PROJECTS,
 ];
 
 export const PROJECT_STATUS_COLORS: Record<string, { color: string; label: string }> = {

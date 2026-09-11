@@ -68,9 +68,14 @@ export function ObjectHistoryTimeline({ objectId }: { objectId: string }) {
                     {event.severity === 'critical' && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">Критично</span>
                     )}
-                    {event.verified && (
-                      <span className="text-xs text-white/30">✓ верифицировано</span>
-                    )}
+                    {/*
+                      Стояло «✓ верифицировано» по флагу event.verified.
+                      Никакой процедуры проверки событий нет — флаг проставляет
+                      составитель записи. Ниже и так печатается строка
+                      «Источник: …»; она говорит ровно то, что известно, а
+                      галочка добавляла к ней несуществующее заверение.
+                      Метка снята.
+                    */}
                   </div>
                   <p className="text-sm font-medium text-white/90 mt-1">{event.title}</p>
                   {event.description && (

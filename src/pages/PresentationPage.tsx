@@ -535,16 +535,13 @@ function PartnersSection() {
   const inView = useInView(ref, { once: true, threshold: 0.2 });
   const { t } = useTranslation();
 
+  // Здесь перечислялись девять институтов — EBRD, World Bank, ADB, JICA, EIB,
+  // DFC USA, Korea Eximbank, IT Park UZ, Plug and Play — как партнёры платформы.
+  // Соглашений ни с одним из них нет. Список снят: подключённых партнёров ноль,
+  // и на слайде теперь стоит это число, а не чужие имена.
   const partners = [
-    { name: 'EBRD', desc: 'European Bank' },
-    { name: 'World Bank', desc: 'International' },
-    { name: 'ADB', desc: 'Asian Dev Bank' },
-    { name: 'JICA', desc: 'Japan Intl Coop' },
-    { name: 'EIB', desc: 'European Invest' },
-    { name: 'DFC USA', desc: 'US Dev Finance' },
-    { name: 'Korea Eximbank', desc: 'Korean Export' },
-    { name: 'IT Park UZ', desc: 'Uzbekistan' },
-    { name: 'Plug and Play', desc: 'Silicon Valley' },
+    { name: 'Подключённых партнёров — 0', desc: 'соглашений нет' },
+    { name: 'Входов открыто — 8 сегментов', desc: 'по каждому свой онбординг' },
   ];
 
   return (

@@ -187,7 +187,12 @@ function ProjectDetailPopup({ proj, onClose, onNavigate }: {
             {proj.irr && (
               <div className="rounded-xl p-3"
                 style={{ background: "rgba(0,230,200,0.06)", border: "1px solid rgba(0,230,200,0.12)" }}>
-                <div className="text-white/35 text-xs mb-1">IRR</div>
+                {/*
+                  IRR и APY приходят из описаний самих проектов. Платформа их
+                  не проверяла, не утверждала и доходности не обещает —
+                  поэтому число подписано как заявленное, а не как показатель.
+                */}
+                <div className="text-white/35 text-xs mb-1">IRR, заявл. проектом</div>
                 <div className="font-black text-lg" style={{ color: "#00e6c8" }}>{proj.irr}%</div>
               </div>
             )}
@@ -197,7 +202,7 @@ function ProjectDetailPopup({ proj, onClose, onNavigate }: {
           <div className="grid grid-cols-2 gap-2 mb-4">
             {proj.apy && (
               <div className="rounded-xl p-3" style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.12)" }}>
-                <div className="text-white/35 text-xs mb-1">APY</div>
+                <div className="text-white/35 text-xs mb-1">APY, заявл. проектом</div>
                 <div className="font-bold text-sm" style={{ color: "#60a5fa" }}>{proj.apy}%</div>
               </div>
             )}

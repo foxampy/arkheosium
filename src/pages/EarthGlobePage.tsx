@@ -14,7 +14,7 @@ import {
 import { useSupabaseMarkers } from '@/hooks/useSupabaseMarkers';
 import { useSupabaseGraph } from '@/hooks/useSupabaseGraph';
 import { getAllMapMarkers } from '@/data/map-markers';
-import { DOMAIN_CONFIG, normalizeDomain } from '@/lib/domains';
+import { DOMAIN_CONFIG, DOMAIN_ORDER, normalizeDomain, type DomainKey } from '@/lib/domains';
 import type { MapMarker } from '@/components/map/types';
 import OSDesktop from '@/components/os/OSDesktop';
 import { groupMarkersByGeography } from '@/lib/regionGrouping';
@@ -378,6 +378,38 @@ export default function EarthGlobePage() {
     return out;
   }, [supabaseMarkers]);
 
+  // Переключение ресурсных доменов. Гасятся только объекты: субъект и проект
+  // домену не принадлежат, и прятать их вместе с ресурсом значило бы убрать
+  // со сцены тех, кто с этим ресурсом работает.
+  const [activeDomains, setActiveDomains] = useState<Set<DomainKey>>(
+    () => new Set(DOMAIN_ORDER),
+  );
+
+  const domainCounts = useMemo(() => {
+    const tally = {} as Record<DomainKey, number>;
+    for (const m of markers) {
+      if (m.type !== 'object') continue;
+      const d = normalizeDomain(m.domain);
+      tally[d] = (tally[d] ?? 0) + 1;
+    }
+    return tally;
+  }, [markers]);
+
+  const visibleMarkers = useMemo(
+    () => markers.filter((m) => m.type !== 'object' || activeDomains.has(normalizeDomain(m.domain))),
+    [markers, activeDomains],
+  );
+
+  const toggleDomain = (d: DomainKey) =>
+    setActiveDomains((prev) => {
+      const next = new Set(prev);
+      if (next.has(d)) next.delete(d);
+      else next.add(d);
+      // Пустой набор показал бы голый глобус без объяснения, почему.
+      // Снятие последнего домена трактуется как «показать все».
+      return next.size === 0 ? new Set(DOMAIN_ORDER) : next;
+    });
+
   // Live clock
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -409,7 +441,7 @@ export default function EarthGlobePage() {
         style={{ width: '100%', height: '100%' }}
       >
         <Scene
-          markers={markers}
+          markers={visibleMarkers}
           onHover={setHovered}
           onSelect={setSelected}
           controlsRef={controlsRef}
@@ -458,6 +490,40 @@ export default function EarthGlobePage() {
         </div>
 
         <div className="flex-1" />
+
+        {/* ── Переключение ресурсных доменов ──────────────────────
+            Домен, в котором нет ни одного объекта, показан приглушённо и
+            не кликается: чип, который ничего не переключает, обманывает. */}
+        <div className="px-3 pb-2 pointer-events-none">
+          <div className="flex flex-wrap justify-center gap-1.5 max-w-[560px] mx-auto">
+            {DOMAIN_ORDER.map((d) => {
+              const cfg = DOMAIN_CONFIG[d];
+              const count = domainCounts[d] ?? 0;
+              const on = activeDomains.has(d);
+              const empty = count === 0;
+              return (
+                <button
+                  key={d}
+                  disabled={empty}
+                  onClick={() => toggleDomain(d)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all active:scale-95 pointer-events-auto"
+                  style={{
+                    background: on && !empty ? `${cfg.color}1f` : 'rgba(5,13,26,0.8)',
+                    border: `1px solid ${on && !empty ? `${cfg.color}88` : 'rgba(255,255,255,0.1)'}`,
+                    color: empty ? 'rgba(255,255,255,0.22)' : on ? cfg.color : 'rgba(255,255,255,0.45)',
+                    opacity: empty ? 0.45 : 1,
+                    cursor: empty ? 'default' : 'pointer',
+                    backdropFilter: 'blur(20px)',
+                  }}
+                >
+                  <span className="text-[11px] leading-none">{cfg.emoji}</span>
+                  <span className="text-[10.5px] font-semibold tracking-tight">{cfg.labelRu}</span>
+                  <span className="text-[10px] font-bold tabular-nums opacity-70">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Bottom control bar (graph toggle + rotation hint). App tiles are now
             a freeform draggable desktop rendered by <OSDesktop/> below. */}

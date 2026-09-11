@@ -13,7 +13,8 @@ import {
   Briefcase, TrendingUp, Cpu, Network, Users, MessageSquare,
   Phone, User, Settings, CornerDownLeft, Sparkles, Gavel,
   Compass, Waves, Milestone, ScrollText,
-  Satellite, Radio, Cloud, Zap, Truck, Bot, Sprout, Recycle, Telescope,
+  Satellite, Radio, Cloud, Zap, Truck, Bot, Sprout, Recycle, Telescope, Store,
+  Fingerprint, TreePine, AudioWaveform, Handshake, ShieldAlert,
 } from 'lucide-react';
 
 type Cmd = { label: string; path: string; group: string; icon: typeof Search; keywords?: string };
@@ -22,11 +23,15 @@ const COMMANDS: Cmd[] = [
   // Планета
   { label: 'Глобус', path: '/', group: 'Планета', icon: Globe, keywords: 'earth 3d карта мира' },
   { label: 'Карта', path: '/map', group: 'Планета', icon: MapIcon, keywords: 'world map регионы' },
+  { label: '🛢 Газнефть — модуль', path: '/oilgas', group: 'Планета', icon: MapIcon, keywords: 'нефть газ oilgas месторождения нпз гпз gtl метан вибродиагностика labforge узбекистан казахстан туркменистан whitepaper онбординг каталог' },
+  { label: '🛢 Газнефть — интеграционный модуль', path: '/oilgas/integration', group: 'Планета', icon: Network, keywords: 'интеграция crm dao ai ии автоматизация партнёр партнер нефтегаз нефть газ цифровой двойник телеметрия scada предиктив тоир наряд допуск ldar mrv внедрение контур' },
   { label: 'Дашборд', path: '/dashboard', group: 'Планета', icon: LayoutDashboard, keywords: 'метрики kpi' },
   { label: 'Аналитика', path: '/analytics', group: 'Планета', icon: BarChart2, keywords: 'графики данные' },
   { label: 'Обновления', path: '/updates', group: 'Планета', icon: Newspaper, keywords: 'новости лента' },
   { label: 'Дорожная карта', path: '/roadmap', group: 'Планета', icon: Milestone, keywords: 'roadmap развитие план фазы модули пре-рендер' },
   { label: 'Направления', path: '/directions', group: 'Планета', icon: Compass, keywords: 'темы разделы навигация хаб оглавление directions' },
+  { label: '🌍 Экология — модуль', path: '/ecology', group: 'Планета', icon: TreePine, keywords: 'экология арал аралкум муйнак приаралье хвостохранилища уран майлуу-суу оопт заповедник национальный парк биосферный резерват метан эмиттеры суперэмиттеры tropomi ghgsat ледники федченко абрамова засоление опустынивание пыль соль семипалатинск ecology' },
+  { label: '🧭 Ресурсы — обозреватель', path: '/resources', group: 'Планета', icon: Compass, keywords: 'ресурсы домены обозреватель вода нефть газ экология минералы энергетика агро климат связи пересечения объекты субъекты геоданные счётчики resources' },
   // Инфраструктура
   { label: 'Объекты', path: '/hub/objects', group: 'Инфраструктура', icon: Database, keywords: 'водохранилище дамба канал 473' },
   { label: 'Субъекты', path: '/hub/subjects', group: 'Инфраструктура', icon: Building2, keywords: 'организации агентства' },
@@ -36,6 +41,10 @@ const COMMANDS: Cmd[] = [
   { label: 'Экосистема', path: '/ecosystem', group: 'Инфраструктура', icon: Leaf, keywords: 'связи граф' },
   { label: 'Живая модель региона', path: '/simulator', group: 'Инфраструктура', icon: Waves, keywords: 'модель карта объекты проекты инициативы благополучие экология восстановление арал simulator' },
   // Знания
+  { label: '🏛 Витрина контура', path: '/showcase', group: 'Знания', icon: Store, keywords: 'витрина услуги консалтинг аудит r&d разработка платформы решения продукты исследования уровни участия поставщики unicap labforge daociv arkheos showcase предложения прайс условия расчёт' },
+  { label: '⛓ Токенизация измерений', path: '/tokenization', group: 'Знания', icon: Fingerprint, keywords: 'токенизация хэш ноды измерения эмиссия верификация mrv labforge прослеживаемость хеш нода запечатывание метан ogmp miq guardian hedera стандарты неопределённость поверка' },
+  { label: '〰 Вибродиагностика оборудования', path: '/diagnostics', group: 'Знания', icon: AudioWaveform, keywords: 'вибрация вибродиагностика вибро-волновая сетка медная обшивка прошивка подшипник bpfo bpfi bsf ftf дефект iso 20816 iso 10816 виброскорость спектр огибающая насос компрессор редуктор предиктивная диагностика состояние оборудования labforge diagnostics' },
+  { label: '🤝 Партнёрские входы', path: '/partners', group: 'Знания', icon: Handshake, keywords: 'партнёры партнерство вход приглашение инвайт код онбординг презентация whitepaper промышленность инфраструктура градостроение город бизнес корпорации государство госорганы организации нко сегмент предложение сотрудничество partners invite' },
   { label: 'R&D / Методологии', path: '/rd', group: 'Знания', icon: FlaskConical, keywords: 'исследования разработки наука' },
   { label: 'Каталог тех/оборуд.', path: '/catalog', group: 'Знания', icon: BookOpen, keywords: 'технологии оборудование' },
   { label: 'Тех-маркет', path: '/tech-marketplace', group: 'Знания', icon: ShoppingCart, keywords: 'маркетплейс поставщики' },
@@ -62,9 +71,15 @@ const COMMANDS: Cmd[] = [
   // Инвестиции
   { label: 'Конструктор проектов', path: '/constructor', group: 'Инвестиции', icon: Briefcase, keywords: 'создать проект новый' },
   { label: 'Инвестиции', path: '/invest', group: 'Инвестиции', icon: TrendingUp, keywords: 'вложить финансирование' },
-  { label: 'Токенсейл', path: '/token-sale', group: 'Инвестиции', icon: Cpu, keywords: 'токены ico' },
-  { label: 'Блокчейн / VOD Token', path: '/blockchain', group: 'Инвестиции', icon: Network, keywords: 'токен nft реестр протокол' },
-  { label: 'DAO ОС / Голосование', path: '/dao', group: 'Инвестиции', icon: Gavel, keywords: 'дао управление предложения казна голосование governance' },
+  // Найти страницу можно по прямому запросу — она объясняет, что продажи нет.
+  // Ключевые слова оставлены те же: человек, ищущий «купить токен», должен
+  // попасть на отказ, а не на пустой результат.
+  { label: 'Токенсейл — предложение снято', path: '/token-sale', group: 'Инвестиции', icon: ShieldAlert, keywords: 'токенсейл токены ico купить продажа vod token эмиссия кошелёк снято не проводится' },
+  // Как и токенсейл, эти два раздела сняты, но остаются находимыми: ищущий
+  // «стейкинг», «APY» или «казну DAO» должен увидеть разбор снятого.
+  { label: 'Блокчейн / VOD Token — раздел снят', path: '/blockchain', group: 'Инвестиции', icon: ShieldAlert, keywords: 'токен nft реестр протокол курс капитализация стейкинг apy доходность tvl холдеры снято не выпущен' },
+  { label: 'DAO / Голосование — раздел снят', path: '/dao', group: 'Инвестиции', icon: ShieldAlert, keywords: 'дао управление предложения казна голосование governance стейкинг apy снято не учреждено' },
+  { label: 'Токеномика — раздел снят', path: '/tokenomics', group: 'Инвестиции', icon: ShieldAlert, keywords: 'токеномика эмиссия распределение аллокация supply tvl утилита стейкинг снято не утверждена' },
   { label: 'Регуляторика', path: '/regulatory', group: 'Инвестиции', icon: FileText, keywords: 'право закон' },
   // Аккаунт
   { label: 'Рабочий стол', path: '/workspace', group: 'Аккаунт', icon: Briefcase, keywords: 'workspace задачи' },

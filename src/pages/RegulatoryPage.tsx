@@ -479,8 +479,14 @@ export default function RegulatoryPage() {
               {/* Signature block */}
               <div className="mt-8 pt-4 border-t border-white/8 flex items-center justify-between text-xs text-white/30">
                 <div>Сгенерировано автоматически · VODPROM · {new Date().toISOString().slice(0, 19)}</div>
+                {/*
+                  Стояло «Верифицировано SHA-256» со щитом. Никакой хэш не
+                  вычислялся: во всём файле нет ни одного обращения к SHA —
+                  подпись была нарисованной. Отчёт собирается в браузере из
+                  введённого и никем не заверяется.
+                */}
                 <div className="flex items-center gap-1">
-                  <Shield className="w-3 h-3" /> Верифицировано SHA-256
+                  <Shield className="w-3 h-3" /> Не заверено: подпись и хэш не вычисляются
                 </div>
               </div>
             </div>

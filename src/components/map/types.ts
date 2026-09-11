@@ -36,8 +36,14 @@ export interface MapMarker {
   isHighlighted?: boolean;
   /** Specific object sub-type for icon selection (dam, river, pumping_station, etc.) */
   objectType?: string;
-  /** Resource domain (water | energy | minerals | nature | agriculture | climate) — drives colour/legend */
+  /** Resource domain (water | oilgas | energy | minerals | ecology | nature | agriculture | climate) — drives colour/legend */
   domain?: string;
+  /** Страна по данным объекта. Группировка берёт страну из атласа границ, но
+   *  поле остаётся источником для карточек и фильтров. */
+  country?: string;
+  /** Область/вилоят — ключ группировки на третьем уровне детализации. */
+  region?: string;
+  district?: string;
 }
 
 export interface WaterMapHandle {
@@ -56,16 +62,11 @@ export interface WaterMapProps {
   onMarkerClick?: (m: MapMarker) => void;
   onGroupClick?: (groupId: GroupId) => void;
   /**
-   * Enable proximity clustering of markers. When true, markers that are
-   * geographically close are grouped into a count bubble that expands
-   * (zooms in) on click. Defaults to false = render every marker directly.
+   * Группировать метки по географии: макрорегион → страна → область, уровень
+   * выбирается по зуму. Клик по чипу приближает к следующему уровню.
+   * По умолчанию false — рисовать каждую метку отдельно.
    */
   cluster?: boolean;
-  /**
-   * Screen-space radius (px) used to group markers into a cluster.
-   * Only used when `cluster` is true. Defaults to 48.
-   */
-  clusterRadius?: number;
   /** Called when map viewport changes — receives bounds [west, south, east, north] */
   onBoundsChange?: (bounds: [number, number, number, number]) => void;
   height?: string;

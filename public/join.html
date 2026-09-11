@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Регистрация участника — DAO</title>
+<meta name="description" content="Анкета участника DAO: роль, департамент, CV, компании, кампании и проекты участия. Заявка проверяется, DAO ID выдаётся отдельным решением."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#15100a;--bg2:#1c1610;--panel:#221b13;--line:#3a2f22;--sand:#a9895f;--clay:#c4703f;--salt:#e9dfc7;--salt-dim:#b3a888;--oasis:#5c7266}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--salt);font:15px/1.6 Inter,system-ui,sans-serif}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+a{color:var(--clay)}
+header{border-bottom:1px solid var(--line);padding:22px 24px;background:var(--bg2);position:sticky;top:0;z-index:5}
+header .in{max-width:940px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font:600 21px/1.2 Fraunces,Georgia,serif;margin:0}
+header .back{font-size:13px;color:var(--salt-dim);text-decoration:none}
+header .back:hover{color:var(--clay)}
+main{max-width:940px;margin:0 auto;padding:34px 24px 90px}
+.lead{color:var(--salt-dim);max-width:70ch;margin:0 0 10px}
+.warn{border-left:2px solid var(--clay);padding:10px 0 10px 14px;margin:22px 0 30px;color:var(--salt-dim);font-size:14px;max-width:74ch}
+fieldset{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:20px 22px 24px;margin:0 0 20px}
+legend{font:600 15px/1 Fraunces,Georgia,serif;color:var(--salt);padding:0 9px;letter-spacing:.02em}
+legend .n{color:var(--sand);font-family:'JetBrains Mono',monospace;font-size:12px;margin-right:8px}
+.hint{color:var(--salt-dim);font-size:13px;margin:-4px 0 16px;max-width:74ch}
+.grid{display:grid;gap:14px 16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.t3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f.wide{grid-column:1/-1}
+label{font-size:12.5px;color:var(--salt-dim);letter-spacing:.02em}
+label .req{color:var(--clay)}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);color:var(--salt);border-radius:3px;padding:9px 10px;font:14px/1.45 Inter,sans-serif;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sand)}
+input::placeholder,textarea::placeholder{color:#6d6152}
+textarea{resize:vertical;min-height:80px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--sand) 50%),linear-gradient(135deg,var(--sand) 50%,transparent 50%);background-position:calc(100% - 15px) 17px,calc(100% - 10px) 17px;background-size:5px 5px;background-repeat:no-repeat;padding-right:30px}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:9px}
+.chk{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:var(--salt);cursor:pointer;line-height:1.4}
+.chk input{width:15px;height:15px;flex:0 0 auto;margin-top:2px;accent-color:var(--clay)}
+.rep{border:1px solid var(--line);border-radius:3px;padding:14px 15px;margin-bottom:11px;background:var(--bg2);position:relative}
+.rep .rm{position:absolute;top:9px;right:10px;background:none;border:1px solid var(--line);color:var(--salt-dim);border-radius:3px;font-size:11px;padding:2px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace}
+.rep .rm:hover{border-color:var(--clay);color:var(--clay)}
+.add{background:none;border:1px dashed var(--line);color:var(--sand);border-radius:3px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:Inter,sans-serif}
+.add:hover{border-color:var(--sand);color:var(--salt)}
+.empty{color:#6d6152;font-size:13px;margin:0 0 11px}
+.submit{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:26px}
+button.go{background:var(--clay);border:none;color:#1a1209;font:600 15px/1 Inter,sans-serif;padding:14px 30px;border-radius:3px;cursor:pointer}
+button.go:hover{filter:brightness(1.09)}
+button.go:disabled{opacity:.5;cursor:default}
+.msg{font-size:13.5px;padding:11px 14px;border-radius:3px;border:1px solid var(--line);display:none;margin-top:18px}
+.msg.on{display:block}
+.msg.err{border-color:var(--clay);color:var(--clay)}
+.msg.ok{border-color:var(--oasis);color:var(--salt)}
+.msg .ticket{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--oasis);display:block;margin:9px 0 4px}
+footer{border-top:1px solid var(--line);color:var(--salt-dim);font-size:12.5px;padding:22px 24px;text-align:center}
+@media(max-width:720px){.grid,.grid.t3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>Регистрация участника DAO</h1>
+  <a class="back" href="./">← библиотека</a>
+</div></header>
+
+<main>
+<p class="lead">Анкета собирает то, без чего невозможно завести учётную запись в DAO: кто вы, в каком департаменте и роли участвуете, чем подтверждается квалификация, через какие компании и кампании идёт ваше участие.</p>
+
+<div class="warn">
+  Заявка — не профиль. Она проверяется, и <b>DAO ID выдаётся отдельным решением</b>, а не в момент отправки. Незаполненное поле лучше пустого домысла: неточные данные в реестре дороже отсутствующих. Обязательны только имя, почта и согласие — остальное дополняется по мере проверки.
+</div>
+
+<form id="form" novalidate>
+
+<fieldset><legend><span class="n">01</span>Идентификация</legend>
+  <div class="grid">
+    <div class="f wide"><label for="full_name">Фамилия, имя, отчество <span class="req">*</span></label><input id="full_name" name="full_name" autocomplete="name" required/></div>
+    <div class="f"><label for="full_name_latin">Написание латиницей — как в загранпаспорте</label><input id="full_name_latin" name="full_name_latin" placeholder="Sadykov Timur"/></div>
+    <div class="f"><label for="birth_year">Год рождения</label><input id="birth_year" name="birth_year" type="number" min="1930" max="2020" placeholder="1996"/></div>
+    <div class="f"><label for="citizenship">Гражданство</label><input id="citizenship" name="citizenship"/></div>
+    <div class="f"><label for="country">Страна проживания</label><input id="country" name="country"/></div>
+    <div class="f"><label for="city">Город</label><input id="city" name="city"/></div>
+    <div class="f"><label for="languages">Языки — через запятую</label><input id="languages" name="languages" placeholder="русский, английский, узбекский"/></div>
+  </div>
+</fieldset>
+
+<fieldset><legend><span class="n">02</span>Связь</legend>
+  <p class="hint">Почта — единственный обязательный канал: по ней приходит решение по заявке.</p>
+  <div class="grid">
+    <div class="f"><label for="email">Электронная почта <span class="req">*</span></label><input id="email" name="email" type="email" autocomplete="email" required/></div>
+    <div class="f"><label for="phone">Телефон</label><input id="phone" name="phone" type="tel" autocomplete="tel"/></div>
+    <div class="f"><label for="telegram">Telegram</label><input id="telegram" name="telegram" placeholder="@username"/></div>
+    <div class="f"><label for="wallet">Адрес кошелька — если участвуете в ончейн-контуре</label><input id="wallet" name="wallet" class="mono" placeholder="0x…"/></div>
+  </div>
+  <div class="hint" style="margin:16px 0 8px">Профили и страницы: сайт, LinkedIn, ORCID, GitHub, публичный реестр компании.</div>
+  <div data-rep="links"></div>
+</fieldset>
+
+<fieldset><legend><span class="n">03</span>Участие в DAO</legend>
+  <p class="hint">Роль определяет права в реестрах и кабинетах. Если подходящей роли в списке нет — выберите «Иная роль» и опишите её словами.</p>
+  <div class="grid t3">
+    <div class="f"><label for="participation_type_code">Характер участия</label><select id="participation_type_code" name="participation_type_code" data-ref="participation_type"></select></div>
+    <div class="f"><label for="department_code">Департамент</label><select id="department_code" name="department_code" data-ref="department"></select></div>
+    <div class="f"><label for="role_code">Роль</label><select id="role_code" name="role_code" data-ref="role"></select></div>
+    <div class="f wide" id="role_other_wrap" hidden><label for="role_other">Какая именно роль</label><input id="role_other" name="role_other"/></div>
+    <div class="f"><label for="workload">Занятость</label><select id="workload" name="workload">
+      <option value="">—</option><option>полная</option><option>частичная</option><option>проектная</option><option>разовые задачи</option><option>без вознаграждения</option>
+    </select></div>
+    <div class="f"><label for="available_from">Готов приступить с</label><input id="available_from" name="available_from" type="date"/></div>
+  </div>
+  <div class="hint" style="margin:18px 0 8px">Оболочки, в которых нужен рабочий кабинет:</div>
+  <div class="checks" data-checks="shell"></div>
+</fieldset>
+
+<fieldset><legend><span class="n">04</span>Квалификация</legend>
+  <div class="grid t3">
+    <div class="f"><label for="degree">Учёная степень · звание</label><input id="degree" name="degree" placeholder="к.т.н."/></div>
+    <div class="f"><label for="degree_field">Отрасль науки</label><input id="degree_field" name="degree_field" placeholder="гидрология суши"/></div>
+    <div class="f"><label for="orcid">ORCID</label><input id="orcid" name="orcid" class="mono" placeholder="0000-0000-0000-0000"/></div>
+    <div class="f wide"><label for="cv_url">Ссылка на CV — файл в облаке или страница</label><input id="cv_url" name="cv_url" type="url" placeholder="https://…"/></div>
+    <div class="f wide"><label for="competencies">Ключевые компетенции — через запятую</label><input id="competencies" name="competencies" placeholder="гидрохимический анализ, ГИС, проектное финансирование"/></div>
+  </div>
+  <div class="hint" style="margin:18px 0 8px">Образование</div>
+  <div data-rep="education"></div>
+  <div class="hint" style="margin:18px 0 8px">Опыт работы</div>
+  <div data-rep="experience"></div>
+  <div class="hint" style="margin:18px 0 8px">Публикации и патенты</div>
+  <div data-rep="publications"></div>
+</fieldset>
+
+<fieldset><legend><span class="n">05</span>Компании</legend>
+  <p class="hint">Юридические лица, через которые идёт ваше участие. Важно для грантового контура: донор требует названного исполнителя и разделения ролей — кто выполняет, кто принимает, кто несёт обязательства.</p>
+  <div data-rep="companies"></div>
+</fieldset>
+
+<fieldset><legend><span class="n">06</span>Кампании и программы</legend>
+  <p class="hint">Программы DAO, в которых вы участвуете или намерены участвовать.</p>
+  <div data-rep="campaigns"></div>
+</fieldset>
+
+<fieldset><legend><span class="n">07</span>Проекты и объекты</legend>
+  <p class="hint">Конкретные проекты, объекты на территории, диссертационные темы, продукты.</p>
+  <div data-rep="projects"></div>
+</fieldset>
+
+<fieldset><legend><span class="n">08</span>Свободная часть и согласия</legend>
+  <div class="f wide" style="margin-bottom:18px"><label for="motivation">Что вы хотите делать в DAO и что уже сделали по теме</label><textarea id="motivation" name="motivation" rows="5"></textarea></div>
+  <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="consent_pd" required/><span>Согласен на обработку указанных данных для рассмотрения заявки и ведения реестра участников DAO. <span class="req">*</span></span></label>
+  <label class="chk"><input type="checkbox" id="consent_public"/><span>Разрешаю показывать имя, роль и департамент в публичном каталоге участников. Контакты, CV и данные компаний не публикуются в любом случае.</span></label>
+</fieldset>
+
+<div class="submit">
+  <button class="go" type="submit" id="go">Отправить заявку</button>
+  <span class="mono" style="color:var(--salt-dim);font-size:12.5px">поля со <span style="color:var(--clay)">*</span> обязательны</span>
+</div>
+<div class="msg" id="msg"></div>
+</form>
+</main>
+
+<footer>Библиотека DAO · реестр участников. Заявки хранятся в контуре DAO и не передаются третьим сторонам.</footer>
+
+<script>
+const SB_URL='https://cllbxumyagfhtcexqxvh.supabase.co';
+const SB_KEY='sb_publishable_Y0iDAecsSagyvYtYLkdpew_TzT6s0Ea';
+
+/* ——— Повторяемые блоки. Описание полей — единственное место, где задаётся их состав. ——— */
+const REP={
+  links:{one:'ссылку',f:[['label','Что это','Профиль ORCID'],['url','Адрес','https://…']]},
+  education:{one:'образование',f:[['org','Учебное заведение',''],['field','Специальность',''],['level','Уровень — бакалавр, магистр, аспирантура',''],['year','Год окончания','']]},
+  experience:{one:'место работы',f:[['org','Организация',''],['position','Должность',''],['from','С — год',''],['to','По — год или «по настоящее время»',''],['what','Чем занимались','',1]]},
+  publications:{one:'публикацию',f:[['title','Название',''],['where','Издание · конференция · патентное ведомство',''],['year','Год',''],['url','DOI или ссылка','']]},
+  companies:{one:'компанию',f:[['name','Название юридического лица',''],['jurisdiction','Юрисдикция регистрации',''],['reg','Регистрационный номер · ИНН',''],['role','Ваша роль — учредитель, директор, сотрудник',''],['powers','Полномочия — подпись договоров, распоряжение счётом',''],['site','Сайт','https://…']]},
+  campaigns:{one:'кампанию',f:[['program','Программа','',0,'program'],['name','Кампания · проект внутри программы',''],['role','Ваша роль в ней',''],['period','Период','2026 — по настоящее время']]},
+  projects:{one:'проект',f:[['name','Проект · объект · тема',''],['kind','Тип — объект, исследование, продукт, инфраструктура',''],['region','Регион · район',''],['role','Ваша роль',''],['result','Результат или ожидаемый результат','',1]]}
+};
+let REF={};
+
+function repRow(key,i){
+  const cfg=REP[key],d=document.createElement('div');
+  d.className='rep';d.dataset.k=key;
+  d.innerHTML='<button type="button" class="rm">убрать</button><div class="grid"></div>';
+  const g=d.querySelector('.grid');
+  cfg.f.forEach(([n,lab,ph,wide,ref])=>{
+    const w=document.createElement('div');w.className='f'+(wide?' wide':'');
+    const id=key+'_'+i+'_'+n;
+    let ctl;
+    if(ref){ctl='<select data-n="'+n+'" id="'+id+'">'+optionsFor(ref)+'</select>'}
+    else if(wide){ctl='<textarea data-n="'+n+'" id="'+id+'" rows="3" placeholder="'+ph+'"></textarea>'}
+    else{ctl='<input data-n="'+n+'" id="'+id+'" placeholder="'+ph+'"/>'}
+    w.innerHTML='<label for="'+id+'">'+lab+'</label>'+ctl;
+    g.appendChild(w);
+  });
+  d.querySelector('.rm').onclick=()=>{const box=d.parentNode;d.remove();paint(box)};
+  return d;
+}
+function optionsFor(ref){
+  return '<option value="">—</option>'+(REF[ref]||[]).map(r=>'<option value="'+r.code+'">'+r.title+'</option>').join('');
+}
+function paint(box){
+  const key=box.dataset.rep;
+  if(!box.querySelector('.rep')){
+    if(!box.querySelector('.empty')){
+      const e=document.createElement('p');e.className='empty';e.textContent='не указано';box.insertBefore(e,box.firstChild);
+    }
+  } else {const e=box.querySelector('.empty');if(e)e.remove()}
+}
+document.querySelectorAll('[data-rep]').forEach(box=>{
+  const key=box.dataset.rep,cfg=REP[key];
+  const b=document.createElement('button');
+  b.type='button';b.className='add';b.textContent='+ добавить '+cfg.one;
+  let n=0;
+  b.onclick=()=>{box.insertBefore(repRow(key,n++),b);paint(box)};
+  box.appendChild(b);paint(box);
+});
+
+function collect(key){
+  const box=document.querySelector('[data-rep="'+key+'"]');
+  return [...box.querySelectorAll('.rep')].map(r=>{
+    const o={};let any=false;
+    r.querySelectorAll('[data-n]').forEach(el=>{const v=el.value.trim();if(v){o[el.dataset.n]=v;any=true}});
+    return any?o:null;
+  }).filter(Boolean);
+}
+const val=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+const list=id=>val(id).split(',').map(s=>s.trim()).filter(Boolean);
+
+/* ——— Справочники приходят из базы: состав ролей и департаментов не дублируется в вёрстке ——— */
+async function ref(name){
+  const r=await fetch(SB_URL+'/rest/v1/dao_'+name+'?select=*',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+  if(!r.ok)throw new Error(name+': '+r.status);
+  return r.json();
+}
+const ALL_ROLES=[];
+Promise.all(['participation_type','department','role','shell','program'].map(ref)).then(([pt,dep,rol,sh,prg])=>{
+  REF={participation_type:pt,department:dep,role:rol,shell:sh,program:prg};
+  ALL_ROLES.push(...rol);
+  document.querySelectorAll('select[data-ref]').forEach(s=>{s.innerHTML=optionsFor(s.dataset.ref)});
+  const checks=document.querySelector('[data-checks="shell"]');
+  checks.innerHTML=sh.map(s=>'<label class="chk"><input type="checkbox" name="shells" value="'+s.code+'"/><span>'+s.title+(s.url?'':' · ещё не развёрнут')+'</span></label>').join('');
+  // Роли фильтруются департаментом, но общие роли остаются видимыми всегда.
+  const dsel=document.getElementById('department_code'),rsel=document.getElementById('role_code');
+  dsel.onchange=()=>{
+    const d=dsel.value,cur=rsel.value;
+    const keep=ALL_ROLES.filter(r=>!d||!r.department_code||r.department_code===d);
+    rsel.innerHTML='<option value="">—</option>'+keep.map(r=>'<option value="'+r.code+'">'+r.title+'</option>').join('');
+    if(keep.some(r=>r.code===cur))rsel.value=cur;
+    rsel.onchange();
+  };
+  rsel.onchange=()=>{document.getElementById('role_other_wrap').hidden=rsel.value!=='other'};
+}).catch(e=>{
+  show('err','Справочники DAO недоступны: '+e.message+'. Анкету можно заполнить, но роль и департамент выбрать не получится — отправьте как есть, мы уточним.');
+});
+
+const msg=document.getElementById('msg');
+function show(kind,html){msg.className='msg on '+kind;msg.innerHTML=html;msg.scrollIntoView({behavior:'smooth',block:'center'})}
+
+document.getElementById('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const go=document.getElementById('go');
+  if(!val('full_name'))return show('err','Не указано имя.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val('email')))return show('err','Адрес почты выглядит некорректно.');
+  if(!document.getElementById('consent_pd').checked)return show('err','Без согласия на обработку данных заявка не принимается.');
+
+  const payload={
+    full_name:val('full_name'),full_name_latin:val('full_name_latin'),birth_year:val('birth_year'),
+    citizenship:val('citizenship'),country:val('country'),city:val('city'),languages:list('languages'),
+    email:val('email'),phone:val('phone'),telegram:val('telegram'),wallet:val('wallet'),links:collect('links'),
+    participation_type_code:val('participation_type_code'),department_code:val('department_code'),
+    role_code:val('role_code'),role_other:val('role_other'),workload:val('workload'),available_from:val('available_from'),
+    degree:val('degree'),degree_field:val('degree_field'),orcid:val('orcid'),cv_url:val('cv_url'),
+    competencies:list('competencies'),education:collect('education'),experience:collect('experience'),
+    publications:collect('publications'),companies:collect('companies'),campaigns:collect('campaigns'),
+    projects:collect('projects'),
+    shells:[...document.querySelectorAll('input[name="shells"]:checked')].map(c=>c.value),
+    motivation:val('motivation'),consent_pd:true,
+    consent_public:document.getElementById('consent_public').checked,
+    source:location.host
+  };
+
+  go.disabled=true;go.textContent='отправляется…';
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/rpc/dao_apply',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},
+      body:JSON.stringify({payload})
+    });
+    const t=await r.text();
+    if(!r.ok){let m=t;try{m=JSON.parse(t).message||m}catch(_){}throw new Error(m)}
+    const res=JSON.parse(t);
+    document.getElementById('form').querySelectorAll('fieldset,.submit').forEach(x=>x.style.display='none');
+    show('ok','Заявка принята.<span class="ticket">'+res.ticket+'</span>Сохраните номер обращения. Решение придёт на указанную почту. DAO ID выдаётся отдельным решением после проверки — сама по себе отправка анкеты учётной записи не создаёт.');
+  }catch(err){
+    go.disabled=false;go.textContent='Отправить заявку';
+    show('err','Отправить не удалось: '+err.message+'. Данные формы не потеряны — попробуйте ещё раз.');
+  }
+});
+</script>
+</body>
+</html>

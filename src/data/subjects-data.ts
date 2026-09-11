@@ -2,6 +2,8 @@
 //  VODecology — Subjects Database (organizations, agencies, corps)
 // ═══════════════════════════════════════════════════════════════
 
+import { OILGAS_SUBJECTS } from './subjects/oilgas-subjects';
+
 export interface PlatformSubject {
   id: string;
   name: string;
@@ -1260,7 +1262,10 @@ export const SUBJECTS_DATA: PlatformSubject[] = [
     key_projects: ["Water Utility Modernisation (Kazakhstan)", "NRW Reduction Programme (Ukraine)", "Green Cities Action Plans", "Climate Resilience Water Infrastructure"],
     tags: ["development-bank", "financing", "central-asia", "eastern-europe", "utilities", "nrw", "climate"],
     last_updated: "2026-06-02"
-  }
+  },
+  // Нефтегазовые субъекты вынесены в отдельный файл: у них своя дисциплина
+  // источников, и координата субъекта — это офис, а не актив.
+  ...OILGAS_SUBJECTS,
 ];
 
 export const SUBJECT_TYPE_COLORS: Record<string, string> = {
@@ -1291,6 +1296,15 @@ export const SUBJECT_TYPE_COLORS: Record<string, string> = {
   research_institute: "#a3e635",
   // Startups & innovation
   water_tech_startup: "#f472b6",
+  // Нефтегаз — оранжевое семейство, чтобы домен читался единым блоком
+  state_energy_company: "#fb923c",
+  pipeline_operator: "#c2410c",
+  gas_distribution: "#fdba74",
+  processing_operator: "#f59e0b",
+  joint_venture: "#fbbf24",
+  foreign_operator: "#facc15",
+  service_company: "#eab308",
+  international_organization: "#d97706",
   // Default
   default: "#94a3b8"
 };

@@ -619,6 +619,10 @@ export default function WorldMapPage() {
         source: 'hardcoded' as const,
         isHighlighted: true,
         objectType: item.kind === 'object' ? d.type : undefined,
+        domain: d.domain,
+        country: d.country,
+        region: d.region,
+        district: d.district,
       } as MapMarker;
     })
     .filter((m): m is MapMarker => m !== null);

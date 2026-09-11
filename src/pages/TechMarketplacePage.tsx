@@ -912,14 +912,17 @@ function FilterSelect({
 function EquipmentCard({ item }: { item: Equipment }) {
   return (
     <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5 flex flex-col gap-4 hover:border-white/15 hover:bg-white/[0.06] transition-all duration-200">
-      {/* Top: emoji + verified */}
+      {/*
+        Здесь висел бирюзовый значок «Верифицирован» с галочкой. Он означал
+        лишь то, что у записи в файле стоит verified: true, — никакой проверки
+        за этим нет. Значок заменён на пометку об источнике: карточка собрана
+        по открытым данным производителя.
+      */}
       <div className="flex flex-col items-center gap-1 relative">
         <div className="text-[72px] leading-none select-none">{item.imageEmoji}</div>
-        {item.verified && (
-          <span className="absolute top-0 right-0 flex items-center gap-1 text-xs text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 rounded-full px-2 py-0.5">
-            <BadgeCheck className="w-3 h-3" /> Верифицирован
-          </span>
-        )}
+        <span className="absolute top-0 right-0 text-[10px] text-white/30 bg-white/[0.04] border border-white/[0.08] rounded-full px-2 py-0.5">
+          по данным производителя
+        </span>
       </div>
 
       {/* Name + manufacturer */}
@@ -1015,7 +1018,7 @@ function SupplierCard({ item }: { item: Supplier }) {
           <div className="flex items-center gap-2">
             <span className="text-xl">{item.flag}</span>
             <h3 className="font-semibold text-white text-base">{item.name}</h3>
-            {item.verified && <BadgeCheck className="w-4 h-4 text-cyan-400" />}
+            {/* Значок «проверено» убран: поставщиков никто не проверял. */}
           </div>
           <span className="text-white/50 text-xs mt-0.5">{item.type} · {item.country}</span>
         </div>
@@ -1428,9 +1431,19 @@ export default function TechMarketplacePage() {
 
         {/* ── Footer note ── */}
         <div className="border-t border-white/[0.06] pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-white/30 text-xs">
+          {/*
+            Стояло: «Все верифицированные поставщики прошли проверку документов
+            и референций». Такой проверки не было: ни документов, ни референций
+            платформа не запрашивала и не смотрела. Флаг verified в записях —
+            это пометка составителя каталога, а не результат процедуры.
+            Утверждение снято, на его месте — прямой отказ от него.
+          */}
           <div className="flex items-center gap-2">
-            <Shield className="w-3.5 h-3.5 text-cyan-400/50" />
-            <span>Все верифицированные поставщики прошли проверку документов и референций</span>
+            <Shield className="w-3.5 h-3.5 text-white/25" />
+            <span>
+              Проверка документов и референций поставщиков не проводилась.
+              Записи собраны по открытым данным производителей.
+            </span>
           </div>
           <span>Обновлено: {new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
         </div>

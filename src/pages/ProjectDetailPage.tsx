@@ -88,22 +88,42 @@ function generateMilestones(proj: PlatformProject) {
   return milestones;
 }
 
-function generateDocs(proj: PlatformProject) {
-  return [
-    { id: 1, title: "Технико-экономическое обоснование", type: "ТЭО", size: "4.2 MB", date: "2024-03", category: "study" },
-    { id: 2, title: "Инвестиционный меморандум", type: "PDF", size: "2.8 MB", date: "2024-04", category: "investment" },
-    { id: 3, title: "Экологическая оценка воздействия", type: "ОВОС", size: "6.1 MB", date: "2024-05", category: "ecology" },
-    { id: 4, title: "Финансовая модель (10 лет)", type: "XLSX", size: "1.2 MB", date: "2024-06", category: "finance" },
-    { id: 5, title: "Разрешительная документация", type: "PDF", size: "3.5 MB", date: "2024-07", category: "legal" },
-    { id: 6, title: "Проектная документация (РД)", type: "ZIP", size: "18.4 MB", date: "2024-08", category: "technical" },
-  ];
+/**
+ * Список документов проекта.
+ *
+ * Функция возвращала шесть документов одинаковым набором для любого проекта:
+ * ТЭО 4.2 MB, «Инвестиционный меморандум» 2.8 MB, ОВОС 6.1 MB, финансовая
+ * модель на 10 лет, разрешительная документация, РД — с датами и размерами
+ * файлов. Ни одного из этих файлов не существует: они не загружены, не
+ * получены от проектов и не составлялись. Размер и дата придавали списку вид
+ * реального архива, а «инвестиционный меморандум» — вид готового предложения.
+ *
+ * Возвращается пустой список. Документы появятся здесь, когда будут получены
+ * от владельца проекта: с источником и проверяемой ссылкой.
+ */
+function generateDocs(_proj: PlatformProject) {
+  return [] as { id: number; title: string; type: string; size: string; date: string; category: string }[];
 }
 
+/**
+ * Реестр рисков.
+ *
+ * Список был одинаковым для любого проекта и, что хуже, столбец «меры»
+ * утверждал, что риски уже сняты: «фиксированные контракты», «сертифицированный
+ * подрядчик», «гос. поддержка подтверждена». Контрактов нет, подрядчик не
+ * выбран, никакой государственной поддержки никто не подтверждал. Вероятность
+ * и влияние («Низкая», «Средний») тоже никем не оценивались — это были
+ * проставленные значения, а не результат анализа.
+ *
+ * Названия рисков оставлены: как перечень того, что придётся оценивать, они
+ * честны. Оценки и меры заменены на прямое «не проводилась» / «не приняты» —
+ * с колонками справляется запасной серый цвет в RISK_COLOR.
+ */
 const RISKS = [
-  { risk: "Задержка финансирования", prob: "Средняя", impact: "Высокий", mitigation: "Диверсификация источников" },
-  { risk: "Рост стоимости материалов", prob: "Низкая", impact: "Средний", mitigation: "Фиксированные контракты" },
-  { risk: "Регуляторные изменения", prob: "Низкая", impact: "Средний", mitigation: "Гос. поддержка подтверждена" },
-  { risk: "Технические риски монтажа", prob: "Низкая", impact: "Низкий", mitigation: "Сертифицированный подрядчик" },
+  { risk: "Задержка финансирования",  prob: "не оценена", impact: "не оценено", mitigation: "меры не приняты: источники не привлечены" },
+  { risk: "Рост стоимости материалов", prob: "не оценена", impact: "не оценено", mitigation: "меры не приняты: контрактов нет" },
+  { risk: "Регуляторные изменения",    prob: "не оценена", impact: "не оценено", mitigation: "меры не приняты: господдержка не подтверждена" },
+  { risk: "Технические риски монтажа", prob: "не оценена", impact: "не оценено", mitigation: "меры не приняты: подрядчик не выбран" },
 ];
 
 const RISK_COLOR: Record<string, string> = {
@@ -174,11 +194,11 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
 
 function InvestmentCalculator({ proj, color }: { proj: PlatformProject; color: string }) {
   const [amount, setAmount] = useState(500000);
+  const [, setLocation] = useLocation();
   const irr = proj.expected_irr ?? proj.combined_irr ?? 14;
   const payback = proj.payback_period_years ?? 8;
   const annualReturn = Math.round(amount * (irr / 100));
-  const totalIn5 = Math.round(amount + annualReturn * 5);
-  const totalIn10 = Math.round(amount + annualReturn * 10 * 1.08);
+  const totalOverPayback = Math.round(annualReturn * payback);
 
   function fmt2(n: number): string {
     if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
@@ -187,11 +207,14 @@ function InvestmentCalculator({ proj, color }: { proj: PlatformProject; color: s
     return `$${n}`;
   }
 
+  // Структура финансирования была подана как решённая: доли 35/25/30/10,
+  // «VOD-стейкинг, APY до 18 %, без локапа» и «прямое участие в прибыли».
+  // Токена нет, стейкинга нет, доли ничем не утверждены. Оставлены только
+  // типы источников — без долей, ставок и обещаний.
   const FINANCING = [
-    { label: "Банковский кредит", share: 35, color: "#60a5fa", desc: "LIBOR +2.5%, срок 12 лет" },
-    { label: "VOD-стейкинг",      share: 25, color: "#00e6c8", desc: "APY до 18%, без локапа" },
-    { label: "Частные инвестиции", share: 30, color: "#a78bfa", desc: "Прямое участие в прибыли" },
-    { label: "Гранты / субсидии", share: 10, color: "#4ade80", desc: "Гос. программы поддержки" },
+    { label: "Банковский кредит", color: "#60a5fa", desc: "условия не согласованы: ⟨заполнить⟩" },
+    { label: "Гранты и субсидии", color: "#4ade80", desc: "заявок не подано, программы не подтверждены" },
+    { label: "Частные инвестиции", color: "#a78bfa", desc: "инвесторов ноль, условия не определены" },
   ];
 
   return (
@@ -200,26 +223,19 @@ function InvestmentCalculator({ proj, color }: { proj: PlatformProject; color: s
       <div className="rounded-2xl p-5" style={{ background: "rgba(0,6,20,0.95)", border: `1px solid ${color}18` }}>
         <h3 className="text-white font-bold text-base mb-4 flex items-center gap-2">
           <Layers size={16} style={{ color }} />
-          Структура финансирования
+          Возможные источники финансирования
         </h3>
+        <p className="text-white/35 text-[11px] leading-snug mb-4">
+          Доли не показаны намеренно: структура финансирования не согласована
+          ни с одной стороной. Ниже — только типы источников, которые
+          рассматриваются.
+        </p>
         <div className="space-y-3">
           {FINANCING.map(f => (
             <div key={f.label} className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full shrink-0" style={{ background: f.color }} />
               <div className="flex-1">
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-white font-medium">{f.label}</span>
-                  <span className="font-bold" style={{ color: f.color }}>{f.share}%</span>
-                </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: `${f.color}15` }}>
-                  <motion.div
-                    className="h-full rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${f.share}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    style={{ background: f.color }}
-                  />
-                </div>
+                <div className="text-sm text-white font-medium">{f.label}</div>
                 <div className="text-white/35 text-xs mt-0.5">{f.desc}</div>
               </div>
             </div>
@@ -229,13 +245,26 @@ function InvestmentCalculator({ proj, color }: { proj: PlatformProject; color: s
 
       {/* Investment calculator */}
       <div className="rounded-2xl p-5" style={{ background: "rgba(0,6,20,0.95)", border: "1px solid rgba(0,230,200,0.15)" }}>
-        <h3 className="text-white font-bold text-base mb-4 flex items-center gap-2">
+        <h3 className="text-white font-bold text-base mb-1 flex items-center gap-2">
           <Calculator size={16} style={{ color: "#00e6c8" }} />
-          Калькулятор доходности
+          Прикидка по заявленной норме доходности
         </h3>
+        {/*
+          Стояло «Калькулятор доходности» с плитками «Через 5 лет» и «Через 10
+          лет — с реинвестицией», где десятилетний итог ещё и умножался на 1.08
+          неизвестно откуда. Это читалось как прогноз дохода от платформы.
+          Инструмент оставлен — он честно считает арифметику по числу, которое
+          заявил сам проект, — но назван тем, чем является; множитель убран,
+          горизонт сведён к сроку окупаемости из описания.
+        */}
+        <p className="text-white/35 text-[11px] leading-snug mb-4">
+          Арифметика по IRR&nbsp;{irr}%, взятой из описания проекта. Платформа
+          эту норму не проверяла и не утверждала, средств не принимает и
+          доходности не обещает. Это не прогноз и не расчёт вашего дохода.
+        </p>
 
         <div className="mb-4">
-          <label className="text-white/50 text-xs mb-2 block">Сумма инвестиций</label>
+          <label className="text-white/50 text-xs mb-2 block">Сумма для прикидки</label>
           <input
             type="range"
             min={100000}
@@ -253,11 +282,10 @@ function InvestmentCalculator({ proj, color }: { proj: PlatformProject; color: s
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {[
-            { label: "Доход/год", value: fmt2(annualReturn), sub: `IRR ${irr}%`, color: "#00e6c8" },
-            { label: "Через 5 лет", value: fmt2(totalIn5), sub: "Накопительно", color: "#4ade80" },
-            { label: "Через 10 лет", value: fmt2(totalIn10), sub: "С реинвестицией", color: "#a78bfa" },
+            { label: "При заявленной IRR", value: fmt2(annualReturn), sub: `${irr}% в год, заявлено проектом`, color: "#00e6c8" },
+            { label: `За ${payback} лет окупаемости`, value: fmt2(totalOverPayback), sub: "простая сумма, без сложного процента", color: "#60a5fa" },
           ].map(m => (
             <div key={m.label} className="rounded-xl p-3 text-center" style={{ background: `${m.color}08`, border: `1px solid ${m.color}18` }}>
               <div className="font-black text-lg" style={{ color: m.color }}>{m.value}</div>
@@ -278,23 +306,26 @@ function InvestmentCalculator({ proj, color }: { proj: PlatformProject; color: s
           style={{ background: "radial-gradient(circle, rgba(0,230,200,0.5), transparent)" }} />
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
-            <Star size={16} className="text-amber-400" />
-            <span className="text-amber-400 text-xs font-bold uppercase tracking-wider">Инвестиционная возможность</span>
+            <Star size={16} style={{ color: "#f87171" }} />
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#f87171" }}>
+              Предложения об участии здесь нет
+            </span>
           </div>
-          <h3 className="text-white font-black text-xl mb-2">Примите участие в проекте</h3>
+          <h3 className="text-white font-black text-xl mb-2">
+            Платформа не принимает средства в проект
+          </h3>
           <p className="text-white/55 text-sm mb-5">
-            Проект открыт для соинвестирования. IRR {irr}% при сроке окупаемости {payback} лет.
+            Здесь стояло «проект открыт для соинвестирования» с целевым IRR и
+            сроком окупаемости. Ни одно из этих чисел платформой не
+            утверждалось, а средств она не принимает: юридической формы приёма
+            нет. Начать можно с партнёрского входа — без денег на входе.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm cursor-pointer transition-all hover:opacity-90"
+            <button
+              onClick={() => setLocation("/partners")}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm cursor-pointer transition-all hover:opacity-90"
               style={{ background: "linear-gradient(135deg, #00e6c8, #0099ff)", color: "#000" }}>
-              <Mail size={15} />
-              Связаться с командой
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm cursor-pointer transition-all hover:opacity-80"
-              style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.12)" }}>
-              <Download size={15} />
-              Скачать меморандум
+              Партнёрские входы
             </button>
           </div>
         </div>
@@ -1102,6 +1133,22 @@ export default function ProjectDetailPage() {
             </div>
 
             <div className="space-y-2">
+              {filteredDocs.length === 0 && (
+                <div className="rounded-xl p-4" style={{ background: "rgba(248,113,113,0.05)", border: "1px solid rgba(248,113,113,0.15)" }}>
+                  <p className="text-white/60 text-sm leading-relaxed">
+                    Документов нет — <span className="text-white/80 font-semibold">ноль</span>.
+                  </p>
+                  <p className="text-white/40 text-xs leading-relaxed mt-2">
+                    Здесь стоял одинаковый для всех проектов список из шести
+                    файлов: ТЭО, инвестиционный меморандум, ОВОС, финансовая
+                    модель на десять лет, разрешительная и проектная
+                    документация — с размерами и датами. Ни один из них не
+                    существует и не был получен. Документы появятся, когда их
+                    передаст владелец проекта: с источником и проверяемой
+                    ссылкой.
+                  </p>
+                </div>
+              )}
               {filteredDocs.map(doc => (
                 <div key={doc.id}
                   className="flex items-center gap-3 p-3 rounded-xl transition-all hover:opacity-80"
@@ -1146,41 +1193,48 @@ export default function ProjectDetailPage() {
 
             <div className="relative">
               <div className="flex items-center gap-2 mb-2">
-                <Star size={16} className="text-amber-400" />
-                <span className="text-amber-400 text-xs font-bold uppercase tracking-wider">Инвестиционная возможность</span>
+                <Star size={16} style={{ color: "#f87171" }} />
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#f87171" }}>
+                  Предложения об участии здесь нет
+                </span>
               </div>
-              <h3 className="text-white font-black text-xl mb-2">Примите участие в проекте</h3>
+              {/*
+                Стояло: «Инвестиционная возможность · Примите участие в проекте ·
+                проект открыт для соинвестирования», минимальный взнос $500K,
+                целевой IRR, срок окупаемости и кнопка «Скачать меморандум».
+                Платформа не привлекает средства, не имеет юридической формы для
+                их приёма, не устанавливала порога входа и не выпускала
+                меморандума. Целевая доходность и минимальный взнос под кнопкой
+                «связаться» — форма привлечения, а не описание проекта.
+              */}
+              <h3 className="text-white font-black text-xl mb-2">
+                Платформа не привлекает средства в этот проект
+              </h3>
               <p className="text-white/55 text-sm mb-5">
-                Проект открыт для соинвестирования, государственно-частного партнёрства и технического сотрудничества.
-                IRR {irr ?? 15}% при сроке окупаемости {proj.payback_period_years ?? 8} лет.
+                Здесь стояли минимальный взнос, целевой IRR, срок окупаемости и
+                кнопка «скачать меморандум». Порог входа платформой не
+                устанавливался, доходность не утверждалась, меморандума не
+                существует. Проект описан по открытым данным; источники в
+                корпусе пока не закреплены: ⟨заполнить⟩.
               </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-                {[
-                  { label: "Минимальный взнос", value: "$500K", color: "#00e6c8" },
-                  { label: "Целевой IRR", value: `${irr ?? 15}%`, color: "#4ade80" },
-                  { label: "Окупаемость", value: `${proj.payback_period_years ?? 8} л`, color: "#60a5fa" },
-                ].map(m => (
-                  <div key={m.label} className="text-center p-3 rounded-xl"
-                    style={{ background: `${m.color}08`, border: `1px solid ${m.color}18` }}>
-                    <div className="font-black text-lg" style={{ color: m.color }}>{m.value}</div>
-                    <div className="text-white/35 text-xs mt-0.5">{m.label}</div>
-                  </div>
-                ))}
-              </div>
+              <p className="text-white/45 text-sm mb-5">
+                Разговор об участии начинается с партнёрского входа — по
+                сегменту, без денег на входе и без обещаний доходности.
+              </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => setShowContactModal(true)}
+                  onClick={() => setLocation("/partners")}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm cursor-pointer transition-all hover:opacity-90"
                   style={{ background: "linear-gradient(135deg, #00e6c8, #0099ff)", color: "#000" }}>
+                  Партнёрские входы
+                </button>
+                <button
+                  onClick={() => setShowContactModal(true)}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm cursor-pointer transition-all hover:opacity-80"
+                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.12)" }}>
                   <Mail size={15} />
                   Связаться с командой
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm cursor-pointer transition-all hover:opacity-80"
-                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.12)" }}>
-                  <Download size={15} />
-                  Скачать меморандум
                 </button>
               </div>
             </div>

@@ -10,8 +10,10 @@ import {
 } from '@/data/geo/layer-styles';
 import { PROJECT_GROUPS } from '@/data/project-groups';
 import type { GroupId, LayerKey, MapMarker, WaterMapProps, WaterMapHandle } from './types';
-import { createMarkerElement, createClusterElement } from './MapIcons';
+import { createMarkerElement, createRegionChipElement } from './MapIcons';
 import { DOMAIN_CONFIG, normalizeDomain } from '@/lib/domains';
+import { useWorldBorders } from '@/lib/geo/useWorldBorders';
+import { clusterByGeography, clampDrilldownZoom, type GeoCluster } from '@/lib/map/geo-cluster';
 
 const DEFAULT_LAYERS: LayerKey[] = ['rivers', 'lakes', 'glaciers', 'borders', 'cities'];
 
@@ -30,13 +32,15 @@ export function WaterMap({
   className = '',
   mapRef: externalMapRef,
   cluster = false,
-  clusterRadius = 48,
   graphEdges,
   complexes,
   onComplexClick,
 }: WaterMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  // Тот же атлас границ, по которому группирует глобус: карта и глобус должны
+  // давать одинаковые числа для одного набора объектов.
+  const { world } = useWorldBorders();
   const markerInstancesRef = useRef<Marker[]>([]);
   const loadedRef = useRef(false);
   // keep latest callbacks so map.on('click') handlers always see the newest ref
@@ -590,43 +594,34 @@ export function WaterMap({
       markerInstancesRef.current.push(marker);
     };
 
-    // Build a cluster bubble that zooms in on click.
-    const renderCluster = (
-      lng: number,
-      lat: number,
-      count: number,
-      color: string,
-    ) => {
-      const el = createClusterElement(count, color);
+    // Чип географической группы: приближает к следующему уровню детализации.
+    const renderChip = (c: GeoCluster<MapMarker>) => {
+      const breakdown = c.byDomain.map((d) => ({
+        emoji: DOMAIN_CONFIG[d.domain].emoji,
+        color: DOMAIN_CONFIG[d.domain].color,
+        count: d.count,
+      }));
+      const el = createRegionChipElement(
+        c.label,
+        breakdown,
+        c.color,
+        c.markers.length,
+      );
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([lng, lat])
+        .setLngLat([c.lng, c.lat])
         .addTo(map);
       el.addEventListener('click', (ev) => {
         ev.stopPropagation();
-        // Zoom in toward the cluster; maplibre re-buckets on moveend.
-        const targetZoom = Math.min(
-          MAP_DEFAULTS.maxZoom,
-          Math.round(map.getZoom()) + 2,
-        );
-        map.easeTo({ center: [lng, lat], zoom: targetZoom, duration: 500 });
+        // Приближаем на охват меток группы, а не на точку подписи: подпись
+        // сидит на якоре страны, а объекты могут лежать в её углу.
+        const camera = map.cameraForBounds(c.bounds, { padding: 64 });
+        map.easeTo({
+          center: camera?.center ?? [c.lng, c.lat],
+          zoom: clampDrilldownZoom(c.level, camera?.zoom, MAP_DEFAULTS.maxZoom),
+          duration: 600,
+        });
       });
       markerInstancesRef.current.push(marker);
-    };
-
-    // Group markers by screen-space proximity at the current zoom.
-    // A cell is `clusterRadius` px wide; each marker falls into one cell.
-    const buildClusters = (list: MapMarker[]) => {
-      const cell = Math.max(16, clusterRadius);
-      const buckets = new Map<string, MapMarker[]>();
-      for (const m of list) {
-        if (typeof m.lat !== 'number' || typeof m.lng !== 'number') continue;
-        const p = map.project([m.lng, m.lat]);
-        const key = Math.round(p.x / cell) + ':' + Math.round(p.y / cell);
-        const arr = buckets.get(key);
-        if (arr) arr.push(m);
-        else buckets.set(key, [m]);
-      }
-      return buckets;
     };
 
     const apply = () => {
@@ -642,36 +637,15 @@ export function WaterMap({
         return;
       }
 
-      // Proximity clustering: single-marker cells render as dots,
-      // multi-marker cells render as an expandable count bubble.
-      const buckets = buildClusters(markers);
-      buckets.forEach((items) => {
-        if (items.length === 1) {
-          renderSingle(items[0]);
-          return;
-        }
-        let lat = 0;
-        let lng = 0;
-        const typeCount: Record<string, number> = {};
-        for (const it of items) {
-          lat += it.lat;
-          lng += it.lng;
-          const meta = getMarkerMeta(it);
-          typeCount[meta.iconColor] = (typeCount[meta.iconColor] || 0) + 1;
-        }
-        const domColor =
-          Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0]?.[0] ??
-          '#00e6c8';
-        renderCluster(
-          lng / items.length,
-          lat / items.length,
-          items.length,
-          domColor,
-        );
-      });
+      // Группировка по настоящим границам: макрорегион → страна → область.
+      // Пока атлас не загрузился, `world` равен null и метки показываются по
+      // отдельности — это корректное промежуточное состояние, а не пустая карта.
+      const { single, clusters } = clusterByGeography(markers, world, map.getZoom());
+      clusters.forEach(renderChip);
+      single.forEach(renderSingle);
     };
 
-    // Recompute clusters when the viewport changes (only when clustering).
+    // Пересчитываем группы при смене зума: уровень детализации зависит от него.
     const onMove = () => apply();
 
     if (loadedRef.current) apply();
@@ -682,7 +656,7 @@ export function WaterMap({
     return () => {
       if (cluster) map.off('moveend', onMove);
     };
-  }, [markers, showPopups, cluster, clusterRadius]);
+  }, [markers, showPopups, cluster, world]);
 
   return (
     <div

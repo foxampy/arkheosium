@@ -7,8 +7,10 @@
 
 export type DomainKey =
   | 'water'
+  | 'oilgas'
   | 'energy'
   | 'minerals'
+  | 'ecology'
   | 'nature'
   | 'agriculture'
   | 'climate';
@@ -31,6 +33,13 @@ export const DOMAIN_CONFIG: Record<DomainKey, DomainMeta> = {
     color: '#00e6c8',
     emoji: '💧',
   },
+  oilgas: {
+    key: 'oilgas',
+    labelRu: 'Нефть и газ',
+    labelEn: 'Oil & Gas',
+    color: '#fb923c',
+    emoji: '🛢️',
+  },
   energy: {
     key: 'energy',
     labelRu: 'Энергетика',
@@ -44,6 +53,13 @@ export const DOMAIN_CONFIG: Record<DomainKey, DomainMeta> = {
     labelEn: 'Minerals',
     color: '#c084fc',
     emoji: '⛏️',
+  },
+  ecology: {
+    key: 'ecology',
+    labelRu: 'Экология',
+    labelEn: 'Ecology',
+    color: '#4ade80',
+    emoji: '🌍',
   },
   nature: {
     key: 'nature',
@@ -71,8 +87,10 @@ export const DOMAIN_CONFIG: Record<DomainKey, DomainMeta> = {
 /** Ordered list for building legends / filter rows. */
 export const DOMAIN_ORDER: DomainKey[] = [
   'water',
+  'oilgas',
   'energy',
   'minerals',
+  'ecology',
   'nature',
   'agriculture',
   'climate',

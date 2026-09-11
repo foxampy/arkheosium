@@ -424,16 +424,25 @@ export default function LandingPage() {
       ══════════════════════════════════════════════ */}
       <section className="py-14 px-4 border-y border-white/5">
         <div className="max-w-4xl mx-auto">
-          <p className="text-center text-xs text-gray-600 uppercase tracking-widest mb-6">
-            {t('landing.partners.label')}
+          {/*
+            Здесь стояла полоса логотипов EBRD, World Bank, ADB, IT Park Uz и
+            Plug and Play — как будто это партнёры платформы. Соглашений с ними
+            нет, и полоса снята. Подключённых партнёров ноль, и число названо
+            прямо: на первом экране особенно нельзя занимать доверие у чужих
+            имён.
+          */}
+          <p className="text-center text-xs text-gray-600 uppercase tracking-widest mb-4">
+            Партнёры
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
-            {['EBRD', 'World Bank', 'ADB', 'IT Park Uz', 'Plug and Play'].map((p) => (
-              <div key={p} className="flex items-center gap-1.5 text-gray-500 hover:text-gray-300 transition-colors cursor-default text-sm font-medium">
-                <ExternalLink size={11} />
-                {p}
-              </div>
-            ))}
+          <p className="text-center text-sm text-gray-400 leading-relaxed max-w-xl mx-auto">
+            Подключённых партнёров — <span className="text-gray-200 font-semibold">ноль</span>.
+            Соглашений с международными институтами нет. Входы открыты по восьми сегментам,
+            и как только появится подписанное соглашение, его можно будет назвать здесь.
+          </p>
+          <div className="flex justify-center mt-5">
+            <a href="/partners" className="text-sm font-medium text-[#00e6c8] hover:underline">
+              Партнёрские входы →
+            </a>
           </div>
         </div>
       </section>

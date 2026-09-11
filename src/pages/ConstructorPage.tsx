@@ -342,16 +342,31 @@ export default function ConstructorPage() {
                     ))}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div className="rounded-xl p-3 text-center text-xs" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <FileText size={16} className="mx-auto mb-1 text-cyan-400" /><span className="text-white/60">Технико-эконом. ТЭО</span>
+                {/*
+                  Здесь стояли три плитки — «Технико-эконом. ТЭО»,
+                  «Инвест-меморандум», «Дорожная карта», — выглядевшие как
+                  комплект документов, который выдаётся по итогам сборки.
+                  Ничего из этого конструктор не формирует: он складывает
+                  цифры из карточек решений. Инвест-меморандума платформа не
+                  выпускает вовсе — средств она не привлекает.
+                  Плитки заменены на прямое указание, чем является результат.
+                */}
+                <div
+                  className="rounded-xl p-3 text-xs leading-relaxed"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                >
+                  <div className="flex items-center gap-2 text-white/60 mb-1">
+                    <FileText size={14} className="text-white/35" />
+                    <span className="font-semibold">Что это и чем не является</span>
                   </div>
-                  <div className="rounded-xl p-3 text-center text-xs" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <TrendingUp size={16} className="mx-auto mb-1 text-amber-400" /><span className="text-white/60">Инвест-меморандум</span>
-                  </div>
-                  <div className="rounded-xl p-3 text-center text-xs" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <Calendar size={16} className="mx-auto mb-1 text-green-400" /><span className="text-white/60">Дорожная карта</span>
-                  </div>
+                  <p className="text-white/40">
+                    Результат сборки — прикидка на бумаге: суммы CAPEX, IRR и
+                    окупаемости сложены из чисел, заявленных в карточках решений,
+                    и никем не проверены. Это не ТЭО, не проектная документация и
+                    не инвестиционное предложение: платформа средств не привлекает.
+                    Расчёт годится, чтобы наметить состав работ и обсудить его со
+                    сторонами, — не для решения о вложениях.
+                  </p>
                 </div>
               </>
             )}
