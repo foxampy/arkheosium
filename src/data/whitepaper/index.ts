@@ -32,7 +32,8 @@ import { MODULES } from './08-modules';
 import { ROADMAP } from './09-roadmap';
 import { STANDARDS_CH } from './10-standards';
 import { STATUS } from './11-status';
-import { SOURCES } from './12-sources';
+import { ARCHITECTURE } from './12-architecture';
+import { SOURCES } from './13-sources';
 
 /**
  * Порядок глав — порядок чтения. Он же задаёт нумерацию: поле `num`
@@ -54,6 +55,7 @@ export const CHAPTERS: readonly Chapter[] = [
   ROADMAP,
   STANDARDS_CH,
   STATUS,
+  ARCHITECTURE,
   SOURCES,
 ];
 
@@ -84,6 +86,15 @@ export const SLICES = {
   tokenomics: ['constitution', 'tokenomics', 'economy', 'realization'],
   roadmap: ['roadmap', 'status'],
   method: ['methodology', 'ontology', 'sources'],
+  /**
+   * Срез для фондов, инвесторов и партнёров. Порядок глав здесь —
+   * ответ на три вопроса подряд: по каким правилам всё устроено,
+   * что именно можно получить, на каком условии открывается вход и
+   * в каком состоянии дела сейчас. Состояние стоит последним
+   * намеренно: оно самое неудобное, и вынести его наверх значило бы
+   * не дать прочитать остальное.
+   */
+  investors: ['constitution', 'architecture', 'realization', 'status'],
 } as const;
 
 export function slice(ids: readonly string[]): Chapter[] {

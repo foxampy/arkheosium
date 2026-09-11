@@ -17,7 +17,7 @@ import type { Chapter } from './types';
 
 export const SOURCES: Chapter = {
   id: 'sources',
-  num: '12',
+  num: '13',
   title: 'Источники',
   lede:
     'Источники названы полностью и с адресами. Концептуальные рамки, на ' +

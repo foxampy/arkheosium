@@ -92,6 +92,11 @@ const TokenomicsPage = lazyRoute(() => import('@/pages/TokenomicsPage'));
 // текста у неё нет — содержимое берётся из реестра глав, поэтому виды
 // документа не могут разойтись между собой.
 const DocPage = lazyRoute(() => import('@/pages/DocPage'));
+// Страница для фондов, инвесторов и партнёров: граница между тем, что
+// передаётся по лицензии, и тем, что не передаётся никогда. Перечень
+// того, чего здесь не предлагают, стоит выше схемы — оговорка в подвале
+// не читается, а достроить недостающее читатель успевает за абзац.
+const ArchitecturePage = lazyRoute(() => import('@/pages/ArchitecturePage'));
 const NewsFeedPage = lazyRoute(() => import('@/pages/NewsFeedPage'));
 const RoadmapPage = lazyRoute(() => import('@/pages/RoadmapPage'));
 const SatellitePage = lazyRoute(() => import('@/pages/SatellitePage'));
@@ -231,6 +236,18 @@ export default function App() {
               </Route>
               <Route path="/doc/:id">
                 {(params) => <DocPage chapterId={params.id} />}
+              </Route>
+              <Route path="/architecture">
+                <ArchitecturePage />
+              </Route>
+              {/* Тот же адресат приходит по разным словам: «инвесторы»,
+                  «фонды», «франшиза». Ведём все три на одну страницу,
+                  а не на три похожие — иначе они разойдутся. */}
+              <Route path="/investors">
+                <ArchitecturePage />
+              </Route>
+              <Route path="/franchise">
+                <ArchitecturePage />
               </Route>
               <Route path="/explore">
                 <ExplorePage />
