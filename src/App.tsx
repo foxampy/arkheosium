@@ -97,6 +97,15 @@ const DocPage = lazyRoute(() => import('@/pages/DocPage'));
 // того, чего здесь не предлагают, стоит выше схемы — оговорка в подвале
 // не читается, а достроить недостающее читатель успевает за абзац.
 const ArchitecturePage = lazyRoute(() => import('@/pages/ArchitecturePage'));
+// Одна страница про всю систему целиком: узлы, сборки, роли, границы
+// передачи и конструктор предложения. Существует отдельно от /doc и
+// /architecture потому, что отвечает на другой вопрос. Документ отвечает
+// главами тому, кто уже решил читать; /architecture отвечает на вопрос
+// про деньги; эта — на вопрос «что это вообще такое и как вы связаны
+// со всеми остальными». Своих чисел и списков у неё нет: всё берётся
+// из src/data/platform, поэтому третий вид не может разойтись с двумя
+// первыми.
+const SystemPage = lazyRoute(() => import('@/pages/SystemPage'));
 const NewsFeedPage = lazyRoute(() => import('@/pages/NewsFeedPage'));
 const RoadmapPage = lazyRoute(() => import('@/pages/RoadmapPage'));
 const SatellitePage = lazyRoute(() => import('@/pages/SatellitePage'));
@@ -236,6 +245,19 @@ export default function App() {
               </Route>
               <Route path="/doc/:id">
                 {(params) => <DocPage chapterId={params.id} />}
+              </Route>
+              {/* Обзор всей системы. Три адреса на одну страницу по той же
+                  причине, что и у /investors: спрашивают разными словами —
+                  «что за система», «про вас», «ос». Три похожие страницы
+                  разошлись бы, один маршрут с тремя входами — нет. */}
+              <Route path="/os">
+                <SystemPage />
+              </Route>
+              <Route path="/system">
+                <SystemPage />
+              </Route>
+              <Route path="/about">
+                <SystemPage />
               </Route>
               <Route path="/architecture">
                 <ArchitecturePage />

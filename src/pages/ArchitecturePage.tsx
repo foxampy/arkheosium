@@ -30,67 +30,20 @@ import { Layers, ShieldAlert, ArrowRight, Lock, Unlock } from 'lucide-react';
 
 import DocPage from '@/pages/DocPage';
 import { SLICES } from '@/data/whitepaper';
+import { LAYERS, BUILDS } from '@/data/platform/layers';
+import { ZEROS } from '@/data/platform/state';
 
 const HAIR = 'rgba(148,163,184,0.16)';
 const PANEL = 'rgba(148,163,184,0.03)';
 const ACCENT = '#22d3ee';
 const WARN = '#f87171';
 
-/** Слои сверху вниз. Верхние не передаются, нижние собираются заново. */
-const LAYERS: { title: string; body: string; transferable: boolean }[] = [
-  {
-    title: 'Ядро и конституция',
-    body: 'Двенадцать запретов, из которых выводится всё остальное.',
-    transferable: false,
-  },
-  {
-    title: 'Методы, исследования, права на результат',
-    body: 'Производственный слой: из него выходят узлы библиотеки.',
-    transferable: false,
-  },
-  {
-    title: 'Библиотека узлов',
-    body: 'Учёт ресурса, геослой, каталог, корпус, расчёт, идентичность.',
-    transferable: true,
-  },
-  {
-    title: 'Сборщик конфигураций',
-    body: 'Набор узлов, политики, юрисдикция, оборудование, интеграции.',
-    transferable: true,
-  },
-];
-
-/** Что собирается из одной и той же библиотеки. */
-const BUILDS: { title: string; body: string }[] = [
-  {
-    title: 'ArkheOSium',
-    body: 'Собственная сборка. Живёт по конституции целиком, включая правила выпуска единиц.',
-  },
-  {
-    title: 'Внутренний проект',
-    body: 'Те же узлы, та же конституция, своя предметная область и свой темп.',
-  },
-  {
-    title: 'Внешнее предприятие',
-    body: 'Коммерческая сборка со своими правилами поверх неотключаемого минимума.',
-  },
-  {
-    title: 'Франшиза',
-    body: 'Конфигурация с правом эксплуатации на названном рынке и в названном сроке.',
-  },
-];
-
-/** Сводка числами. Все значения — из глав документа, не из кода страницы. */
-const FACTS: { n: string; label: string }[] = [
-  { n: '0', label: 'выдано лицензий на конфигурацию' },
-  { n: '0', label: 'продано франшиз' },
-  { n: '0', label: 'развёртываний у заказчика' },
-  { n: '0', label: 'узлов прошло стандартизацию' },
-  { n: '0', label: 'объектов с аудированным денежным потоком' },
-  { n: '0', label: 'выпущено цифровых единиц' },
-  { n: '0', label: 'привлечено средств' },
-  { n: '0', label: 'подключённых партнёров' },
-];
+/*
+ * Слои, сборки и нули состояния перенесены в src/data/platform: те же
+ * величины показывает обзорная страница и та же таблица стоит в главе 12.
+ * Пока список жил в компоненте, второй его экземпляр на соседней
+ * странице был вопросом времени.
+ */
 
 export default function ArchitecturePage() {
   return (
@@ -240,22 +193,23 @@ export default function ArchitecturePage() {
           читается как отсутствие темы, а не как отсутствие величины.
         </p>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-          {FACTS.map((f) => (
+          {ZEROS.map((f) => (
             <div
-              key={f.label}
+              key={f.id}
               className="rounded-xl border p-4"
               style={{ borderColor: HAIR, background: PANEL }}
             >
               <div className="text-3xl font-bold text-white tabular-nums leading-none mb-2">
-                {f.n}
+                0
               </div>
-              <div className="text-[12px] text-slate-500 leading-snug">{f.label}</div>
+              <div className="text-[12px] text-slate-500 leading-snug">{f.short}</div>
             </div>
           ))}
         </div>
 
         <div className="flex flex-wrap gap-2.5 mt-6">
           {[
+            { to: '/os', t: 'Как устроена вся система — одна страница' },
             { to: '/doc/architecture', t: 'Глава об архитектуре целиком' },
             { to: '/doc/realization', t: 'Контур участия и условие открытия' },
             { to: '/partners', t: 'Партнёрские входы' },
