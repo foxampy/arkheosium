@@ -106,6 +106,13 @@ const ArchitecturePage = lazyRoute(() => import('@/pages/ArchitecturePage'));
 // из src/data/platform, поэтому третий вид не может разойтись с двумя
 // первыми.
 const SystemPage = lazyRoute(() => import('@/pages/SystemPage'));
+// Главная посадочная. Стоит на «/» вместо глобуса потому, что глобус
+// красив и ничего не сообщает: посетитель, которому проект показали
+// в первый раз, тратит на него экран и уходит, не узнав ни что здесь
+// сделано, ни чего здесь нет. Порядок экранов на самой странице
+// обратный принятому — сначала нули и прямой отсев, потом всё
+// остальное. Глобус никуда не делся и открывается по /globe.
+const FundPage = lazyRoute(() => import('@/pages/FundPage'));
 const NewsFeedPage = lazyRoute(() => import('@/pages/NewsFeedPage'));
 const RoadmapPage = lazyRoute(() => import('@/pages/RoadmapPage'));
 const SatellitePage = lazyRoute(() => import('@/pages/SatellitePage'));
@@ -192,6 +199,11 @@ export default function App() {
           <Suspense fallback={<PageLoader />}>
             <Switch>
               <Route path="/">
+                <FundPage />
+              </Route>
+              {/* Прежняя главная. Адрес сохранён, а не удалён: на глобус
+                  ведут ссылки снаружи, и молча сломать их нельзя. */}
+              <Route path="/globe">
                 <GlobePage />
               </Route>
               <Route path="/map">
@@ -262,11 +274,19 @@ export default function App() {
               <Route path="/architecture">
                 <ArchitecturePage />
               </Route>
-              {/* Тот же адресат приходит по разным словам: «инвесторы»,
-                  «фонды», «франшиза». Ведём все три на одну страницу,
-                  а не на три похожие — иначе они разойдутся. */}
+              {/* Тот же адресат приходит по разным словам. «Фонды» и
+                  «инвесторы» ведут на вход — там нули стоят первыми и
+                  собирается пакет работ. «Франшиза» ведёт на границу
+                  передачи: спрашивающий про франшизу спрашивает именно
+                  про то, что передаётся. */}
               <Route path="/investors">
-                <ArchitecturePage />
+                <FundPage />
+              </Route>
+              <Route path="/fund">
+                <FundPage />
+              </Route>
+              <Route path="/funds">
+                <FundPage />
               </Route>
               <Route path="/franchise">
                 <ArchitecturePage />
