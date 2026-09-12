@@ -217,7 +217,7 @@ export const NODES: readonly PlatformNode[] = [
       'Проверки самих оснований. Контракт следит, чтобы источник был указан, но не читает его.',
     toTransferable:
       'Внешнее рецензирование глав с фактами и публикация замечаний рецензента рядом с текстом.',
-    lines: 3013,
+    lines: 3038,
     source: 'src/data/whitepaper',
     records: '14 глав, 10 в короткой версии, замечаний валидатора 0',
     status: 'draft',
@@ -305,7 +305,7 @@ export const NODES: readonly PlatformNode[] = [
     toTransferable:
       'Первая утверждённая ставка хотя бы на один уровень лестницы — после первого исполненного ' +
       'договора, а не до него.',
-    lines: 1270,
+    lines: 1733,
     source: 'src/lib/offer, src/data/platform',
     status: 'draft',
     standardized: false,
