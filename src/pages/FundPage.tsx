@@ -1,32 +1,38 @@
 /**
- * FundPage — главная посадочная и вход для фонда, инвестора, партнёра.
+ * FundPage — главная посадочная и рабочий стол разговора с фондом.
  *
- * Порядок экранов здесь обратный принятому, и это главное решение
- * страницы. Обычная инвесторская посадочная сначала обещает, потом
- * удерживает, а ограничения ставит в подвал. Но предложения доходности
- * на платформе не существует: средства не привлекаются, инструмента нет,
- * оценки компании нет, привлечено ноль. Посадочная, выясняющая это на
- * шестом экране, пять экранов удерживает внимание под предлогом, которого
- * не существует. Именно это и называют обманом — независимо от того,
- * написана ли правда где-то ниже.
+ * Первая версия этой страницы открывалась отговоркой: «средства не
+ * привлекаются, доходности нет, дальше можно не читать». Формально это
+ * правда, но как первый экран это неверно по существу — предмет
+ * разговора не в том, чего здесь нет. Девятнадцать узлов и тридцать
+ * тысяч строк существуют; открывать ими же отрицанием — значит
+ * занижать сделанное ровно так же, как обычная посадочная его
+ * завышает. Неправда в обе стороны остаётся неправдой.
  *
- * Поэтому первый экран отсеивает: если посетитель ищет доходность, ему
- * сказано уйти, и нули стоят до всякого рассказа. Это стоит трафика.
- * Чужое время здесь считается дороже трафика.
+ * Поэтому предмет первого экрана — сама структура: из чего собрано и
+ * как пересобирается. Нули с него никуда не делись и стоят строкой
+ * состояния рядом, а не в подвале: их видно сразу, но они не выдают
+ * себя за тему.
  *
- * Шесть частей в порядке возникновения вопросов:
+ * Главное на странице — переключатель конфигураций. Разговор не
+ * начинается с библиотеки узлов, он начинается с «у нас бассейн» или
+ * «у нас муниципалитет». Щелчок по конфигурации перестраивает карту
+ * узлов, состав работ и пакет разом — и это настоящая пересборка из
+ * реестра, а не смена слайда: карта не перерисовывается, узлы стоят на
+ * местах, меняется состояние. Отличить одно от другого собеседник
+ * может, и это стоит того, чтобы сделать честно.
  *
- *   1. Нули и прямой отсев — до первого утверждения о себе.
- *   2. Шесть вопросов, которые фонд задаёт, с ответами в одну фразу.
- *   3. Что можно проверить прямо сейчас — объёмы, записи, пробы с датой.
- *   4. Что предлагается профинансировать — работы, выбираются в пакет.
+ * Порядок:
+ *   1. Что это и из чего собрано — карта библиотеки, строка нулей.
+ *   2. Конфигурации — переключение при собеседнике.
+ *   3. Состав выбранной конфигурации и чего в ней нет.
+ *   4. Работы к финансированию → пакет, копируется текстом.
  *   5. Что фонд получает и чего не получает.
- *   6. Работы, которые денег не требуют, — и потому спрос за них с нас.
+ *   6. Полное состояние и переходы.
  *
- * Своих чисел у страницы нет. Узлы, нули, роли и работы берутся из
- * src/data/platform, сборка пакета — из src/lib/offer/fundPacket.
- * Переписать величину здесь негде, и это единственная защита от того,
- * чтобы одно и то же число разошлось между страницами.
+ * Своих величин у страницы нет ни одной: узлы, нули, роли, работы и
+ * конфигурации берутся из src/data/platform, сборка пакета — из
+ * src/lib/offer/fundPacket.
  */
 
 import { useMemo, useState } from 'react';
@@ -36,22 +42,14 @@ import {
   Ban,
   Check,
   ClipboardCopy,
-  FileSearch,
-  HelpCircle,
+  LayoutGrid,
   ListChecks,
   ShieldAlert,
   Wrench,
 } from 'lucide-react';
 
+import { FUND_STEPS, NOT_OFFERED, SELF_FUNDED, WORK_PACKAGES } from '@/data/platform/fund';
 import {
-  FUND_STEPS,
-  FUND_ZEROS,
-  NOT_OFFERED,
-  SELF_FUNDED,
-  WORK_PACKAGES,
-} from '@/data/platform/fund';
-import {
-  NODES,
   NODE_COUNT,
   NODE_LINES_TOTAL,
   NODE_STATUS_COLOR,
@@ -59,8 +57,11 @@ import {
   NODE_WITH_CODE_COUNT,
   STANDARDIZED_COUNT,
 } from '@/data/platform/nodes';
+import { RESOLVED_PRESETS, presetById } from '@/data/platform/presets';
 import { ZEROS } from '@/data/platform/state';
 import { ROLES } from '@/data/platform/roles';
+import { SYSTEMS } from '@/data/platform/systems';
+import { NodeMap } from '@/components/os/NodeMap';
 import { buildPacket, packetToText } from '@/lib/offer/fundPacket';
 
 const HAIR = 'rgba(148,163,184,0.16)';
@@ -97,36 +98,33 @@ function SectionHead({
   );
 }
 
-/** Счётные величины, которые посетитель может перепроверить сам. */
-const EVIDENCE: { n: string; label: string; how: string }[] = [
-  {
-    n: String(NODE_COUNT),
-    label: 'узлов названо',
-    how: 'Реестр src/data/platform/nodes.ts. Список и число — одно и то же место.',
-  },
-  {
-    n: String(NODE_WITH_CODE_COUNT),
-    label: 'узлов имеют код',
-    how: 'У остальных поле «что есть» помечено ⟨заполнить⟩ и статусом «не начат».',
-  },
-  {
-    n: NODE_LINES_TOTAL.toLocaleString('ru-RU'),
-    label: 'строк по названным каталогам',
-    how: 'Объём проверяется обходом каталогов, указанных у каждого узла. Это мера работы, не готовности.',
-  },
-  {
-    n: String(STANDARDIZED_COUNT),
-    label: 'узлов прошло стандартизацию',
-    how: 'Считается из реестра. Пока ноль — передавать нечего, и лицензия не составляется.',
-  },
+/** Счётные величины, которые собеседник может перепроверить сам. */
+const EVIDENCE: { n: string; label: string }[] = [
+  { n: String(NODE_COUNT), label: 'узлов в библиотеке' },
+  { n: String(NODE_WITH_CODE_COUNT), label: 'с кодом в репозитории' },
+  { n: NODE_LINES_TOTAL.toLocaleString('ru-RU'), label: 'строк по названным каталогам' },
+  { n: String(RESOLVED_PRESETS.length), label: 'готовых конфигураций' },
 ];
 
 export default function FundPage() {
-  const [picked, setPicked] = useState<string[]>(['account', 'seal']);
+  const [presetId, setPresetId] = useState<string>('basin');
+  const [picked, setPicked] = useState<string[]>(
+    () => [...(presetById('basin')?.nodeIds ?? [])],
+  );
   const [copied, setCopied] = useState(false);
 
+  const preset = presetById(presetId);
   const packet = useMemo(() => buildPacket(picked), [picked]);
   const investor = ROLES.find((r) => r.id === 'investor');
+  const build = SYSTEMS.find((s) => s.id === preset?.build);
+
+  /** Переключение конфигурации: карта, состав и пакет меняются разом. */
+  function applyPreset(id: string) {
+    const p = presetById(id);
+    if (!p) return;
+    setPresetId(id);
+    setPicked([...p.nodeIds]);
+  }
 
   function toggle(id: string) {
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
@@ -145,93 +143,28 @@ export default function FundPage() {
   return (
     <div className="min-h-screen text-slate-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-16">
-        {/* ── 1. Отсев до рассказа ─────────────────────────────────── */}
+        {/* ── 1. Что это и из чего собрано ─────────────────────────── */}
         <section>
-          <div
-            className="rounded-xl p-5 sm:p-7"
-            style={{ border: `1px solid ${WARN}33`, background: 'rgba(248,113,113,0.05)' }}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <Ban size={15} style={{ color: WARN }} />
-              <span
-                className="text-[10.5px] font-bold tracking-[0.18em] uppercase"
-                style={{ color: WARN }}
-              >
-                Прежде чем читать дальше
-              </span>
+          <div className="max-w-3xl">
+            <div
+              className="text-[10.5px] font-bold tracking-[0.18em] uppercase mb-3"
+              style={{ color: ACCENT }}
+            >
+              ArkheOSium · библиотека узлов и правило их сборки
             </div>
-            <h1 className="text-[22px] sm:text-[28px] font-semibold text-white leading-tight max-w-3xl">
-              Средства не привлекаются. Оценки компании нет. Доходность не предлагается ни в
-              каком виде.
+            <h1 className="text-[24px] sm:text-[32px] font-semibold text-white leading-[1.15]">
+              Не продукт и не один проект. Библиотека узлов, из которой под задачу собирается
+              система — и пересобирается при вас.
             </h1>
-            <p className="text-[13.5px] text-slate-400 mt-4 max-w-3xl leading-relaxed">
-              Если вы пришли за долей, за инструментом или за доходностью — дальше можно не
-              читать, здесь этого нет и не появится к концу страницы. Если вы пришли посмотреть,
-              что сделано и что можно довести до передаваемого состояния, — всё остальное про это.
+            <p className="text-[13.5px] sm:text-[14px] text-slate-400 mt-4 leading-relaxed">
+              Ниже вся библиотека целиком. Выберите задачу — карта перестроится: загорятся узлы,
+              которые под неё собираются, соберётся состав работ и пакет для разговора. Это не
+              переключение картинок: конфигурация берёт узлы из того же реестра, из которого
+              состояние читает документ.
             </p>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
-              {FUND_ZEROS.map((z) => (
-                <div
-                  key={z.id}
-                  className="rounded-lg p-3.5"
-                  style={{ border: `1px solid ${HAIR}`, background: 'rgba(2,6,23,0.4)' }}
-                >
-                  <div className="text-[26px] font-semibold leading-none" style={{ color: WARN }}>
-                    0
-                  </div>
-                  <div className="text-[11.5px] text-slate-400 mt-2 leading-snug">{z.short}</div>
-                </div>
-              ))}
-            </div>
           </div>
-        </section>
 
-        {/* ── 2. Шесть вопросов ────────────────────────────────────── */}
-        <section>
-          <SectionHead
-            icon={HelpCircle}
-            eyebrow="Что обычно спрашивают"
-            title="Шесть вопросов фонда и ответы на них"
-            note="Ответы даны так, как они звучат в разговоре, а не так, как они звучат в презентации."
-          />
-          <div className="grid md:grid-cols-2 gap-3">
-            {FUND_STEPS.map((s, i) => (
-              <div
-                key={s.id}
-                className="rounded-xl p-4"
-                style={{ border: `1px solid ${HAIR}`, background: PANEL }}
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className="shrink-0 w-6 h-6 rounded-md grid place-items-center text-[11px] font-semibold"
-                    style={{ background: 'rgba(34,211,238,0.1)', color: ACCENT }}
-                  >
-                    {i + 1}
-                  </span>
-                  <div>
-                    <div className="text-[13.5px] font-medium text-white leading-snug">
-                      {s.question}
-                    </div>
-                    <div className="text-[12.5px] text-slate-400 mt-1.5 leading-relaxed">
-                      {s.answer}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── 3. Что проверяется прямо сейчас ──────────────────────── */}
-        <section>
-          <SectionHead
-            icon={FileSearch}
-            eyebrow="Проверяемое"
-            title="Что можно проверить, не поверив нам на слово"
-            note="Каждая величина ниже получена обходом исходников и повторяется без нашего участия. Ни одна из них не является мерой готовности."
-          />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
             {EVIDENCE.map((e) => (
               <div
                 key={e.label}
@@ -239,78 +172,177 @@ export default function FundPage() {
                 style={{ border: `1px solid ${HAIR}`, background: PANEL }}
               >
                 <div className="text-[24px] font-semibold text-white leading-none">{e.n}</div>
-                <div className="text-[11.5px] text-slate-300 mt-2 leading-snug">{e.label}</div>
-                <div className="text-[11px] text-slate-500 mt-2 leading-relaxed">{e.how}</div>
+                <div className="text-[11.5px] text-slate-400 mt-2 leading-snug">{e.label}</div>
               </div>
             ))}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-3 mt-3">
-            {NODES.filter((n) => n.records).map((n) => (
-              <div
-                key={n.id}
-                className="rounded-lg px-4 py-3 flex items-start gap-3"
-                style={{ border: `1px solid ${HAIR}`, background: PANEL }}
-              >
-                <Check size={14} className="mt-0.5 shrink-0" style={{ color: OK }} />
-                <div>
-                  <span className="text-[12.5px] text-white">{n.title}</span>
-                  <span className="text-[12.5px] text-slate-400"> — {n.records}</span>
-                </div>
-              </div>
+          {/* Строка состояния. Нули видны сразу, но не выдают себя за тему. */}
+          <div
+            className="mt-3 rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-2"
+            style={{ border: `1px solid ${WARN}2e`, background: 'rgba(248,113,113,0.04)' }}
+          >
+            <span
+              className="text-[10px] font-bold tracking-[0.16em] uppercase"
+              style={{ color: WARN }}
+            >
+              Состояние
+            </span>
+            {[
+              `Узлов прошло стандартизацию — ${STANDARDIZED_COUNT}`,
+              'Развёртываний у заказчика — 0',
+              'Привлечено средств — 0',
+              'Оценки компании и раунда не существует',
+            ].map((t) => (
+              <span key={t} className="text-[11.5px] text-slate-400">
+                {t}
+              </span>
             ))}
           </div>
         </section>
 
-        {/* ── 4. Что финансировать ─────────────────────────────────── */}
+        {/* ── 2. Конфигурации ──────────────────────────────────────── */}
+        <section>
+          <SectionHead
+            icon={LayoutGrid}
+            eyebrow="Конфигурации"
+            title="Под какую задачу собираем"
+            note="Разговор начинается не с библиотеки, а с «у нас бассейн» или «у нас муниципалитет». Щелчок перестраивает карту, состав и пакет разом."
+          />
+
+          <div className="flex flex-wrap gap-2 mb-5">
+            {RESOLVED_PRESETS.map((p) => {
+              const on = p.id === presetId;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => applyPreset(p.id)}
+                  className="rounded-lg px-3.5 py-2 text-[12.5px] transition-colors"
+                  style={{
+                    border: `1px solid ${on ? `${ACCENT}66` : HAIR}`,
+                    background: on ? 'rgba(34,211,238,0.08)' : PANEL,
+                    color: on ? ACCENT : '#cbd5e1',
+                  }}
+                >
+                  {p.title}
+                </button>
+              );
+            })}
+          </div>
+
+          <NodeMap active={picked} onToggle={toggle} showLines />
+
+          <p className="text-[11.5px] text-slate-600 mt-3 leading-relaxed">
+            Узлы можно включать и выключать поверх конфигурации — состав работ пересчитается.
+            Погашенный узел остаётся на своём месте: библиотека одна, меняется только сборка.
+          </p>
+        </section>
+
+        {/* ── 3. Состав выбранной конфигурации ─────────────────────── */}
+        {preset && (
+          <section>
+            <SectionHead
+              icon={Check}
+              eyebrow="Выбранная конфигурация"
+              title={preset.title}
+              note={preset.who}
+            />
+            <div className="grid md:grid-cols-2 gap-3">
+              <div
+                className="rounded-xl p-4"
+                style={{ border: `1px solid ${HAIR}`, background: PANEL }}
+              >
+                <div
+                  className="text-[10.5px] font-bold tracking-[0.16em] uppercase mb-3"
+                  style={{ color: OK }}
+                >
+                  Что делает
+                </div>
+                <p className="text-[13px] text-slate-300 leading-relaxed">{preset.does}</p>
+                <div className="flex flex-wrap gap-x-5 gap-y-1 mt-4">
+                  <span className="text-[11.5px] text-slate-500">
+                    Узлов: {preset.nodes.length}, с кодом: {preset.withCode}
+                  </span>
+                  <span className="text-[11.5px] text-slate-500">
+                    Объём: {preset.lines.toLocaleString('ru-RU')} строк
+                  </span>
+                  <span className="text-[11.5px] text-slate-500">
+                    Стандартизовано: {preset.standardized}
+                  </span>
+                </div>
+                {build && (
+                  <div className="text-[11.5px] text-slate-500 mt-2">
+                    Сборка: {build.name} — {build.domain}
+                  </div>
+                )}
+              </div>
+
+              <div
+                className="rounded-xl p-4"
+                style={{ border: `1px solid ${WARN}33`, background: 'rgba(248,113,113,0.04)' }}
+              >
+                <div
+                  className="text-[10.5px] font-bold tracking-[0.16em] uppercase mb-3"
+                  style={{ color: WARN }}
+                >
+                  Чего в этой конфигурации нет
+                </div>
+                <p className="text-[13px] text-slate-400 leading-relaxed">{preset.without}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── 4. Работы и пакет ────────────────────────────────────── */}
         <section>
           <SectionHead
             icon={Wrench}
             eyebrow="Предмет разговора"
             title="Что именно предлагается профинансировать"
-            note="Работа берётся из состояния узла, а не придумывается под встречу. Выберите позиции — пакет соберётся справа и копируется текстом."
+            note="Работа берётся из состояния узла, а не придумывается под встречу. Список следует за конфигурацией; пакет справа копируется текстом."
           />
 
           <div className="grid lg:grid-cols-[1fr_380px] gap-4 items-start">
             <div className="space-y-2">
-              {WORK_PACKAGES.map((w) => {
-                const on = picked.includes(w.nodeId);
-                return (
-                  <button
-                    key={w.nodeId}
-                    onClick={() => toggle(w.nodeId)}
-                    className="w-full text-left rounded-xl p-4 transition-colors"
-                    style={{
-                      border: `1px solid ${on ? `${ACCENT}55` : HAIR}`,
-                      background: on ? 'rgba(34,211,238,0.05)' : PANEL,
-                    }}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="text-[13.5px] font-medium text-white leading-snug">
-                        {w.node.title}
-                      </div>
-                      <span
-                        className="shrink-0 text-[10px] px-1.5 py-0.5 rounded"
-                        style={{
-                          color: NODE_STATUS_COLOR[w.node.status],
-                          background: `${NODE_STATUS_COLOR[w.node.status]}1a`,
-                        }}
-                      >
-                        {NODE_STATUS_LABEL[w.node.status]}
-                      </span>
+              {WORK_PACKAGES.filter((w) => picked.includes(w.nodeId)).map((w) => (
+                <div
+                  key={w.nodeId}
+                  className="rounded-xl p-4"
+                  style={{ border: `1px solid ${ACCENT}33`, background: 'rgba(34,211,238,0.04)' }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="text-[13.5px] font-medium text-white leading-snug">
+                      {w.node.title}
                     </div>
-                    <div className="text-[12px] text-slate-400 mt-2 leading-relaxed">
-                      <span style={{ color: OK }}>Работа. </span>
-                      {w.work}
-                    </div>
-                    <div className="text-[12px] text-slate-500 mt-1.5 leading-relaxed">
-                      <span style={{ color: ACCENT }}>Закрывается. </span>
-                      {w.closedBy}
-                    </div>
-                    <div className="text-[11.5px] text-slate-600 mt-1.5">{w.estimate}</div>
-                  </button>
-                );
-              })}
+                    <span
+                      className="shrink-0 text-[10px] px-1.5 py-0.5 rounded"
+                      style={{
+                        color: NODE_STATUS_COLOR[w.node.status],
+                        background: `${NODE_STATUS_COLOR[w.node.status]}1a`,
+                      }}
+                    >
+                      {NODE_STATUS_LABEL[w.node.status]}
+                    </span>
+                  </div>
+                  <div className="text-[12px] text-slate-400 mt-2 leading-relaxed">
+                    <span style={{ color: OK }}>Работа. </span>
+                    {w.work}
+                  </div>
+                  <div className="text-[12px] text-slate-500 mt-1.5 leading-relaxed">
+                    <span style={{ color: ACCENT }}>Закрывается. </span>
+                    {w.closedBy}
+                  </div>
+                  <div className="text-[11.5px] text-slate-600 mt-1.5">{w.estimate}</div>
+                </div>
+              ))}
+              {picked.length === 0 && (
+                <div
+                  className="rounded-xl p-4 text-[12.5px] text-slate-500"
+                  style={{ border: `1px solid ${HAIR}`, background: PANEL }}
+                >
+                  Узлы не выбраны. Выберите конфигурацию выше или включите узлы на карте.
+                </div>
+              )}
             </div>
 
             <div
@@ -320,7 +352,7 @@ export default function FundPage() {
               <div className="flex items-center gap-2 mb-3">
                 <ListChecks size={14} style={{ color: ACCENT }} />
                 <span className="text-[11px] font-bold tracking-[0.16em] uppercase text-slate-400">
-                  Пакет · выбрано {packet.items.length}
+                  Пакет · работ {packet.items.length}
                 </span>
               </div>
 
@@ -369,19 +401,19 @@ export default function FundPage() {
                 {copied ? 'Скопировано' : 'Скопировать пакет текстом'}
               </button>
               <p className="text-[11px] text-slate-600 mt-2 leading-relaxed">
-                Пакет — заготовка для разговора. Не оферта, не предложение инвестиции, не
-                согласованные условия.
+                Заготовка для разговора. Не оферта, не предложение инвестиции, не согласованные
+                условия.
               </p>
             </div>
           </div>
         </section>
 
-        {/* ── 5. Получает / не получает ────────────────────────────── */}
+        {/* ── 5. Вопросы, границы, спрос с нас ─────────────────────── */}
         <section>
           <SectionHead
             icon={ShieldAlert}
             eyebrow="Границы"
-            title="Что фонд получает и чего не получает"
+            title="Что фонд получает, чего не получает и что обычно спрашивает"
             note="Вторая колонка обязательна. Того, кому не сказали «доли нет», не переубедить потом: он уже достроил её сам."
           />
           <div className="grid md:grid-cols-2 gap-3">
@@ -421,17 +453,38 @@ export default function FundPage() {
               </ul>
             </div>
           </div>
-        </section>
 
-        {/* ── 6. Работы без денег ──────────────────────────────────── */}
-        <section>
-          <SectionHead
-            icon={Check}
-            eyebrow="Спрос с нас"
-            title="Что можно сделать без финансирования — и потому справедливо спросить, почему не сделано"
-            note="Эти работы не упираются ни в деньги, ни в чьё-либо разрешение. Названы здесь, чтобы вопрос задали нам, а не обошли его."
-          />
-          <div className="space-y-2">
+          <div className="grid md:grid-cols-2 gap-3 mt-3">
+            {FUND_STEPS.map((s, i) => (
+              <div
+                key={s.id}
+                className="rounded-xl p-4"
+                style={{ border: `1px solid ${HAIR}`, background: PANEL }}
+              >
+                <div className="flex items-start gap-3">
+                  <span
+                    className="shrink-0 w-6 h-6 rounded-md grid place-items-center text-[11px] font-semibold"
+                    style={{ background: 'rgba(34,211,238,0.1)', color: ACCENT }}
+                  >
+                    {i + 1}
+                  </span>
+                  <div>
+                    <div className="text-[13.5px] font-medium text-white leading-snug">
+                      {s.question}
+                    </div>
+                    <div className="text-[12.5px] text-slate-400 mt-1.5 leading-relaxed">
+                      {s.answer}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 space-y-2">
+            <div className="text-[11px] font-bold tracking-[0.16em] uppercase text-slate-500">
+              Что можно сделать без финансирования — и потому справедливо спросить с нас
+            </div>
             {SELF_FUNDED.map((t) => (
               <div
                 key={t}
@@ -444,7 +497,7 @@ export default function FundPage() {
           </div>
         </section>
 
-        {/* ── Полная плитка нулей ──────────────────────────────────── */}
+        {/* ── 6. Полное состояние ──────────────────────────────────── */}
         <section>
           <SectionHead
             icon={Ban}
