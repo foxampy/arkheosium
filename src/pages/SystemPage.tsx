@@ -50,6 +50,12 @@ import {
 
 import { LAYERS, BUILDS } from '@/data/platform/layers';
 import { NODES, NODE_STATUS_COLOR, NODE_STATUS_LABEL } from '@/data/platform/nodes';
+import {
+  NODES_OUTSIDE_PRESETS,
+  RESOLVED_PRESETS,
+  presetById,
+} from '@/data/platform/presets';
+import { NodeMap } from '@/components/os/NodeMap';
 import { ZEROS } from '@/data/platform/state';
 import { SYSTEMS, JOINT_FRANCHISE, PARTNER_STAGE_LABEL } from '@/data/platform/systems';
 import { ROLES } from '@/data/platform/roles';
@@ -113,6 +119,7 @@ function SectionHead({
 export default function SystemPage() {
   const [kind, setKind] = useState<OfferKind>('project');
   const [purpose, setPurpose] = useState<OfferPurpose>('develop');
+  const [presetId, setPresetId] = useState<string>('');
   const [picked, setPicked] = useState<string[]>(['corpus', 'account']);
   const [market, setMarket] = useState('');
   const [term, setTerm] = useState('');
@@ -123,7 +130,23 @@ export default function SystemPage() {
     [kind, purpose, picked, market, term],
   );
 
+  const preset = presetId ? presetById(presetId) : undefined;
+
+  /**
+   * Пресет здесь — не отдельный режим, а начальная точка: он ставит набор
+   * узлов, после чего набор правится вручную. Поэтому при первом же ручном
+   * щелчке имя конфигурации снимается: конструктор перестал показывать её,
+   * и оставленное название было бы подписью не под тем, что собрано.
+   */
+  function applyPreset(id: string) {
+    const p = presetById(id);
+    if (!p) return;
+    setPresetId(id);
+    setPicked([...p.nodeIds]);
+  }
+
   function toggle(id: string) {
+    setPresetId('');
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   }
 
@@ -553,6 +576,93 @@ export default function SystemPage() {
           note="Обычный конструктор коммерческого предложения работает как калькулятор: выбрал позиции — получил сумму. Сумму здесь выдать не из чего: развёртываний ноль, стандартизованных узлов ноль, утверждённых ставок ноль. Калькулятор, который в таком положении показывает число, показывает выдуманное число. Этот собирает другое: что передаётся, что не передаётся, что не отключается — и чего в предложении сегодня быть не может."
         />
 
+        {/* Набор узлов. Стоит во всю ширину и перед остальными полями
+            потому, что это единственное место, где собеседник видит
+            пересборку: та же карта, что и на главной, тот же реестр,
+            те же пресеты. Две поверхности, собирающие набор узлов
+            по-разному, рано или поздно разойдутся — как уже разошлись
+            три числа эмиссии, когда лежали в трёх файлах. */}
+        <div
+          className="rounded-xl border p-5 mb-3"
+          style={{ borderColor: HAIR, background: PANEL }}
+        >
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 mb-2">
+            Начать с готовой конфигурации
+          </div>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {RESOLVED_PRESETS.map((p) => {
+              const on = presetId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => applyPreset(p.id)}
+                  className="rounded-lg border px-2.5 py-1.5 text-[11.5px] transition-colors inline-flex items-center gap-1.5"
+                  style={{
+                    borderColor: on ? `${ACCENT}55` : HAIR,
+                    background: on ? `${ACCENT}12` : 'transparent',
+                    color: on ? ACCENT : '#94a3b8',
+                  }}
+                >
+                  {on && <Check size={11} />}
+                  {p.title}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Чего в выбранной конфигурации нет. Стоит рядом с составом,
+              а не в конце страницы: состав без этой строки читается
+              как решение задачи целиком. */}
+          {preset && (
+            <div
+              className="rounded-lg border px-3 py-2.5 mb-4"
+              style={{ borderColor: `${WARN}33`, background: `${WARN}0a` }}
+            >
+              <div
+                className="text-[10px] font-bold uppercase tracking-[0.14em] mb-1"
+                style={{ color: WARN }}
+              >
+                Чего в этой конфигурации нет
+              </div>
+              <div className="text-[11.5px] text-slate-400 leading-snug">
+                {preset.without}
+              </div>
+            </div>
+          )}
+
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 mb-2">
+            Узлы — поимённо{' '}
+            <span className="text-slate-600 font-normal normal-case tracking-normal">
+              (выбрано {picked.length} из {NODES.length})
+            </span>
+          </div>
+          <NodeMap active={picked} onToggle={toggle} />
+
+          {/* Проверка на лишнее. Узел, не входящий ни в одну конфигурацию,
+              должен объясняться — иначе он сделан без задачи. Список
+              считается из пресетов, а не написан руками, поэтому соврать
+              этой строкой нельзя: добавится неиспользуемый узел — он здесь
+              и появится. */}
+          <div className="text-[11px] text-slate-500 leading-snug mt-4 pt-3 border-t" style={{ borderColor: HAIR }}>
+            {NODES_OUTSIDE_PRESETS.length === 0 ? (
+              'Каждый узел реестра входит хотя бы в одну конфигурацию.'
+            ) : (
+              <>
+                Не входят ни в одну конфигурацию{' '}
+                {NODES_OUTSIDE_PRESETS.length}:{' '}
+                <span className="text-slate-400">
+                  {NODES_OUTSIDE_PRESETS.map((n) => n.title).join(', ')}
+                </span>
+                .{' '}
+                {NODES_OUTSIDE_PRESETS.every((n) => n.lines === 0)
+                  ? 'Это ровно те узлы, у которых нет кода: они названы в замысле и не начаты. Собирать из них нечего, и показывать их как доступные было бы продажей ненаписанного.'
+                  : '⟨заполнить: чем объясняется узел с кодом, не вошедший ни в одну конфигурацию⟩'}
+              </>
+            )}
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-[1fr,1.15fr] gap-3">
           {/* Ввод */}
           <div
@@ -613,31 +723,6 @@ export default function SystemPage() {
                   </div>
                 </button>
               ))}
-            </div>
-
-            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 mb-2">
-              Узлы — поимённо
-            </div>
-            <div className="flex flex-wrap gap-1.5 mb-5">
-              {NODES.map((n) => {
-                const on = picked.includes(n.id);
-                return (
-                  <button
-                    key={n.id}
-                    type="button"
-                    onClick={() => toggle(n.id)}
-                    className="rounded-lg border px-2.5 py-1.5 text-[11.5px] transition-colors inline-flex items-center gap-1.5"
-                    style={{
-                      borderColor: on ? `${ACCENT}55` : HAIR,
-                      background: on ? `${ACCENT}12` : 'transparent',
-                      color: on ? ACCENT : '#94a3b8',
-                    }}
-                  >
-                    {on && <Check size={11} />}
-                    {n.title}
-                  </button>
-                );
-              })}
             </div>
 
             <div className="grid sm:grid-cols-2 gap-2.5">
