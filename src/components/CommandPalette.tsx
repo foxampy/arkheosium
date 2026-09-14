@@ -161,7 +161,7 @@ const COMMANDS: Cmd[] = [
     keywords: 'экопуть journey маршрут путь экология',
   },
   // Планета
-  { label: 'Главная — глобус', path: '/', group: 'Планета', icon: Globe, keywords: 'earth 3d карта мира глобус globe главная' },
+  { label: 'Главная', path: '/', group: 'Планета', icon: Globe, sub: 'Глобус первым экраном, дальше — что это за ОС, шесть сборок с их состоянием, кто ведёт и кто назван стороной', keywords: 'earth 3d карта мира глобус globe главная основатель садыков foxampy labforge unicap united innovation capital партнёры участники' },
   { label: 'Карта', path: '/map', group: 'Планета', icon: MapIcon, keywords: 'world map регионы' },
   { label: '🛢 Газнефть — модуль', path: '/oilgas', group: 'Промышленность', icon: Flame, keywords: 'нефть газ oilgas месторождения нпз гпз gtl метан вибродиагностика labforge узбекистан казахстан туркменистан whitepaper онбординг каталог' },
   { label: '🛢 Газнефть — интеграционный контур', path: '/oilgas/integration', group: 'Промышленность', icon: Network, keywords: 'интеграция crm dao ai ии автоматизация партнёр партнер нефтегаз нефть газ цифровой двойник телеметрия scada предиктив тоир наряд допуск ldar mrv внедрение контур' },
