@@ -14,7 +14,7 @@ import {
   Phone, User, Settings, CornerDownLeft, Sparkles, Gavel,
   Compass, Waves, Milestone, ScrollText,
   Satellite, Radio, Cloud, Zap, Truck, Bot, Sprout, Recycle, Telescope, Store,
-  Fingerprint, TreePine, AudioWaveform, Handshake, ShieldAlert,
+  Fingerprint, TreePine, AudioWaveform, Handshake, ShieldAlert, Flame,
 } from 'lucide-react';
 
 type Cmd = {
@@ -40,7 +40,7 @@ const COMMANDS: Cmd[] = [
     group: 'Система',
     icon: Cpu,
     sub: 'Все узлы, их объём, состояние и то, чего в них нет',
-    keywords: 'ос os система about о проекте узлы реестр конструктор конфигурация пресет архитектура состав',
+    keywords: 'ос os система system about о проекте узлы реестр конструктор конфигурация пресет архитектура состав',
   },
   {
     label: 'Вход для фондов и инвесторов',
@@ -48,7 +48,7 @@ const COMMANDS: Cmd[] = [
     group: 'Система',
     icon: Briefcase,
     sub: 'С чего начинается разговор: границы, пакет работ, состояние',
-    keywords: 'фонд фонды инвестор инвесторы вход посадочная пакет работ границы нули due diligence',
+    keywords: 'фонд фонды funds инвестор инвесторы investors вход посадочная пакет работ границы нули due diligence',
   },
   {
     label: 'Архитектура и передача',
@@ -56,7 +56,7 @@ const COMMANDS: Cmd[] = [
     group: 'Система',
     icon: Network,
     sub: 'Что именно передаётся при франшизе и на каких границах',
-    keywords: 'архитектура франшиза franchise передача лицензия контур границы слои',
+    keywords: 'архитектура architecture франшиза franchise передача лицензия контур границы слои',
   },
   {
     label: 'Документ — полный текст',
@@ -82,11 +82,89 @@ const COMMANDS: Cmd[] = [
     sub: 'Регионы, проекты и модули одним экраном',
     keywords: 'обзор explore осмотр что есть регионы проекты',
   },
+  // Остаток незаиндексированного, найденный сверкой маршрутов
+  // (scripts/check-nav-links.mjs). Часть адресов — синонимы: «/about»
+  // и «/system» ведут на ту же страницу, что «/os», «/investors» и
+  // «/funds» — на «/fund». Они записаны ключевыми словами канонических
+  // пунктов выше, а не отдельными строками: пять одинаковых результатов
+  // на один запрос — не полнота, а шум.
+  {
+    label: 'Проекты — перечень',
+    path: '/hub/projects',
+    group: 'Система',
+    icon: FolderOpen,
+    sub: 'Все проекты списком, без группировки по хабу',
+    keywords: 'проекты перечень список projects',
+  },
+  {
+    label: 'Лаборатория проектов',
+    path: '/lab',
+    group: 'Система',
+    icon: FlaskConical,
+    sub: 'Черновики и заготовки проектов',
+    keywords: 'лаборатория lab черновики заготовки песочница',
+  },
+  {
+    label: 'Инновации',
+    path: '/innovations',
+    group: 'Система',
+    icon: Sparkles,
+    sub: 'Разработки и заявки на них',
+    keywords: 'инновации innovations патенты разработки изобретения',
+  },
+  {
+    label: 'Лента новостей',
+    path: '/news',
+    group: 'Система',
+    icon: Newspaper,
+    sub: 'Публикации и события',
+    keywords: 'новости лента news публикации события',
+  },
+  {
+    label: 'Проект Аральского моря',
+    path: '/aral',
+    group: 'Система',
+    icon: Droplets,
+    sub: 'Страница проекта восстановления',
+    keywords: 'арал аральское море проект восстановление aral',
+  },
+  {
+    label: 'Онбординг',
+    path: '/onboard',
+    group: 'Система',
+    icon: Compass,
+    sub: 'Первый проход по платформе',
+    keywords: 'онбординг onboard знакомство начало первый вход приветствие welcome',
+  },
+  {
+    label: 'Презентация',
+    path: '/presentation',
+    group: 'Система',
+    icon: ScrollText,
+    sub: 'Слайды для показа',
+    keywords: 'презентация presentation слайды показ демонстрация',
+  },
+  {
+    label: 'Конференция TIIF 2026',
+    path: '/conference/tiif-2026',
+    group: 'Система',
+    icon: Users,
+    sub: 'Страница участия в конференции',
+    keywords: 'конференция tiif 2026 форум участие выступление',
+  },
+  {
+    label: 'Экопуть',
+    path: '/journey',
+    group: 'Система',
+    icon: Leaf,
+    sub: 'Маршрут по экологическим точкам',
+    keywords: 'экопуть journey маршрут путь экология',
+  },
   // Планета
-  { label: 'Главная — глобус', path: '/', group: 'Планета', icon: Globe, keywords: 'earth 3d карта мира глобус главная' },
+  { label: 'Главная — глобус', path: '/', group: 'Планета', icon: Globe, keywords: 'earth 3d карта мира глобус globe главная' },
   { label: 'Карта', path: '/map', group: 'Планета', icon: MapIcon, keywords: 'world map регионы' },
-  { label: '🛢 Газнефть — модуль', path: '/oilgas', group: 'Планета', icon: MapIcon, keywords: 'нефть газ oilgas месторождения нпз гпз gtl метан вибродиагностика labforge узбекистан казахстан туркменистан whitepaper онбординг каталог' },
-  { label: '🛢 Газнефть — интеграционный модуль', path: '/oilgas/integration', group: 'Планета', icon: Network, keywords: 'интеграция crm dao ai ии автоматизация партнёр партнер нефтегаз нефть газ цифровой двойник телеметрия scada предиктив тоир наряд допуск ldar mrv внедрение контур' },
+  { label: '🛢 Газнефть — модуль', path: '/oilgas', group: 'Промышленность', icon: Flame, keywords: 'нефть газ oilgas месторождения нпз гпз gtl метан вибродиагностика labforge узбекистан казахстан туркменистан whitepaper онбординг каталог' },
+  { label: '🛢 Газнефть — интеграционный контур', path: '/oilgas/integration', group: 'Промышленность', icon: Network, keywords: 'интеграция crm dao ai ии автоматизация партнёр партнер нефтегаз нефть газ цифровой двойник телеметрия scada предиктив тоир наряд допуск ldar mrv внедрение контур' },
   { label: 'Дашборд', path: '/dashboard', group: 'Планета', icon: LayoutDashboard, keywords: 'метрики kpi' },
   { label: 'Аналитика', path: '/analytics', group: 'Планета', icon: BarChart2, keywords: 'графики данные' },
   { label: 'Обновления', path: '/updates', group: 'Планета', icon: Newspaper, keywords: 'новости лента' },
@@ -104,12 +182,12 @@ const COMMANDS: Cmd[] = [
   { label: 'Живая модель региона', path: '/simulator', group: 'Инфраструктура', icon: Waves, keywords: 'модель карта объекты проекты инициативы благополучие экология восстановление арал simulator' },
   // Знания
   { label: '🏛 Витрина контура', path: '/showcase', group: 'Знания', icon: Store, keywords: 'витрина услуги консалтинг аудит r&d разработка платформы решения продукты исследования уровни участия поставщики unicap labforge daociv arkheos showcase предложения прайс условия расчёт' },
-  { label: '⛓ Токенизация измерений', path: '/tokenization', group: 'Знания', icon: Fingerprint, keywords: 'токенизация хэш ноды измерения эмиссия верификация mrv labforge прослеживаемость хеш нода запечатывание метан ogmp miq guardian hedera стандарты неопределённость поверка' },
-  { label: '〰 Вибродиагностика оборудования', path: '/diagnostics', group: 'Знания', icon: AudioWaveform, keywords: 'вибрация вибродиагностика вибро-волновая сетка медная обшивка прошивка подшипник bpfo bpfi bsf ftf дефект iso 20816 iso 10816 виброскорость спектр огибающая насос компрессор редуктор предиктивная диагностика состояние оборудования labforge diagnostics' },
+  { label: '⛓ Токенизация измерений', path: '/tokenization', group: 'Промышленность', icon: Fingerprint, keywords: 'токенизация хэш ноды измерения эмиссия верификация mrv labforge прослеживаемость хеш нода запечатывание метан ogmp miq guardian hedera стандарты неопределённость поверка' },
+  { label: '〰 Вибродиагностика оборудования', path: '/diagnostics', group: 'Промышленность', icon: AudioWaveform, keywords: 'вибрация вибродиагностика вибро-волновая сетка медная обшивка прошивка подшипник bpfo bpfi bsf ftf дефект iso 20816 iso 10816 виброскорость спектр огибающая насос компрессор редуктор предиктивная диагностика состояние оборудования labforge diagnostics' },
   { label: '🤝 Партнёрские входы', path: '/partners', group: 'Знания', icon: Handshake, keywords: 'партнёры партнерство вход приглашение инвайт код онбординг презентация whitepaper промышленность инфраструктура градостроение город бизнес корпорации государство госорганы организации нко сегмент предложение сотрудничество partners invite' },
   { label: 'R&D / Методологии', path: '/rd', group: 'Знания', icon: FlaskConical, keywords: 'исследования разработки наука' },
-  { label: 'Каталог тех/оборуд.', path: '/catalog', group: 'Знания', icon: BookOpen, keywords: 'технологии оборудование' },
-  { label: 'Тех-маркет', path: '/tech-marketplace', group: 'Знания', icon: ShoppingCart, keywords: 'маркетплейс поставщики' },
+  { label: 'Каталог технологий и оборудования', path: '/catalog', group: 'Промышленность', icon: BookOpen, keywords: 'технологии оборудование каталог станки насосы компрессоры арматура поставка' },
+  { label: 'Тех-маркет: поставщики', path: '/tech-marketplace', group: 'Промышленность', icon: ShoppingCart, keywords: 'маркетплейс поставщики вендоры закупка оборудование' },
   { label: 'Документы', path: '/documents', group: 'Знания', icon: FileText, keywords: 'файлы брошюры' },
   { label: 'Whitepaper (VOD)', path: '/vod-whitepaper', group: 'Знания', icon: BookOpen, keywords: 'вайтпейпер токеномика dao роадмап' },
   { label: 'Whitepaper Арал', path: '/aral-whitepaper', group: 'Знания', icon: Droplets, keywords: 'вайтпейпер арал мегапроект' },

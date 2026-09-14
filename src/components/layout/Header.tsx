@@ -34,15 +34,53 @@ type NavGroup = {
   items: NavItem[];
 };
 
-// ── 5 логичных доменов (сокращено с 8 групп / ~30 пунктов) ──────
+// ── Домены навигации ─────────────────────────────────────────────
+//
+// Меню перестраивалось после вопроса «где модуль страниц про нефть и
+// газ, оборудование и прочее?» — заданного при том, что страницы были
+// на месте и часть из них стояла в меню. Разбор показал две причины.
+//
+// Первая: отраслевой куст был раскидан. «Газнефть» стояла третьим
+// пунктом в «Планете» — группе про глобус, воду и экологию, — каталог
+// оборудования и тех-маркет лежали в «Знаниях», вибродиагностика тоже,
+// а интеграционный контур «/oilgas/integration» на тысячу строк не
+// стоял ни в одном меню. Собранные в одну группу, эти шесть страниц
+// читаются как модуль; разложенные по трём — как случайные пункты.
+//
+// Вторая: сама операционная система в меню отсутствовала. Реестр узлов,
+// вход для фондов, архитектура передачи и документ открывались только
+// по прямой ссылке. Теперь это первая группа: с неё разговор и
+// начинается.
 const NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'system',
+    title: '🧭 Система',
+    items: [
+      { nameKey: 'nav.os',           path: '/os',           icon: Cpu,        color: '#22d3ee', label: 'Реестр узлов ОС' },
+      { nameKey: 'nav.fund',         path: '/fund',         icon: Briefcase,  color: '#34d399', label: 'Вход для фондов' },
+      { nameKey: 'nav.architecture', path: '/architecture', icon: Network,    color: '#a78bfa', label: 'Архитектура и передача' },
+      { nameKey: 'nav.doc',          path: '/doc',          icon: ScrollText, color: '#06b6d4', label: 'Документ — полный текст' },
+      { nameKey: 'nav.directions',   path: '/directions',   icon: Compass,    color: '#00e6c8', label: 'Направления' },
+    ],
+  },
+  {
+    id: 'industry',
+    title: '⚙️ Промышленность и оборудование',
+    items: [
+      { nameKey: 'nav.oilgas',       path: '/oilgas',             icon: Flame,         color: '#fb923c', label: '🛢 Газнефть — модуль' },
+      { nameKey: 'nav.oilgas_integr',path: '/oilgas/integration', icon: Network,       color: '#fb923c', label: '🛢 Газнефть — интеграционный контур' },
+      { nameKey: 'nav.diagnostics',  path: '/diagnostics',        icon: AudioWaveform, color: '#22d3ee', label: '〰 Вибродиагностика оборудования' },
+      { nameKey: 'nav.catalog',      path: '/catalog',            icon: BookOpen,      color: '#a78bfa', label: 'Каталог технологий и оборудования' },
+      { nameKey: 'nav.tech_market',  path: '/tech-marketplace',   icon: ShoppingCart,  color: '#f59e0b', label: 'Тех-маркет: поставщики' },
+      { nameKey: 'nav.tokenization', path: '/tokenization',       icon: Fingerprint,   color: '#22d3ee', label: '⛓ Токенизация измерений' },
+    ],
+  },
   {
     id: 'planet',
     title: '🌍 Планета',
     items: [
       { nameKey: 'nav.globe',     path: '/',          icon: Globe,           color: '#00d4ff', label: 'Главная' },
       { nameKey: 'nav.map',       path: '/map',       icon: Map,             color: '#00e6c8', label: 'Карта' },
-      { nameKey: 'nav.oilgas',    path: '/oilgas',    icon: Flame,           color: '#fb923c', label: '🛢 Газнефть' },
       { nameKey: 'nav.dashboard', path: '/dashboard', icon: LayoutDashboard, color: '#60a5fa', label: 'Дашборд' },
       { nameKey: 'nav.analytics', path: '/analytics', icon: BarChart2,       color: '#00e6c8', label: 'Аналитика' },
       { nameKey: 'nav.updates',   path: '/updates',   icon: Newspaper,       color: '#06b6d4', label: 'Обновления' },
@@ -88,11 +126,9 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { nameKey: 'nav.showcase',    path: '/showcase',         icon: Store,        color: '#a78bfa', label: '🏛 Витрина' },
       { nameKey: 'nav.partners',    path: '/partners',         icon: Handshake,    color: '#34d399', label: '🤝 Партнёрские входы' },
-      { nameKey: 'nav.tokenization', path: '/tokenization',    icon: Fingerprint,  color: '#22d3ee', label: '⛓ Токенизация' },
-      { nameKey: 'nav.diagnostics', path: '/diagnostics',      icon: AudioWaveform, color: '#22d3ee', label: '〰 Вибродиагностика' },
+      // Токенизация, вибродиагностика, каталог и тех-маркет переехали
+      // в «Промышленность и оборудование»: там их ищут.
       { nameKey: 'nav.rd',          path: '/rd',               icon: FlaskConical, color: '#f59e0b', label: 'R&D / Методологии' },
-      { nameKey: 'nav.catalog',     path: '/catalog',          icon: BookOpen,     color: '#a78bfa', label: 'Каталог тех/оборуд.' },
-      { nameKey: 'nav.tech_market', path: '/tech-marketplace', icon: ShoppingCart, color: '#f59e0b', label: 'Тех-маркет' },
       { nameKey: 'nav.documents',   path: '/documents',        icon: FileText,     color: '#00e6c8', label: 'Документы' },
       { nameKey: 'nav.whitepaper',  path: '/whitepaper',       icon: BookOpen,     color: '#06b6d4', label: 'Обзор платформы' },
       { nameKey: 'nav.whitepaper_full', path: '/whitepaper-full', icon: ScrollText, color: '#a78bfa', label: 'Whitepaper (полный)' },

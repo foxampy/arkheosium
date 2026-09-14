@@ -377,6 +377,41 @@ export default function OilGasPage() {
               <Globe2 size={15} /> На глобусе
             </Link>
           </div>
+
+          {/* Остальные страницы отраслевого куста.
+
+              Переходы на интеграционный контур и токенизацию на странице
+              были, но лежали внутри карточек каталога и показывались
+              только при совпадении идентификатора позиции — то есть
+              только тому, кто уже нашёл нужную карточку и раскрыл её.
+              Вибродиагностика и каталог оборудования не были связаны
+              с этой страницей ничем. Модуль, части которого не знают
+              друг о друге, читается как набор отдельных страниц. */}
+          <div className="mt-8 pt-6 border-t" style={{ borderColor: 'rgba(148,163,184,0.14)' }}>
+            <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-3">
+              Остальные части модуля
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {[
+                { to: '/oilgas/integration', t: 'Интеграционный контур', d: 'Телеметрия, ТОиР, наряд-допуск, LDAR/MRV — как модуль встраивается в работающее предприятие' },
+                { to: '/diagnostics', t: 'Вибродиагностика', d: 'Состояние насосов, компрессоров и редукторов по спектру и огибающей; ISO 20816' },
+                { to: '/catalog', t: 'Каталог оборудования', d: 'Технологии и оборудование позициями, с условиями поставки' },
+                { to: '/tokenization', t: 'Токенизация измерений', d: 'Запечатывание измерения хэшем: что именно подтверждается, а что нет' },
+              ].map((x) => (
+                <Link
+                  key={x.to}
+                  href={x.to}
+                  className="block px-3.5 py-3 rounded-xl border transition-colors hover:border-orange-400/40"
+                  style={{ borderColor: 'rgba(148,163,184,0.18)', background: 'rgba(148,163,184,0.04)' }}
+                >
+                  <div className="text-[13px] font-semibold text-slate-200 flex items-center gap-1.5">
+                    {x.t} <ArrowRight size={12} className="opacity-50" />
+                  </div>
+                  <div className="text-[11.5px] text-slate-500 mt-1 leading-snug">{x.d}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:nodes": "node scripts/check-node-lines.mjs"
+    "check:nodes": "node scripts/check-node-lines.mjs",
+    "check:nav": "node scripts/check-nav-links.mjs",
+    "check": "npm run check:nodes && npm run check:nav"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
