@@ -40,7 +40,7 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'planet',
     title: '🌍 Планета',
     items: [
-      { nameKey: 'nav.globe',     path: '/',          icon: Globe,           color: '#00d4ff', label: 'Глобус' },
+      { nameKey: 'nav.globe',     path: '/',          icon: Globe,           color: '#00d4ff', label: 'Главная' },
       { nameKey: 'nav.map',       path: '/map',       icon: Map,             color: '#00e6c8', label: 'Карта' },
       { nameKey: 'nav.oilgas',    path: '/oilgas',    icon: Flame,           color: '#fb923c', label: '🛢 Газнефть' },
       { nameKey: 'nav.dashboard', path: '/dashboard', icon: LayoutDashboard, color: '#60a5fa', label: 'Дашборд' },
