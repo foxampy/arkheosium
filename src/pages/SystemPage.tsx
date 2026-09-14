@@ -193,24 +193,28 @@ export default function SystemPage() {
             ArkheOSium — одна из таких сборок, а не владелец остальных.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-8">
-            {ZEROS.slice(0, 4).map((z) => (
-              <div
-                key={z.id}
-                className="rounded-xl border p-3.5"
-                style={{ borderColor: HAIR, background: PANEL }}
-              >
-                <div className="text-2xl font-bold text-white tabular-nums leading-none mb-1.5">
-                  0
-                </div>
-                <div className="text-[11.5px] text-slate-500 leading-snug">{z.short}</div>
-              </div>
-            ))}
+          {/*
+            Состояние строкой, а не восемью карточками с цифрой 0 во всю
+            ширину. Величины те же и ни одна не убрана: пропущенный ноль
+            читается как отсутствие темы, а не как отсутствие величины,
+            и такой пропуск был бы враньём. Но набранный крупно ноль
+            перестаёт быть оговоркой к соседнему утверждению и становится
+            самостоятельным заявлением — причём неверным, потому что
+            библиотека узлов существует и её видно ниже на этой же
+            странице.
+          */}
+          <div
+            className="mt-8 rounded-xl border px-4 py-3 max-w-3xl"
+            style={{ borderColor: HAIR, background: PANEL }}
+          >
+            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 mb-1.5">
+              Состояние на сегодня
+            </div>
+            <p className="text-[12px] text-slate-500 leading-relaxed">
+              {ZEROS.map((z) => z.short).join(' · ')} — по всем восьми величинам ноль.
+              Это границы применимости того, что ниже, а не оценка сделанного.
+            </p>
           </div>
-          <p className="text-[12px] text-slate-600 mt-3 max-w-2xl leading-relaxed">
-            Нули стоят здесь, а не в подвале. Пропущенный ноль читается как отсутствие темы, а не
-            как отсутствие величины — остальные четыре ниже.
-          </p>
         </div>
       </div>
 
@@ -868,28 +872,14 @@ export default function SystemPage() {
         </div>
       </div>
 
-      {/* ─── Состояние числами целиком ───────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-12">
-        <SectionHead
-          icon={ShieldAlert}
-          eyebrow="Состояние на сегодня"
-          title="Восемь величин, и все восемь — нули"
-          note="Написаны числами, а не опущены. Четыре из них стояли в самом верху страницы — до всего остального, а не после."
-        />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-          {ZEROS.map((z) => (
-            <div
-              key={z.id}
-              className="rounded-xl border p-4"
-              style={{ borderColor: HAIR, background: PANEL }}
-            >
-              <div className="text-3xl font-bold text-white tabular-nums leading-none mb-2">0</div>
-              <div className="text-[12px] text-slate-400 leading-snug mb-1.5">{z.short}</div>
-              <div className="text-[11px] text-slate-600 leading-relaxed">{z.note}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/*
+        Здесь была вторая стена нулей — те же восемь величин, что уже
+        стоят в шапке этой страницы. Снята по той же причине, по которой
+        снята на главной: повтор одной оговорки в пределах одного экрана
+        не добавляет точности, он смещает предмет разговора с того, что
+        сделано, на то, чего нет. Четыре величины остались в шапке —
+        до всего остального, а не после.
+      */}
 
       {/* ─── Куда дальше ─────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-12">

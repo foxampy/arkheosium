@@ -39,7 +39,6 @@ import { useMemo, useState } from 'react';
 import { Link } from 'wouter';
 import {
   ArrowRight,
-  Ban,
   Check,
   ClipboardCopy,
   LayoutGrid,
@@ -55,7 +54,6 @@ import {
   NODE_STATUS_COLOR,
   NODE_STATUS_LABEL,
   NODE_WITH_CODE_COUNT,
-  STANDARDIZED_COUNT,
 } from '@/data/platform/nodes';
 import { RESOLVED_PRESETS, presetById } from '@/data/platform/presets';
 import { ZEROS } from '@/data/platform/state';
@@ -177,27 +175,28 @@ export default function FundPage() {
             ))}
           </div>
 
-          {/* Строка состояния. Нули видны сразу, но не выдают себя за тему. */}
+          {/*
+            Строка состояния. Набрана нейтрально, а не тревожным красным:
+            красная рамка на первом экране читается как авария и говорит
+            о проекте то, чего в ней не написано. Величины при этом не
+            смягчены и не опущены — пропущенный ноль читался бы как
+            отсутствие темы, а не как отсутствие величины.
+
+            Подписи берутся из реестра нулей, а не набраны здесь руками:
+            пока они существовали в двух местах, расхождение было
+            вопросом времени.
+          */}
           <div
-            className="mt-3 rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-2"
-            style={{ border: `1px solid ${WARN}2e`, background: 'rgba(248,113,113,0.04)' }}
+            className="mt-3 rounded-xl px-4 py-3"
+            style={{ border: `1px solid ${HAIR}`, background: PANEL }}
           >
-            <span
-              className="text-[10px] font-bold tracking-[0.16em] uppercase"
-              style={{ color: WARN }}
-            >
-              Состояние
+            <span className="text-[10px] font-bold tracking-[0.16em] uppercase text-slate-600">
+              Состояние на сегодня
             </span>
-            {[
-              `Узлов прошло стандартизацию — ${STANDARDIZED_COUNT}`,
-              'Развёртываний у заказчика — 0',
-              'Привлечено средств — 0',
-              'Оценки компании и раунда не существует',
-            ].map((t) => (
-              <span key={t} className="text-[11.5px] text-slate-400">
-                {t}
-              </span>
-            ))}
+            <p className="text-[11.5px] text-slate-500 leading-relaxed mt-1.5">
+              {ZEROS.map((z) => z.short).join(' · ')} — по всем восьми ноль.
+              Это границы применимости того, что ниже, а не оценка сделанного.
+            </p>
           </div>
         </section>
 
@@ -497,30 +496,23 @@ export default function FundPage() {
           </div>
         </section>
 
-        {/* ── 6. Полное состояние ──────────────────────────────────── */}
-        <section>
-          <SectionHead
-            icon={Ban}
-            eyebrow="Состояние"
-            title="Все восемь нулей"
-            note="Пропущенный ноль читается как отсутствие темы, а не как отсутствие величины. Поэтому они написаны."
-          />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {ZEROS.map((z) => (
-              <div
-                key={z.id}
-                className="rounded-xl p-4"
-                style={{ border: `1px solid ${HAIR}`, background: PANEL }}
-              >
-                <div className="text-[22px] font-semibold leading-none" style={{ color: WARN }}>
-                  0
-                </div>
-                <div className="text-[11.5px] text-slate-300 mt-2 leading-snug">{z.short}</div>
-                <div className="text-[11px] text-slate-500 mt-2 leading-relaxed">{z.note}</div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/*
+          Здесь стояла секция «Все восемь нулей» — восемь крупных карточек
+          с нулями во всю ширину. Она снята, и это не сокрытие: те же
+          величины остались там, где они к чему-то относятся — строкой
+          состояния в первом экране, предупреждениями в рабочем пакете,
+          отдельными блоками в главах документа, где каждый ноль стоит
+          рядом с утверждением, которое он ограничивает.
+
+          Разница не в количестве правды, а в том, что правда делает.
+          Ноль рядом с утверждением — это оговорка: она мешает прочитать
+          соседнюю строку сильнее, чем написано. Восемь нулей подряд
+          отдельным разделом — уже не оговорка, а заявление о себе, и
+          заявление неверное: 19 узлов и 30 тысяч строк существуют.
+          Понижение — такая же неправда, как завышение, и повтор одной
+          и той же оговорки трижды на одной странице превращает её в
+          лозунг, который перестают читать.
+        */}
 
         {/* ── Куда дальше ──────────────────────────────────────────── */}
         <section>
