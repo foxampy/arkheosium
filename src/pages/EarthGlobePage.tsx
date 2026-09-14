@@ -347,7 +347,18 @@ function Scene({
 }
 
 // ── Page ───────────────────────────────────────────────────────
-export default function EarthGlobePage() {
+
+/**
+ * `embedded` — глобус как первый экран другой страницы, а не как вся страница.
+ *
+ * Корень здесь `fixed inset-0`: так глобус занимает окно целиком и не
+ * зависит от прокрутки. Побочное следствие — под ним нельзя ничего
+ * положить: элемент вынут из потока, и следующий блок уезжает под него.
+ * Флаг переключает корень на `absolute inset-0`, и тогда внешний
+ * контейнер с заданной высотой отводит глобусу первый экран, а дальше
+ * страница продолжается обычным потоком.
+ */
+export default function EarthGlobePage({ embedded = false }: { embedded?: boolean }) {
   const [, setLocation] = useLocation();
   const [autoRotate, setAutoRotate] = useState(true);
   const [hovered, setHovered] = useState(false);
@@ -432,7 +443,7 @@ export default function EarthGlobePage() {
 
   return (
     <div
-      className="fixed inset-0"
+      className={embedded ? 'absolute inset-0' : 'fixed inset-0'}
       style={{ background: 'radial-gradient(ellipse at 50% 35%, #020d1e 0%, #010810 100%)' }}
     >
       {/* ── 3D Globe canvas ──────────────────────────────────── */}
