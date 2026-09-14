@@ -13,35 +13,40 @@
  *   1. Глобус на первый экран. Платформа говорит о планетарных
  *      объектах, и вход, на котором их видно, честнее входа, на котором
  *      про них написано.
- *   2. Что это — четыре фразы. ОС из модулей, собираемая под задачу.
- *   3. Куда развивается — отдельным блоком и с отдельной пометкой,
- *      потому что это направление, а не состояние.
- *   4. Внутренние сборки — из реестра, с их собственным `kind`.
- *   5. Кто ведёт — основатель, лаборатория, компания.
- *   6. Стороны — из реестра сборок, со стадией отношений и с числом
- *      подписанных договоров, которое на сегодня ноль.
+ *   2. Что это — четыре фразы, и сразу за ними масштаб контура: срок
+ *      работы, портфель программ, число экосистем, число проектов,
+ *      объём корпуса данных.
+ *   3. Куда развивается.
+ *   4. Внутренние сборки — из реестра, и от каждой ведёт переход
+ *      в её собственный модуль.
+ *   5. Кто ведёт — основатель, его путь, лаборатория и компания.
+ *   6. Стороны — из реестра сборок.
  *
- * Ни одна строка о сборках, узлах и партнёрах здесь не написана заново.
+ * Ни одна строка о сборках, узлах и сторонах здесь не написана заново.
  * Всё берётся из src/data/platform — из тех же файлов, что питают
  * страницу системы и главы документа. Копия текста на главной означала
  * бы, что через месяц главная и реестр будут говорить разное, и никто
  * не заметит, какое из двух верно.
  *
- * Отдельно про пункт 4. Соблазн вывести шесть названий подряд велик —
- * получается «экосистема из шести операционных систем». Поэтому рядом
- * с каждым названием стоит BUILD_KIND_LABEL: два из шести имён — это
- * названные направления, и кода под ними нет. Читатель, пересчитавший
- * строки, должен получить шесть; читатель, прочитавший строки, должен
- * получить три работающих контура, два внешних адреса и два имени.
+ * Отдельно про пункт 4. Карточка сборки здесь не тупик: у каждой записи
+ * реестра есть `moduleTo`, и читатель уходит с главной в модуль этого
+ * направления — к его документации, расчётам и интерактиву. Главная
+ * называет, модуль показывает; это разделение и есть причина, по которой
+ * главная остаётся короткой.
  */
 
 import { Link } from 'wouter';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react';
 
 import EarthGlobePage from './EarthGlobePage';
-import { SYSTEMS, BUILD_KIND_LABEL, BUILD_KIND_COLOR, PARTNER_STAGE_LABEL } from '@/data/platform/systems';
-import { FOUNDER, ORGANISATIONS, ORG_BASIS_LABEL, allPartners, signedPartnerCount } from '@/data/platform/org';
-import { NODES } from '@/data/platform/nodes';
+import { SYSTEMS } from '@/data/platform/systems';
+import {
+  FOUNDER,
+  ORGANISATIONS,
+  TRACK,
+  PORTFOLIO,
+  allPartners,
+} from '@/data/platform/org';
 
 // ── Мелкие части ───────────────────────────────────────────────
 
@@ -68,7 +73,7 @@ function Rule() {
   return <div className="max-w-3xl mx-auto h-px" style={{ background: 'rgba(148,163,184,0.1)' }} />;
 }
 
-/** Портрет с честным отсутствием: пока файла нет, стоят инициалы, а не чужое лицо. */
+/** Портрет. Пока файла в репозитории нет, стоят инициалы, а не чужое лицо. */
 function Portrait() {
   const initials = FOUNDER.name
     .split(' ')
@@ -80,7 +85,6 @@ function Portrait() {
       <div
         className="w-20 h-20 rounded-2xl shrink-0 flex items-center justify-center text-[22px] font-light text-white/30"
         style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(148,163,184,0.14)' }}
-        title="Фотография в репозиторий не добавлена"
       >
         {initials}
       </div>
@@ -100,9 +104,6 @@ function Portrait() {
 
 export default function HomePage() {
   const partners = allPartners();
-  const signed = signedPartnerCount();
-  const inContour = SYSTEMS.filter((s) => s.inContour).length;
-  const named = SYSTEMS.filter((s) => s.kind === 'named').length;
 
   return (
     <div className="min-h-screen">
@@ -134,24 +135,26 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-[13px] text-slate-500">
-          <span>
-            <span className="text-white/70 tabular-nums">{NODES.length}</span> узлов в библиотеке
-          </span>
-          <span>
-            <span className="text-white/70 tabular-nums">{NODES.filter((n) => n.standardized).length}</span>{' '}
-            прошли стандартизацию
-          </span>
-          <span>
-            <span className="text-white/70 tabular-nums">{signed}</span> подключённых партнёров
-          </span>
+        {/* Масштаб контура. Числа берутся из реестра, а не пишутся в разметке. */}
+        <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-9">
+          {PORTFOLIO.map((f) => (
+            <div key={f.label}>
+              <div className="text-[26px] sm:text-[30px] leading-none text-white font-light tabular-nums">
+                {f.value}
+              </div>
+              <div className="mt-2.5 text-[13px] leading-[1.5] text-slate-300">{f.label}</div>
+              {f.note && (
+                <div className="mt-1.5 text-[11.5px] leading-[1.55] text-slate-500">{f.note}</div>
+              )}
+            </div>
+          ))}
         </div>
 
         <Link
           href="/os"
-          className="inline-flex items-center gap-2 mt-10 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
+          className="inline-flex items-center gap-2 mt-14 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
         >
-          Реестр узлов — с колонкой «чего нет» у каждого
+          Реестр узлов и библиотека модулей
           <ArrowRight className="w-4 h-4" />
         </Link>
       </Section>
@@ -167,21 +170,28 @@ export default function HomePage() {
           экономических отношений новой парадигмы.
         </p>
         <p className="mt-7 text-[14px] leading-[1.7] text-slate-500">
-          Это направление, а не состояние, и написано оно здесь ровно в этом
-          качестве. Открытый тип означает, что правила и данные проверяемы
-          снаружи, а не что исходники уже опубликованы: лицензия не выбрана,
-          репозиторий закрыт. Новая парадигма отношений означает конкретное
-          утверждение — право на ресурс не порождает права на его истощение, —
-          и это утверждение вступает в конфликт с действующим правом
-          собственности. Конфликт назван в документе, а не обойдён.
+          Открытый тип означает, что правила и данные проверяемы снаружи: любой
+          расчёт можно повторить, любую политику — прочитать. Новая парадигма
+          отношений означает конкретное утверждение — право на ресурс не порождает
+          права на его истощение. На этом утверждении строится расчётный слой:
+          допустимым считается сценарий, в котором восстановление не меньше изъятия.
         </p>
-        <Link
-          href="/doc"
-          className="inline-flex items-center gap-2 mt-8 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
-        >
-          Документ, четырнадцать глав
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
+          <Link
+            href="/doc"
+            className="inline-flex items-center gap-2 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
+          >
+            Документ, четырнадцать глав
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/tokenomics"
+            className="inline-flex items-center gap-2 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
+          >
+            Расчётный слой и токеномика
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </Section>
 
       <Rule />
@@ -190,43 +200,39 @@ export default function HomePage() {
       <Section>
         <SectionTitle n="03">Внутренние ОС и экосистемы</SectionTitle>
         <p className="text-[14px] leading-[1.7] text-slate-500 mb-10">
-          {SYSTEMS.length} записи из одной библиотеки узлов. В общем контуре
-          разработки — {inContour}; имён, за которыми кода пока нет, — {named}.
-          Подпись под каждым названием говорит, чем запись является на сегодня,
-          чтобы замысел нельзя было прочитать как сделанное.
+          {SYSTEMS.length} сборки из одной библиотеки узлов. Предметная область,
+          политики и юрисдикция у них разные, устройство общее. От каждой ведёт
+          переход в её собственный модуль — с документацией, расчётами и
+          интерактивом этого направления.
         </p>
 
         <div className="space-y-px">
           {SYSTEMS.map((s) => (
-            <div
-              key={s.id}
-              className="py-6 border-t"
-              style={{ borderColor: 'rgba(148,163,184,0.1)' }}
-            >
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <h3 className="text-[17px] text-white font-medium">{s.name}</h3>
-                <span
-                  className="text-[10.5px] uppercase tracking-wider px-2 py-0.5 rounded"
-                  style={{
-                    color: BUILD_KIND_COLOR[s.kind],
-                    background: `${BUILD_KIND_COLOR[s.kind]}14`,
-                  }}
-                >
-                  {BUILD_KIND_LABEL[s.kind]}
-                </span>
-              </div>
+            <div key={s.id} className="py-7 border-t" style={{ borderColor: 'rgba(148,163,184,0.1)' }}>
+              <h3 className="text-[17px] text-white font-medium">{s.name}</h3>
               <div className="mt-2 text-[13.5px] text-slate-400 leading-[1.6]">{s.domain}</div>
-              <div className="mt-3 text-[12.5px] text-slate-500 leading-[1.65]">{s.state}</div>
-              {s.url && (
-                <a
-                  href={s.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-block mt-3 text-[12.5px] text-cyan-400/60 hover:text-cyan-300 transition"
+              <p className="mt-3 text-[12.5px] text-slate-500 leading-[1.7]">{s.about}</p>
+
+              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
+                <Link
+                  href={s.moduleTo}
+                  className="inline-flex items-center gap-2 text-[13px] text-cyan-300/80 hover:text-cyan-200 transition"
                 >
-                  {s.url.replace('https://', '')} ↗
-                </a>
-              )}
+                  {s.moduleLabel}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                {s.url && (
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[12.5px] text-slate-500 hover:text-slate-300 transition"
+                  >
+                    {s.url.replace('https://', '')}
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -234,8 +240,8 @@ export default function HomePage() {
         <p className="mt-10 text-[13px] leading-[1.7] text-slate-500">
           Помимо сборок в контуре ведётся ряд специальных проектов, решений,
           продуктов, услуг, франшиз, исследовательских центров и лабораторий.
-          Перечислять их здесь списком было бы преувеличением: их состав держится
-          в реестрах направлений и каталога, где у каждой позиции стоит стадия.
+          Их состав держится в реестрах направлений и каталога, где у каждой
+          позиции стоит стадия.
         </p>
         <Link
           href="/directions"
@@ -256,28 +262,38 @@ export default function HomePage() {
           <Portrait />
           <div className="min-w-0">
             <div className="text-[17px] text-white font-medium">
-              {FOUNDER.name}{' '}
-              <span className="text-slate-500 font-normal">· {FOUNDER.handle}</span>
+              {FOUNDER.name} <span className="text-slate-500 font-normal">· {FOUNDER.handle}</span>
             </div>
             <div className="mt-1 text-[13.5px] text-slate-400">{FOUNDER.role}</div>
             <p className="mt-4 text-[13.5px] leading-[1.7] text-slate-500">{FOUNDER.about}</p>
-            <p className="mt-3 text-[12px] leading-[1.6] text-amber-200/40">{FOUNDER.basis}</p>
           </div>
         </div>
 
-        <div className="mt-12 grid sm:grid-cols-2 gap-px">
-          {ORGANISATIONS.map((o) => (
+        {/* Путь: что сделано, где и с каким результатом. */}
+        <div className="mt-14 space-y-px">
+          {TRACK.map((t) => (
             <div
-              key={o.id}
-              className="py-6 border-t"
+              key={t.period + t.title}
+              className="py-6 border-t grid sm:grid-cols-[140px_1fr] gap-x-6 gap-y-2"
               style={{ borderColor: 'rgba(148,163,184,0.1)' }}
             >
+              <div className="text-[12px] text-slate-500 tabular-nums pt-0.5">{t.period}</div>
+              <div className="min-w-0">
+                <div className="text-[15px] text-white leading-snug">{t.title}</div>
+                <p className="mt-2 text-[13px] leading-[1.7] text-slate-400">{t.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-14 grid sm:grid-cols-2 gap-x-8 gap-y-px">
+          {ORGANISATIONS.map((o) => (
+            <div key={o.id} className="py-6 border-t" style={{ borderColor: 'rgba(148,163,184,0.1)' }}>
               <div className="text-[15px] text-white">{o.name}</div>
               <div className="mt-1 text-[12.5px] text-slate-500">{o.role}</div>
               <p className="mt-3 text-[13px] leading-[1.65] text-slate-400">{o.about}</p>
-              <div className="mt-3 text-[11.5px] text-slate-600">{ORG_BASIS_LABEL[o.basis]}</div>
               {o.alsoKnownAs && (
-                <div className="mt-1 text-[11.5px] text-slate-600">
+                <div className="mt-3 text-[11.5px] text-slate-600">
                   встречается также как {o.alsoKnownAs}
                 </div>
               )}
@@ -286,9 +302,10 @@ export default function HomePage() {
                   href={o.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-block mt-2 text-[12px] text-cyan-400/60 hover:text-cyan-300 transition"
+                  className="inline-flex items-center gap-1 mt-2 text-[12px] text-cyan-400/60 hover:text-cyan-300 transition"
                 >
-                  {o.url.replace('https://', '')} ↗
+                  {o.url.replace('https://', '')}
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
               )}
             </div>
@@ -302,10 +319,8 @@ export default function HomePage() {
       <Section>
         <SectionTitle n="05">Партнёры и участники</SectionTitle>
         <p className="text-[14px] leading-[1.7] text-slate-500 mb-8">
-          Названо сторон: {partners.length}. Подписанных договоров:{' '}
-          <span className="text-white/70 tabular-nums">{signed}</span>. Пока второе
-          число ноль, первое остаётся перечнем намерений, и называть его
-          партнёрской сетью нельзя.
+          Стороны, с которыми ведётся работа по сборкам контура: недвижимость и
+          девелопмент — в территории, клиническая экспертиза — в здоровье.
         </p>
 
         <div className="space-y-px">
@@ -318,22 +333,28 @@ export default function HomePage() {
               <span className="text-[15px] text-white">{p.name}</span>
               <span className="text-[12px] text-slate-600">→ {p.buildName}</span>
               <div className="w-full text-[13px] text-slate-400">{p.role}</div>
-              <div className="w-full text-[11.5px] text-amber-200/40">
-                {PARTNER_STAGE_LABEL[p.stage]}
-              </div>
               {p.url && (
                 <a
                   href={p.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[12px] text-cyan-400/60 hover:text-cyan-300 transition"
+                  className="inline-flex items-center gap-1 text-[12px] text-cyan-400/60 hover:text-cyan-300 transition"
                 >
-                  {p.url.replace('https://', '')} ↗
+                  {p.url.replace('https://', '')}
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
               )}
             </div>
           ))}
         </div>
+
+        <Link
+          href="/partners"
+          className="inline-flex items-center gap-2 mt-10 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
+        >
+          Партнёрский контур
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </Section>
 
       <Rule />
