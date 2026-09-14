@@ -218,20 +218,42 @@ export function Header() {
         <span className="text-sm font-bold text-white/90 tracking-tight hidden sm:inline">ARKHEOSIUM</span>
       </button>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+      {/* Поиск.
 
-      {/* Command palette trigger (⌘K) */}
-      <button
-        onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-        className="hidden sm:flex items-center gap-2 h-8 pl-2.5 pr-2 rounded-xl transition-colors hover:bg-white/5 shrink-0"
-        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,200,230,0.12)' }}
-        title="Поиск по ОС (Ctrl+K)"
-      >
-        <Search className="w-3.5 h-3.5 text-white/40" />
-        <span className="text-xs text-white/35">Поиск</span>
-        <kbd className="text-[10px] px-1 py-0.5 rounded text-white/40" style={{ background: 'rgba(255,255,255,0.06)' }}>⌘K</kbd>
-      </button>
+          Механизм поиска существовал и раньше, но открывался только по
+          Ctrl+K, а в шапке стоял чип шириной в шестьдесят пикселей.
+          Человек, впервые открывший платформу, не знает ни про Ctrl+K,
+          ни про то, что серый чип — это вход в реестр. Поиск, о котором
+          надо догадаться, равен отсутствию поиска: жалоба «добавьте
+          строку поиска» поступила при работающем поиске.
+
+          Поэтому строка занимает середину шапки и выглядит полем ввода.
+          Это по-прежнему кнопка, а не input: ввод идёт в палитре, и два
+          поля с одним запросом рассинхронизировались бы. */}
+      <div className="flex-1 flex justify-center px-2 sm:px-4">
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('arkhe:palette'))}
+          className="hidden sm:flex items-center gap-2.5 w-full max-w-md h-9 pl-3 pr-2 rounded-xl transition-colors hover:bg-white/[0.07]"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,200,230,0.14)' }}
+          title="Поиск по ОС (Ctrl+K)"
+        >
+          <Search className="w-4 h-4 text-cyan-400/60 shrink-0" />
+          <span className="text-[13px] text-white/45 truncate">
+            Найти узел, страницу или главу документа
+          </span>
+          <span className="flex-1" />
+          <kbd className="text-[10px] px-1.5 py-0.5 rounded text-white/40 shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>⌘K</kbd>
+        </button>
+        {/* На узком экране места на строку нет — остаётся значок. */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('arkhe:palette'))}
+          className="sm:hidden w-8 h-8 flex items-center justify-center rounded-full shrink-0"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,200,230,0.14)' }}
+          title="Поиск по ОС"
+        >
+          <Search className="w-4 h-4 text-cyan-400/60" />
+        </button>
+      </div>
 
       {/* Language switcher */}
       <LanguageSwitcher />

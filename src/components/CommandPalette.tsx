@@ -17,11 +17,73 @@ import {
   Fingerprint, TreePine, AudioWaveform, Handshake, ShieldAlert,
 } from 'lucide-react';
 
-type Cmd = { label: string; path: string; group: string; icon: typeof Search; keywords?: string };
+type Cmd = {
+  label: string;
+  path: string;
+  group: string;
+  icon: typeof Search;
+  keywords?: string;
+  /** Одна строка под названием: что это. Для узлов и глав — их собственная. */
+  sub?: string;
+};
 
 const COMMANDS: Cmd[] = [
+  // Система.
+
+  // Эти шесть страниц отсутствовали в индексе целиком, включая
+  // конструктор конфигураций и вход для фондов. Сверка маршрутов
+  // App.tsx с индексом палитры показала сорок незаиндексированных
+  // адресов: индекс писался руками и отставал от маршрутов.
+  {
+    label: 'Операционная система — реестр узлов',
+    path: '/os',
+    group: 'Система',
+    icon: Cpu,
+    sub: 'Все узлы, их объём, состояние и то, чего в них нет',
+    keywords: 'ос os система about о проекте узлы реестр конструктор конфигурация пресет архитектура состав',
+  },
+  {
+    label: 'Вход для фондов и инвесторов',
+    path: '/fund',
+    group: 'Система',
+    icon: Briefcase,
+    sub: 'С чего начинается разговор: границы, пакет работ, состояние',
+    keywords: 'фонд фонды инвестор инвесторы вход посадочная пакет работ границы нули due diligence',
+  },
+  {
+    label: 'Архитектура и передача',
+    path: '/architecture',
+    group: 'Система',
+    icon: Network,
+    sub: 'Что именно передаётся при франшизе и на каких границах',
+    keywords: 'архитектура франшиза franchise передача лицензия контур границы слои',
+  },
+  {
+    label: 'Документ — полный текст',
+    path: '/doc',
+    group: 'Система',
+    icon: ScrollText,
+    sub: 'Четырнадцать глав; каждое утверждение несёт своё основание',
+    keywords: 'документ doc вайтпейпер whitepaper главы полный текст основания',
+  },
+  {
+    label: 'Документ — короткая версия',
+    path: '/doc/short',
+    group: 'Система',
+    icon: FileText,
+    sub: 'Подмножество тех же глав, не отдельный текст',
+    keywords: 'короткая презентация short выжимка кратко',
+  },
+  {
+    label: 'Обзор платформы',
+    path: '/explore',
+    group: 'Система',
+    icon: Compass,
+    sub: 'Регионы, проекты и модули одним экраном',
+    keywords: 'обзор explore осмотр что есть регионы проекты',
+  },
   // Планета
-  { label: 'Глобус', path: '/', group: 'Планета', icon: Globe, keywords: 'earth 3d карта мира' },
+  { label: 'Главная — глобус', path: '/', group: 'Планета', icon: Globe, keywords: 'earth 3d карта мира глобус главная' },
   { label: 'Карта', path: '/map', group: 'Планета', icon: MapIcon, keywords: 'world map регионы' },
   { label: '🛢 Газнефть — модуль', path: '/oilgas', group: 'Планета', icon: MapIcon, keywords: 'нефть газ oilgas месторождения нпз гпз gtl метан вибродиагностика labforge узбекистан казахстан туркменистан whitepaper онбординг каталог' },
   { label: '🛢 Газнефть — интеграционный модуль', path: '/oilgas/integration', group: 'Планета', icon: Network, keywords: 'интеграция crm dao ai ии автоматизация партнёр партнер нефтегаз нефть газ цифровой двойник телеметрия scada предиктив тоир наряд допуск ldar mrv внедрение контур' },
@@ -99,10 +161,67 @@ const COMMANDS: Cmd[] = [
 // Precompute the lowercased haystack once per command (module scope) so filtering
 // never rebuilds/​lowercases these strings on each keystroke.
 type IndexedCmd = Cmd & { search: string };
-const INDEXED: IndexedCmd[] = COMMANDS.map((c) => ({
+const index1 = (c: Cmd): IndexedCmd => ({
   ...c,
-  search: (c.label + ' ' + c.group + ' ' + (c.keywords ?? '')).toLowerCase(),
-}));
+  search: (c.label + ' ' + c.group + ' ' + (c.sub ?? '') + ' ' + (c.keywords ?? '')).toLowerCase(),
+});
+
+const INDEXED: IndexedCmd[] = COMMANDS.map(index1);
+
+/**
+ * Узлы реестра и главы документа — тоже предмет поиска.
+ *
+ * Индекс из одних названий страниц отвечает на вопрос «где страница
+ * про воду», но не на вопрос «что у вас есть про метан» или «чем
+ * подтверждена эмиссия». Ответ на второй вопрос лежит в реестре узлов
+ * и в главах, и он там уже написан — своими словами авторов, а не
+ * пересказом в ключевых словах.
+ *
+ * Загружается по первому открытию, а не при старте: реестр глав тянет
+ * за собой весь корпус — 448 кб в сборке против 45 кб у узлов. Класть
+ * это во входной бандл ради поиска, который откроют не все, — плата
+ * временем загрузки каждого посетителя за удобство некоторых.
+ *
+ * Копии здесь не делается намеренно. Название узла живёт в одном месте;
+ * попади оно сюда строкой — разошлось бы с реестром при первой правке,
+ * ровно как разошлись три числа эмиссии в трёх файлах.
+ */
+async function loadRegistryEntries(): Promise<IndexedCmd[]> {
+  const [{ NODES, FAMILY_LABEL, NODE_STATUS_LABEL }, { CHAPTERS }] = await Promise.all([
+    import('@/data/platform/nodes'),
+    import('@/data/whitepaper'),
+  ]);
+
+  const nodes: Cmd[] = NODES.map((n) => ({
+    label: n.title,
+    // Узел, которому есть что показать, ведёт на свою поверхность.
+    // Остальные — в реестр: там узел описан целиком, включая то,
+    // чего в нём нет. Вести в никуда хуже, чем вести в реестр.
+    path: n.where?.to ?? '/os',
+    group: 'Узлы ОС',
+    icon: Cpu,
+    sub: n.purpose,
+    keywords: [
+      n.id,
+      FAMILY_LABEL[n.family],
+      NODE_STATUS_LABEL[n.status],
+      n.have,
+      n.missing,
+      'узел',
+    ].join(' '),
+  }));
+
+  const chapters: Cmd[] = CHAPTERS.map((c) => ({
+    label: `${c.num} · ${c.title}`,
+    path: `/doc/${c.id}`,
+    group: 'Главы документа',
+    icon: ScrollText,
+    sub: c.lede,
+    keywords: `${c.id} глава документ вайтпейпер`,
+  }));
+
+  return [...nodes, ...chapters].map(index1);
+}
 
 // Memoized result row: only re-renders when its own props change (active/onEnter/onSelect),
 // not when a sibling row's hover/selection changes. Handlers are passed stable via useCallback.
@@ -119,12 +238,19 @@ const ResultRow = memo(function ResultRow({ cmd, idx, active, onEnter, onSelect 
     <button
       onMouseEnter={() => onEnter(idx)}
       onClick={() => onSelect(cmd.path)}
-      className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors cursor-pointer"
+      className="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors cursor-pointer"
       style={{ background: active ? 'rgba(0,200,230,0.1)' : 'transparent' }}
     >
-      <Icon size={16} className="shrink-0" style={{ color: active ? '#00e6c8' : 'rgba(255,255,255,0.5)' }} />
-      <span className={`flex-1 text-sm ${active ? 'text-white' : 'text-white/70'}`}>{cmd.label}</span>
-      {active && <CornerDownLeft size={13} className="text-cyan-400/60 shrink-0" />}
+      <Icon size={16} className="shrink-0 mt-0.5" style={{ color: active ? '#00e6c8' : 'rgba(255,255,255,0.5)' }} />
+      <span className="flex-1 min-w-0">
+        <span className={`block text-sm ${active ? 'text-white' : 'text-white/70'}`}>{cmd.label}</span>
+        {/* Подпись есть у узлов и глав: она объясняет, что человек
+            откроет, до того как он это откроет. */}
+        {cmd.sub && (
+          <span className="block text-[11.5px] text-white/35 leading-snug mt-0.5 line-clamp-2">{cmd.sub}</span>
+        )}
+      </span>
+      {active && <CornerDownLeft size={13} className="text-cyan-400/60 shrink-0 mt-0.5" />}
     </button>
   );
 });
@@ -136,7 +262,27 @@ export function CommandPalette() {
   const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // global hotkey
+  // Реестр узлов и главы догружаются по первому открытию — см.
+  // loadRegistryEntries. Пока они не пришли, поиск работает по
+  // страницам: пустой список лучше, чем заблокированный ввод.
+  const [registry, setRegistry] = useState<IndexedCmd[]>([]);
+  const registryAsked = useRef(false);
+
+  useEffect(() => {
+    if (!open || registryAsked.current) return;
+    registryAsked.current = true;
+    loadRegistryEntries().then(setRegistry).catch(() => {
+      // Разметка не догрузилась — поиск по страницам остаётся рабочим.
+      // Молча делать вид, что реестр пуст, нельзя: об этом скажет
+      // строка состояния внизу списка.
+      registryAsked.current = false;
+    });
+  }, [open]);
+
+  // Открытие: горячая клавиша и событие от строки поиска в шапке.
+  // Раньше шапка подделывала нажатие Ctrl+K синтетическим
+  // KeyboardEvent — работало, но связывало кнопку с раскладкой
+  // клавиатуры вместо того, чтобы связать её с действием.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -145,8 +291,13 @@ export function CommandPalette() {
       }
       if (e.key === 'Escape') setOpen(false);
     }
+    function onAsk() { setOpen(true); }
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('arkhe:palette', onAsk);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('arkhe:palette', onAsk);
+    };
   }, []);
 
   useEffect(() => {
@@ -158,11 +309,18 @@ export function CommandPalette() {
   // intermediate list renders and only commits the latest.
   const deferredQ = useDeferredValue(q);
 
+  const all = useMemo(() => [...INDEXED, ...registry], [registry]);
+
   const results = useMemo(() => {
     const s = deferredQ.trim().toLowerCase();
+    // Без запроса узлы и главы не показываются: тридцать три лишние
+    // строки в списке из полусотни страниц — не помощь, а шум.
     if (!s) return INDEXED;
-    return INDEXED.filter((c) => c.search.includes(s));
-  }, [deferredQ]);
+    // Каждое слово запроса обязано найтись — иначе «метан узбекистан»
+    // выдаёт всё, где есть хоть «метан», хоть «узбекистан».
+    const words = s.split(/\s+/);
+    return all.filter((c) => words.every((w) => c.search.includes(w)));
+  }, [deferredQ, all]);
 
   useEffect(() => { setSel(0); }, [deferredQ]);
 
@@ -212,7 +370,7 @@ export function CommandPalette() {
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Поиск по ОС: объекты, проекты, страницы, действия…"
+                placeholder="Узел, страница или глава документа…"
                 className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/30"
               />
               <kbd className="text-[10px] px-1.5 py-0.5 rounded text-white/40" style={{ background: 'rgba(255,255,255,0.06)' }}>ESC</kbd>
@@ -220,8 +378,17 @@ export function CommandPalette() {
 
             {/* results */}
             <div className="max-h-[52vh] overflow-y-auto py-2 wm-menu-scroll">
+              {/* Пустой ответ называет, где искали. «Ничего не найдено»
+                  оставляет человека гадать, чего у нас нет: раздела
+                  или слова в описании. */}
               {grouped.length === 0 && (
-                <div className="px-4 py-8 text-center text-white/30 text-sm">Ничего не найдено</div>
+                <div className="px-6 py-8 text-center">
+                  <div className="text-white/40 text-sm">Совпадений нет</div>
+                  <div className="text-white/25 text-[11.5px] mt-2 leading-relaxed">
+                    Искали по названиям страниц, по {registry.length > 0 ? `${registry.length} записям реестра узлов и глав документа` : 'страницам — реестр узлов ещё догружается'} и по ключевым словам.
+                    Поиск — по совпадению слов, синонимов он не подбирает.
+                  </div>
+                </div>
               )}
               {grouped.map(([group, items]) => (
                 <div key={group} className="mb-1">
@@ -247,7 +414,14 @@ export function CommandPalette() {
                 <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.06)' }}>↑↓</kbd> навигация
                 <kbd className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.06)' }}>↵</kbd> открыть
               </span>
-              <span>ARKHEOSIUM · Command Palette</span>
+              {/* Названо тем, что есть: поиск по реестру. Подписать это
+                  «ИИ-ассистентом» при отсутствии модели значило бы
+                  начать знакомство с экосистемой с неправды. */}
+              <span>
+                {registry.length > 0
+                  ? `Поиск по реестру · ${INDEXED.length} страниц, ${registry.length} узлов и глав`
+                  : `Поиск по реестру · ${INDEXED.length} страниц`}
+              </span>
             </div>
           </motion.div>
         </motion.div>
