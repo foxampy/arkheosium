@@ -1,0 +1,263 @@
+/**
+ * Досье проекта — инвестиционный пакет в форме данных.
+ *
+ * Почему это отдельное пространство, а не расширение
+ * `src/data/projects/types.ts`. Тот тип описывает водный объект:
+ * створ, процесс водоподготовки, стороны ГЧП, карта рек. Он предметный
+ * и правильно предметный. Здесь описывается другое — пакет, который
+ * читает инвестиционный комитет, независимо от того, идёт речь о
+ * гостеприимстве, о воде или о здоровье. Слить их в один тип означало
+ * бы получить интерфейс с сорока опциональными полями, где половина
+ * пустует в каждом конкретном проекте.
+ *
+ * Состав разделов задан типом намеренно. Инвестиционный пакет всегда
+ * состоит из одного и того же: одностраничник, дек, экономика одной
+ * точки, масштабирование, лизинг, франшиза, финансовая модель, ESG.
+ * Раздел, который в одном проекте посчитан, а в другом забыт, —
+ * первое, что замечает аналитик. Поэтому `unitEconomics`, `scaling`,
+ * `financials` и `esg` не сделаны опциональными: проект без экономики
+ * одной точки — это не проект, а намерение, и в реестр досье он
+ * попасть не должен.
+ *
+ * Числа живут здесь, а не в разметке. Одна и та же цифра звучит в
+ * одностраничнике, в деке, в финансовой модели и в презентации фонду;
+ * четыре разошедшиеся версии одной цифры — ровно то, на чём разговор
+ * с фондом заканчивается.
+ */
+
+/** Валюта, в которой ведётся расчёт проекта. */
+export type Currency = 'USD' | 'EUR' | 'UZS';
+
+export const CURRENCY_SIGN: Record<Currency, string> = {
+  USD: '$',
+  EUR: '€',
+  UZS: 'сум',
+};
+
+/**
+ * Строка авторитета в шапке: кто стоит рядом с проектом.
+ *
+ * `stage` обязателен и существует ровно по одной причине: плашка
+ * министерства и плашка бренда, с которым идут переговоры, выглядят
+ * одинаково, а значат разное. Подпись снимает эту неоднозначность
+ * до того, как её заметит юрист фонда, — и это не осторожность,
+ * а то, что защищает проект от претензии за использование марки.
+ */
+export interface Authority {
+  name: string;
+  /** Что это за сторона одной строкой. */
+  role: string;
+  kind: 'jurisdiction' | 'institution' | 'brand' | 'operator' | 'partner';
+  stage: 'proposed' | 'talks' | 'agreed';
+  url?: string;
+}
+
+export const AUTHORITY_STAGE_LABEL: Record<Authority['stage'], string> = {
+  proposed: 'предложено',
+  talks: 'переговоры',
+  agreed: 'соглашение',
+};
+
+/** Число с подписью — основная единица всех блоков досье. */
+export interface Metric {
+  value: string;
+  label: string;
+  note?: string;
+}
+
+/**
+ * Ступень масштабирования: одна точка → кластер → регион → сеть.
+ *
+ * Тот самый ряд, который в инвестиционных материалах рисуют цепочкой.
+ * Держится данными, потому что ряд обязан сходиться с финансовой
+ * моделью: число точек ступени, умноженное на экономику одной точки,
+ * должно давать выручку ступени. Если не сходится — видно сразу.
+ */
+export interface ScaleTier {
+  /** Ярлык ступени: «1 капсула», «36 юнитов». */
+  units: string;
+  title: string;
+  /** Где это происходит. */
+  place: string;
+  detail: string;
+  /** CAPEX ступени, в миллионах валюты проекта. */
+  capexM?: number;
+  /** Годовая выручка ступени, в миллионах. */
+  revenueM?: number;
+  year?: string;
+}
+
+/** Направление инвестиций с целевым объёмом. */
+export interface Vertical {
+  name: string;
+  /** Целевой объём, в миллионах валюты проекта. */
+  targetM: number;
+  detail: string;
+  /** Имя иконки lucide. */
+  icon: string;
+}
+
+/** Фаза дорожной карты. */
+export interface Phase {
+  period: string;
+  title: string;
+  detail: string;
+  /** Веха, после которой фаза считается закрытой. */
+  milestone?: string;
+}
+
+/**
+ * Экономика одной точки.
+ *
+ * Самый важный блок досье и единственный, который аналитик читает
+ * первым. Всё остальное — умножение этого блока на число точек.
+ * Доли в разбивках задаются процентами и обязаны давать сто: сумма
+ * проверяется на странице, и расхождение видно читателю.
+ */
+export interface UnitEconomics {
+  /** Как называется одна точка: капсула, юнит, резорт, узел. */
+  unitName: string;
+  /** Из чего состоит точка: площадь, ёмкость, состав. */
+  composition: Metric[];
+  /** CAPEX одной точки, в тысячах валюты проекта. */
+  capexK: number;
+  capexBreakdown: { item: string; share: number }[];
+  /** Годовая выручка одной точки, в тысячах. */
+  revenueK: number;
+  revenueStreams: { item: string; share: number }[];
+  /** Годовой OPEX одной точки, в тысячах. */
+  opexK: number;
+  opexBreakdown: { item: string; share: number }[];
+  /** Загрузка в процентах, на которой построен расчёт. */
+  occupancy: number;
+  /** Средний чек за сутки или за единицу услуги. */
+  adr?: number;
+  /** Допущения расчёта — те, которые фонд проверит первыми. */
+  assumptions: string[];
+}
+
+/**
+ * Финансовая модель проекта целиком.
+ *
+ * Поля названы так, как их спрашивает инвестиционный комитет, а не
+ * так, как удобно считать.
+ */
+export interface Financials {
+  currency: Currency;
+  /** Горизонт модели. */
+  horizon: string;
+  capexTotalM: number;
+  opexAnnualM: number;
+  revenueYear1M: number;
+  revenueTargetM: number;
+  /** EBITDA-маржа на выходе, в процентах. */
+  ebitdaMargin: number;
+  /** Возврат на вложенный капитал за горизонт, в процентах. */
+  roi: number;
+  /** Внутренняя норма доходности, в процентах годовых. */
+  irr: number;
+  paybackYears: number;
+  npvM?: number;
+  /** Ставка дисконтирования, в процентах. */
+  discountRate?: number;
+  pnl: { year: string; revenueM: number; opexM: number; ebitdaM: number }[];
+  /** Структура сделки: что предлагается инвестору. */
+  dealTerms: string[];
+}
+
+/** Лизинговая модель. */
+export interface LeasingModel {
+  about: string;
+  term: string;
+  /** Первоначальный взнос, в процентах. */
+  downPayment: number;
+  /** Ставка, в процентах годовых. */
+  rate: number;
+  /** Остаточная стоимость, в процентах. */
+  residual: number;
+  /** Что именно передаётся в лизинг. */
+  assets: string[];
+  /** Преимущество перед покупкой — в цифрах, а не словами. */
+  advantages: Metric[];
+}
+
+/** Архитектура франшизы по международным стандартам. */
+export interface FranchiseModel {
+  about: string;
+  /** Паушальный взнос, в тысячах. */
+  entryFeeK: number;
+  /** Роялти, в процентах от выручки. */
+  royalty: number;
+  /** Маркетинговый сбор, в процентах. */
+  marketingFee: number;
+  term: string;
+  /** Территориальная эксклюзивность. */
+  territory: string;
+  included: string[];
+  /** Стандарты, по которым построена франшиза. */
+  standards: string[];
+  requirements: string[];
+}
+
+/**
+ * ESG и импакт — в форме, в которой это читает институциональный фонд.
+ *
+ * Отдельно от маркетинга: фонд ждёт метрику с единицей измерения и
+ * привязкой к цели устойчивого развития, а не заявление о пользе.
+ */
+export interface EsgBlock {
+  about: string;
+  environmental: Metric[];
+  social: Metric[];
+  governance: Metric[];
+  /** Цели устойчивого развития ООН, к которым проект привязан. */
+  sdg: { n: number; title: string; contribution: string }[];
+  /** Как измеряется импакт: методика, а не обещание. */
+  methodology: string[];
+}
+
+/** Слайд дека — минимальная единица презентации. */
+export interface Slide {
+  n: number;
+  title: string;
+  /** Одна мысль слайда. Если её нет, слайд не нужен. */
+  claim: string;
+  metrics?: Metric[];
+  points?: string[];
+}
+
+/** Досье проекта целиком. */
+export interface ProjectDossier {
+  id: string;
+  name: string;
+  /** Чем проект является одной строкой. */
+  tagline: string;
+  sectors: string[];
+  geography: string;
+  /** Главная цифра проекта — та, что стоит в шапке. */
+  headline: Metric;
+  currency: Currency;
+  /** К какой сборке контура относится: id из SYSTEMS. */
+  buildId: string;
+  authorities: Authority[];
+
+  /** Одностраничник: то, что читают за девяносто секунд. */
+  onePager: {
+    problem: string;
+    solution: string;
+    market: Metric[];
+    why: string[];
+    ask: Metric;
+    use: { item: string; share: number }[];
+  };
+
+  deck: Slide[];
+  unitEconomics: UnitEconomics;
+  scaling: ScaleTier[];
+  verticals: Vertical[];
+  roadmap: Phase[];
+  leasing: LeasingModel;
+  franchise: FranchiseModel;
+  financials: Financials;
+  esg: EsgBlock;
+}

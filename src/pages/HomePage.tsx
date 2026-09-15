@@ -40,6 +40,7 @@ import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react';
 
 import EarthGlobePage from './EarthGlobePage';
 import { SYSTEMS } from '@/data/platform/systems';
+import { dossiersForBuild } from '@/data/dossier';
 import {
   FOUNDER,
   ORGANISATIONS,
@@ -233,6 +234,26 @@ export default function HomePage() {
                   </a>
                 )}
               </div>
+
+              {dossiersForBuild(s.id).map((dos) => (
+                <Link
+                  key={dos.id}
+                  href={`/project/${dos.id}`}
+                  className="mt-4 flex items-baseline gap-3 rounded-lg px-4 py-3 transition hover:brightness-125"
+                  style={{
+                    background: 'rgba(201,162,39,0.05)',
+                    border: '1px solid rgba(201,162,39,0.18)',
+                  }}
+                >
+                  <span className="text-[11px] uppercase tracking-[0.15em]" style={{ color: '#C9A227' }}>
+                    Досье
+                  </span>
+                  <span className="text-[13px] text-slate-200 flex-1">
+                    {dos.name} — {dos.headline.value}, инвестиционный пакет целиком
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0 translate-y-0.5" style={{ color: '#C9A227' }} />
+                </Link>
+              ))}
             </div>
           ))}
         </div>
