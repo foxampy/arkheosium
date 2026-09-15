@@ -264,13 +264,23 @@ export default function HomePage() {
           Их состав держится в реестрах направлений и каталога, где у каждой
           позиции стоит стадия.
         </p>
-        <Link
-          href="/directions"
-          className="inline-flex items-center gap-2 mt-6 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
-        >
-          Направления и стадии
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-6">
+          <Link
+            href="/directions"
+            className="inline-flex items-center gap-2 text-[14px] text-cyan-300/80 hover:text-cyan-200 transition"
+          >
+            Направления и стадии
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/projects"
+            className="inline-flex items-center gap-2 text-[14px] transition hover:brightness-125"
+            style={{ color: '#E8CE7A' }}
+          >
+            Реестр инвестиционных пакетов
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </Section>
 
       <Rule />

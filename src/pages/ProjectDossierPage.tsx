@@ -18,7 +18,7 @@
 
 import { useMemo } from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, Download, FileText } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Layers } from 'lucide-react';
 
 import { getDossier } from '@/data/dossier';
 import { AUTHORITY_STAGE_LABEL, CURRENCY_SIGN } from '@/data/dossier/types';
@@ -129,6 +129,13 @@ export default function ProjectDossierPage({ id }: { id?: string }) {
             ArkheOSium
           </Link>
           <div className="flex items-center gap-5">
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-2 text-[12px] text-white/40 hover:text-white/70 transition"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              Все пакеты
+            </Link>
             <button
               onClick={() => window.print()}
               className="inline-flex items-center gap-2 text-[12px] text-white/40 hover:text-white/70 transition"

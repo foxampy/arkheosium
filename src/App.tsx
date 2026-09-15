@@ -71,6 +71,7 @@ const OnboardingPage = lazyRoute(() => import('@/pages/OnboardingPage'));
 const QRSharePage = lazyRoute(() => import('@/pages/QRSharePage'));
 const TechMarketplacePage = lazyRoute(() => import('@/pages/TechMarketplacePage'));
 const ProjectDossierPage = lazyRoute(() => import('@/pages/ProjectDossierPage'));
+const DossierIndexPage = lazyRoute(() => import('@/pages/DossierIndexPage'));
 const EcosystemPage = lazyRoute(() => import('@/pages/EcosystemPage'));
 const IoTPage = lazyRoute(() => import('@/pages/IoTPage'));
 const AlertsPage = lazyRoute(() => import('@/pages/AlertsPage'));
@@ -300,6 +301,12 @@ export default function App() {
               </Route>
               <Route path="/funds">
                 <FundPage />
+              </Route>
+              <Route path="/projects">
+                <DossierIndexPage />
+              </Route>
+              <Route path="/dossier">
+                <DossierIndexPage />
               </Route>
               <Route path="/project/:id">
                 {(params) => <ProjectDossierPage id={params.id} />}
