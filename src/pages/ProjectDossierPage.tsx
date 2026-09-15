@@ -93,6 +93,27 @@ export default function ProjectDossierPage({ id }: { id?: string }) {
   const k = (n: number) => `${sign}${n.toLocaleString('ru-RU')} тыс.`;
   const m = (n: number) => `${sign}${n.toLocaleString('ru-RU')} млн`;
 
+  /**
+   * Показатели доходности печатаются только те, что заданы.
+   * Программа со смешанным финансированием не имеет ни ROI, ни IRR —
+   * и вместо пустых строк с прочерком страница показывает структуру
+   * источников капитала, которая для неё и есть ответ на вопрос
+   * «откуда деньги и чего они ждут».
+   */
+  const returnRows = [
+    ...(f.roi !== undefined ? [{ k: 'ROI за горизонт', v: `${f.roi}%` }] : []),
+    ...(f.irr !== undefined
+      ? [{ k: 'IRR', v: `${String(f.irr).replace('.', ',')}% годовых` }]
+      : []),
+    ...(f.paybackYears !== undefined
+      ? [{ k: 'Окупаемость', v: `${String(f.paybackYears).replace('.', ',')} года` }]
+      : []),
+    ...(f.npvM !== undefined ? [{ k: 'NPV', v: m(f.npvM) }] : []),
+    ...(f.discountRate !== undefined
+      ? [{ k: 'Ставка дисконтирования', v: `${f.discountRate}%` }]
+      : []),
+  ];
+
   const verticalsTotal = d.verticals.reduce((a, v) => a + v.targetM, 0);
 
   return (
@@ -290,8 +311,15 @@ export default function ProjectDossierPage({ id }: { id?: string }) {
                   { k: 'OPEX в год', v: k(u.opexK) },
                   { k: 'EBITDA в год', v: k(Math.round(unit.ebitdaK)) },
                   { k: 'EBITDA-маржа', v: `${unit.margin.toFixed(1).replace('.', ',')}%` },
-                  { k: 'Загрузка в расчёте', v: `${u.occupancy}%` },
-                  ...(u.adr ? [{ k: 'Средний чек за сутки', v: `${sign}${u.adr}` }] : []),
+                  { k: u.occupancyLabel ?? 'Загрузка в расчёте', v: `${u.occupancy}%` },
+                  ...(u.adr
+                    ? [
+                        {
+                          k: u.adrLabel ?? 'Средний чек за сутки',
+                          v: `${sign}${u.adr.toLocaleString('ru-RU')}`,
+                        },
+                      ]
+                    : []),
                   {
                     k: 'Простая окупаемость CAPEX',
                     v: `${unit.payback.toFixed(1).replace('.', ',')} года`,
@@ -359,7 +387,11 @@ export default function ProjectDossierPage({ id }: { id?: string }) {
       <Spread wide>
         <DeckTitle
           n="06"
-          title="Финансовая модель · ROI · IRR · CAPEX · OPEX"
+          title={
+            returnRows.length > 0
+              ? 'Финансовая модель · ROI · IRR · CAPEX · OPEX'
+              : 'Финансовая модель · CAPEX · OPEX · источники капитала'
+          }
           note={`Горизонт: ${f.horizon}.`}
         />
 
@@ -373,16 +405,34 @@ export default function ProjectDossierPage({ id }: { id?: string }) {
               { k: 'EBITDA-маржа на выходе', v: `${f.ebitdaMargin}%` },
             ]}
           />
-          <TermRows
-            rows={[
-              { k: 'ROI за горизонт', v: `${f.roi}%` },
-              { k: 'IRR', v: `${String(f.irr).replace('.', ',')}% годовых` },
-              { k: 'Окупаемость', v: `${String(f.paybackYears).replace('.', ',')} года` },
-              ...(f.npvM !== undefined ? [{ k: 'NPV', v: m(f.npvM) }] : []),
-              ...(f.discountRate !== undefined ? [{ k: 'Ставка дисконтирования', v: `${f.discountRate}%` }] : []),
-            ]}
-          />
+          {returnRows.length > 0 ? (
+            <TermRows rows={returnRows} />
+          ) : (
+            f.financeMix && (
+              <ShareBar
+                title="Структура финансирования"
+                total={m(f.capexTotalM)}
+                items={f.financeMix}
+              />
+            )
+          )}
         </div>
+
+        {f.note && (
+          <Panel className="mt-10">
+            <div className="text-[13px] leading-relaxed text-slate-300">{f.note}</div>
+          </Panel>
+        )}
+
+        {returnRows.length > 0 && f.financeMix && (
+          <div className="mt-14">
+            <ShareBar
+              title="Структура финансирования"
+              total={m(f.capexTotalM)}
+              items={f.financeMix}
+            />
+          </div>
+        )}
 
         <div className="mt-16">
           <div className="text-[11px] uppercase tracking-[0.18em] text-white/45 mb-8">P&L по годам</div>
@@ -409,7 +459,7 @@ export default function ProjectDossierPage({ id }: { id?: string }) {
                       {m(r.ebitdaM)}
                     </td>
                     <td className="py-3 tabular-nums text-right text-slate-400">
-                      {((r.ebitdaM / r.revenueM) * 100).toFixed(0)}%
+                      {r.revenueM > 0 ? `${((r.ebitdaM / r.revenueM) * 100).toFixed(0)}%` : '—'}
                     </td>
                   </tr>
                 ))}

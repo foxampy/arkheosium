@@ -10,8 +10,9 @@
 import type { ProjectDossier } from './types';
 import { NEW_UZBEKISTAN } from './new-uzbekistan';
 import { ETHOSIUM } from './ethosium';
+import { ARAL } from './aral';
 
-export const DOSSIERS: readonly ProjectDossier[] = [NEW_UZBEKISTAN, ETHOSIUM];
+export const DOSSIERS: readonly ProjectDossier[] = [NEW_UZBEKISTAN, ETHOSIUM, ARAL];
 
 export function getDossier(id: string | undefined): ProjectDossier | undefined {
   if (!id) return undefined;
