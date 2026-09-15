@@ -8,12 +8,14 @@
  */
 
 import type { ProjectDossier } from './types';
+import { ARKHEOSIUM } from './arkheosium';
 import { NEW_UZBEKISTAN } from './new-uzbekistan';
 import { ETHOSIUM } from './ethosium';
 import { ARAL } from './aral';
 import { LABFORGE } from './labforge';
 
 export const DOSSIERS: readonly ProjectDossier[] = [
+  ARKHEOSIUM,
   NEW_UZBEKISTAN,
   ETHOSIUM,
   ARAL,
