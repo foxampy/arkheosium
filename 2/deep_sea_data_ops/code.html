@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ArkheOS | Underwater Data Operations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #000814;
+            color: #d7e3f5;
+            overflow-x: hidden;
+            font-family: 'Sora', sans-serif;
+        }
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3ExternalIcon %3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.02;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+        .active-panel {
+            background: rgba(0, 219, 231, 0.05);
+            backdrop-filter: blur(60px);
+            border: 0.5px solid rgba(0, 219, 231, 0.3);
+        }
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 219, 231, 0.2), transparent);
+            position: absolute;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan {
+            from { top: 0%; }
+            to { top: 100%; }
+        }
+        .flicker {
+            animation: flicker 2s infinite;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002110",
+                        "surface-tint": "#00dbe7",
+                        "tertiary": "#fcf5ff",
+                        "surface-container-low": "#101c29",
+                        "on-surface": "#d7e3f5",
+                        "error": "#ffb4ab",
+                        "secondary": "#f5fff4",
+                        "primary-fixed-dim": "#00dbe7",
+                        "on-surface-variant": "#b9cacb",
+                        "background": "#081421",
+                        "surface-container-highest": "#2a3643",
+                        "tertiary-container": "#e3d4ff",
+                        "on-primary-container": "#006a71",
+                        "error-container": "#93000a",
+                        "surface-bright": "#2e3a48",
+                        "surface-container-high": "#1f2b38",
+                        "on-primary-fixed": "#002022",
+                        "surface-container-lowest": "#040f1b",
+                        "outline": "#849495",
+                        "surface-container": "#15202d",
+                        "secondary-container": "#16ff9e",
+                        "outline-variant": "#3a494b",
+                        "tertiary-fixed": "#e9ddff",
+                        "inverse-surface": "#d7e3f5",
+                        "primary": "#e1fdff",
+                        "on-tertiary-container": "#7318ff",
+                        "secondary-fixed": "#56ffa8",
+                        "on-background": "#d7e3f5",
+                        "secondary-fixed-dim": "#00e38b",
+                        "on-tertiary-fixed-variant": "#5700c9",
+                        "inverse-on-surface": "#26313f",
+                        "primary-container": "#00f2ff",
+                        "on-tertiary": "#3c0090",
+                        "surface-variant": "#2a3643",
+                        "primary-fixed": "#74f5ff",
+                        "on-tertiary-fixed": "#23005b",
+                        "on-secondary": "#00391f",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#081421",
+                        "on-secondary-fixed-variant": "#00522f",
+                        "inverse-primary": "#00696f",
+                        "on-primary-fixed-variant": "#004f54",
+                        "on-secondary-container": "#007243",
+                        "on-primary": "#00363a",
+                        "tertiary-fixed-dim": "#d1bcff",
+                        "surface": "#081421"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-edge": "40px",
+                        "gutter": "24px",
+                        "panel-gap": "16px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Sora"],
+                        "label-xs": ["JetBrains Mono"],
+                        "headline-md": ["Sora"],
+                        "body-md": ["Sora"],
+                        "display-lg-mobile": ["Sora"],
+                        "data-mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-xs": ["11px", {"lineHeight": "1", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-mono": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="antialiased selection:bg-primary-container selection:text-on-primary-container">
+<div class="noise-overlay"></div>
+<!-- Background WebGL/Video Placeholder -->
+<div class="fixed inset-0 z-[-1] overflow-hidden">
+<div class="w-full h-full object-cover scale-105 brightness-50 contrast-125" data-alt="A cinematic, deep-sea panoramic view of a futuristic underwater data center consisting of glowing, hermetic spherical modules tethered to the ocean floor. Tiny bioluminescent jellyfish and particles drift through the dark, cyan-tinted water, illuminated by the soft rhythmic pulsing of the modules' cooling systems. The scene is atmospheric and expansive, with shafts of light filtering down from the distant surface, creating a high-fidelity planetary OS aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCz92SonDqrqRmNXQcVE_3hTgxApsgiXmqwC4CosZVgx4_7IKg4bujhQBqHw40sEDqHxCC5PscH5lDRnsCi-xFI0QQKlgleEtaNV-z5Zhaybo-IWTRDQqv5-jXR26A5X0kSid8zqNImPjUxppRxudvyWCmsPrWCZzbwfy7taIz_xtvxOxdW96VXjeIzanpILDIj9j0wYNLu5Ax0IR3Ym0ESNF-qY4Zrtc6JscYhcN95z2I7HSbHmvLt')"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background"></div>
+</div>
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-edge h-20 bg-surface-container-lowest/40 backdrop-blur-[60px] border-b border-white/10 shadow-[0_0_40px_rgba(0,219,231,0.1)]">
+<div class="flex items-center gap-6">
+<span class="font-display-lg text-display-lg-mobile md:text-display-lg tracking-tighter text-primary-container">ArkheOS</span>
+<div class="hidden md:flex gap-8">
+<a class="font-data-mono text-data-mono text-primary border-b-2 border-primary-fixed py-2" href="#">Operations</a>
+<a class="font-data-mono text-data-mono text-on-surface-variant hover:text-primary transition-all" href="#">Telemetry</a>
+<a class="font-data-mono text-data-mono text-on-surface-variant hover:text-primary transition-all" href="#">Logistics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-white/5 border border-white/10 rounded-full px-4 py-1 gap-2">
+<span class="material-symbols-outlined text-primary text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-xs font-label-xs text-primary w-48 placeholder:text-on-surface-variant/40" placeholder="QUERY NODE..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all p-2">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all p-2">settings</button>
+<div class="w-10 h-10 rounded-full border border-primary/30 overflow-hidden ml-2">
+<img class="w-full h-full object-cover" data-alt="A professional portrait of a senior systems administrator for a planetary-scale operation, wearing sleek carbon-fiber neural link eyewear. The lighting is low-key with a soft cyan rim light reflecting off their features, emphasizing a high-tech, focused professional aesthetic. Background is a blurred control room with holographic data streams." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZqmqDrBlEafN7rYC5iWBOsR5OPTQnZbo_-Q51IXV41GNMYwAOHSGTConwvGxCH2Nx3EqWRuWsejWJM-KpvC26DwS9Z4nfvzLv4qLsJlNLTrs2yX2W5Yd9ib7PBQWhLgwH_USc9S3KR4tF6Mk8zzNMZYX_I9WzSRJoJ8Uel0FzCnus31eD7StDId6YAiwNp1UmRPgyxqdoZgOF-F-PGDzuzIzAw9Xm0RM87mjkj-Wb45FojfFw24VY"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-20 bottom-0 z-40 flex flex-col bg-surface-dim/20 backdrop-blur-[80px] border-r border-white/5 shadow-2xl w-[280px] hidden md:flex">
+<div class="p-8 border-b border-white/5">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-2 h-2 bg-secondary-fixed rounded-full animate-pulse"></div>
+<span class="font-headline-md text-headline-md text-primary">Aral Nexus</span>
+</div>
+<p class="font-data-mono text-xs text-on-surface-variant/70 uppercase tracking-widest">Mega-Project Status: Active</p>
+</div>
+<div class="flex-1 py-6 overflow-y-auto">
+<nav class="space-y-1">
+<a class="bg-primary-container/20 text-primary-fixed border-l-2 border-primary-fixed-dim px-8 py-4 flex items-center gap-4 font-data-mono text-data-mono transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">public</span> Earth
+                </a>
+<a class="text-on-surface-variant/70 px-8 py-4 flex items-center gap-4 font-data-mono text-data-mono hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">account_tree</span> Projects
+                </a>
+<a class="text-on-surface-variant/70 px-8 py-4 flex items-center gap-4 font-data-mono text-data-mono hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">deployed_code</span> Objects
+                </a>
+<a class="text-on-surface-variant/70 px-8 py-4 flex items-center gap-4 font-data-mono text-data-mono hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">eco</span> Ecosystem
+                </a>
+<a class="text-on-surface-variant/70 px-8 py-4 flex items-center gap-4 font-data-mono text-data-mono hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">storefront</span> Marketplace
+                </a>
+</nav>
+</div>
+<div class="p-8 border-t border-white/5">
+<button class="w-full py-4 bg-primary text-on-primary font-bold text-sm tracking-tighter rounded-lg hover:bg-primary-container transition-all active:scale-95 mb-6">
+                DEPLOY RESOURCE
+            </button>
+<div class="space-y-4">
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-sm">query_stats</span>
+<span class="font-data-mono text-xs">Diagnostics</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-sm">terminal</span>
+<span class="font-data-mono text-xs">Terminal</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-[280px] pt-28 px-margin-edge pb-32">
+<!-- Header / Depth Telemetry -->
+<header class="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
+<div class="space-y-2">
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-secondary-fixed/20 text-secondary-fixed font-data-mono text-[10px] rounded border border-secondary-fixed/30 tracking-widest">DEEP WATER OPS</span>
+<span class="text-on-surface-variant/50 font-data-mono text-xs uppercase">Node: AR-X7</span>
+</div>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">Underwater DataBase</h1>
+<p class="text-on-surface-variant max-w-xl font-body-md">Submerged processing nodes leveraging abyssal temperatures for peak computational efficiency. Monitoring the Pacific Ridge cluster.</p>
+</div>
+<div class="flex gap-12 border-l border-white/10 pl-12">
+<div class="text-right">
+<p class="font-data-mono text-xs text-on-surface-variant/60 mb-1 uppercase tracking-tighter">Current Depth</p>
+<p class="font-display-lg text-headline-md text-primary-fixed">-4,280<span class="text-xl ml-1">m</span></p>
+</div>
+<div class="text-right">
+<p class="font-data-mono text-xs text-on-surface-variant/60 mb-1 uppercase tracking-tighter">Cooling Efficiency</p>
+<p class="font-display-lg text-headline-md text-secondary-fixed">98.4<span class="text-xl ml-1">%</span></p>
+</div>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Sensor Network Panel -->
+<div class="md:col-span-8 glass-panel rounded-xl p-8 relative overflow-hidden group">
+<div class="scanline"></div>
+<div class="flex justify-between items-center mb-8">
+<h2 class="font-headline-md text-headline-md text-primary flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed">sensors</span>
+                        Underwater Sensor Network
+                    </h2>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-white/5 rounded text-[10px] font-data-mono text-primary-fixed border border-primary/20">LIVE STREAM</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-panel-gap">
+<!-- Metric Card: Salinity -->
+<div class="bg-white/5 border border-white/5 p-6 rounded-lg hover:border-primary/40 transition-all">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary-fixed text-3xl">water_drop</span>
+<span class="text-[10px] font-data-mono text-on-surface-variant/60">SALINITY</span>
+</div>
+<div class="mb-4">
+<div class="text-3xl font-display-lg text-primary">35.2 <span class="text-sm font-data-mono">g/kg</span></div>
+<div class="text-[10px] font-data-mono text-secondary-fixed flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +0.2% NOMINAL
+                            </div>
+</div>
+<div class="h-12 flex items-end gap-1">
+<div class="w-full bg-primary/20 h-1/2"></div>
+<div class="w-full bg-primary/20 h-2/3"></div>
+<div class="w-full bg-primary/40 h-1/3"></div>
+<div class="w-full bg-primary/60 h-3/4"></div>
+<div class="w-full bg-primary/20 h-1/2"></div>
+</div>
+</div>
+<!-- Metric Card: Oxygen -->
+<div class="bg-white/5 border border-white/5 p-6 rounded-lg hover:border-primary/40 transition-all">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-secondary-fixed text-3xl">air</span>
+<span class="text-[10px] font-data-mono text-on-surface-variant/60">OXYGEN</span>
+</div>
+<div class="mb-4">
+<div class="text-3xl font-display-lg text-primary">4.8 <span class="text-sm font-data-mono">ml/L</span></div>
+<div class="text-[10px] font-data-mono text-primary-fixed flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">table</span> STABLE
+                            </div>
+</div>
+<div class="h-12 flex items-end gap-1">
+<div class="w-full bg-secondary-fixed/20 h-3/4"></div>
+<div class="w-full bg-secondary-fixed/40 h-2/3"></div>
+<div class="w-full bg-secondary-fixed/20 h-1/2"></div>
+<div class="w-full bg-secondary-fixed/60 h-4/5"></div>
+<div class="w-full bg-secondary-fixed/20 h-3/4"></div>
+</div>
+</div>
+<!-- Metric Card: Biodiversity -->
+<div class="bg-white/5 border border-white/5 p-6 rounded-lg hover:border-primary/40 transition-all">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-tertiary-fixed text-3xl">set_meal</span>
+<span class="text-[10px] font-data-mono text-on-surface-variant/60">BIODIVERSITY</span>
+</div>
+<div class="mb-4">
+<div class="text-3xl font-display-lg text-primary">892 <span class="text-sm font-data-mono">DNA_SIG</span></div>
+<div class="text-[10px] font-data-mono text-secondary-fixed flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">add</span> +12 SPECIES DETECTED
+                            </div>
+</div>
+<div class="h-12 flex items-end gap-1">
+<div class="w-full bg-tertiary-fixed/20 h-1/4"></div>
+<div class="w-full bg-tertiary-fixed/40 h-2/4"></div>
+<div class="w-full bg-tertiary-fixed/60 h-3/4"></div>
+<div class="w-full bg-tertiary-fixed/80 h-full"></div>
+<div class="w-full bg-tertiary-fixed/20 h-1/2"></div>
+</div>
+</div>
+</div>
+<!-- Live Map / Visual Overlay -->
+<div class="mt-8 h-80 rounded-lg overflow-hidden border border-white/5 relative">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="A top-down sonar-style map of a specific region of the Pacific ocean floor. The visualization uses high-contrast cyan wireframe topography over a deep navy void. Glowing markers indicate the positions of underwater data modules, and thin lines represent fiber optic cables. The map is overlaid with flickering data points and scrolling monospaced coordinates, looking like a sophisticated military or science operation interface." data-location="Pacific Ridge" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQEpmVqmxeKA7HePXthyu_J528lWpifS-mpbFw9PZJuw2mOwHFo949-gwaLpBMPS-bnrV5_ezP1pnIqJAm9_z2cA_Y-BCTSXAfVvW2cDNopdlXqm98Ft5slNSJOWybTyKQick8XZoVj96LLthxS91eWMPJNKzHbfdhuTLivGncOoixlJiTgnq3qkl7px-bzm-dl5TqjHo1MdL18131CxLoh3iT_Mzw033i5hCNdJW6yeKUXgU88bMd"/>
+<div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
+<!-- Markers Overlay -->
+<div class="absolute top-1/4 left-1/3 w-4 h-4 bg-primary-container rounded-full animate-ping"></div>
+<div class="absolute top-2/3 right-1/4 w-3 h-3 bg-secondary-fixed rounded-full shadow-[0_0_10px_#56ffa8]"></div>
+<div class="absolute bottom-8 left-12 bg-black/60 backdrop-blur-md p-4 rounded border border-white/10 font-data-mono text-[10px]">
+<p class="text-primary-fixed mb-1">COORDINATE MAPPING ACTIVE</p>
+<p class="text-white/40">LAT: 34.0522° N | LON: 118.2437° W</p>
+</div>
+</div>
+</div>
+<!-- Autonomous Robot Fleet Panel -->
+<div class="md:col-span-4 space-y-gutter">
+<div class="active-panel rounded-xl p-8 h-full">
+<h2 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-fixed">smart_toy</span>
+                        AUR Fleet
+                    </h2>
+<div class="space-y-4">
+<!-- Robot Item -->
+<div class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-lg group hover:bg-white/10 transition-all cursor-pointer">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary">navigation</span>
+</div>
+<div class="flex-1">
+<p class="font-data-mono text-sm text-primary">SC-01 "Nautilus"</p>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-widest">Mission: Mapping</p>
+</div>
+<div class="text-right">
+<div class="text-secondary-fixed font-data-mono text-xs">84% BATT</div>
+<div class="w-16 h-1 bg-white/10 rounded-full mt-1">
+<div class="bg-secondary-fixed h-full w-4/5 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Robot Item -->
+<div class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-lg group hover:bg-white/10 transition-all cursor-pointer">
+<div class="w-12 h-12 bg-error/10 rounded-lg flex items-center justify-center border border-error/20">
+<span class="material-symbols-outlined text-error">build</span>
+</div>
+<div class="flex-1">
+<p class="font-data-mono text-sm text-primary">RP-12 "Crab"</p>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-widest">Mission: Repair</p>
+</div>
+<div class="text-right">
+<div class="text-error font-data-mono text-xs">LOW COMM</div>
+<div class="w-16 h-1 bg-white/10 rounded-full mt-1">
+<div class="bg-error h-full w-1/4 rounded-full animate-pulse"></div>
+</div>
+</div>
+</div>
+<!-- Robot Item -->
+<div class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-lg group hover:bg-white/10 transition-all cursor-pointer">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary">cleaning_services</span>
+</div>
+<div class="flex-1">
+<p class="font-data-mono text-sm text-primary">CL-09 "Manta"</p>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-widest">Mission: Cleaning</p>
+</div>
+<div class="text-right">
+<div class="text-primary-fixed font-data-mono text-xs">92% BATT</div>
+<div class="w-16 h-1 bg-white/10 rounded-full mt-1">
+<div class="bg-primary-fixed h-full w-11/12 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Fleet Efficiency Gauge -->
+<div class="mt-8 pt-8 border-t border-white/10 text-center">
+<div class="relative inline-block">
+<svg class="w-40 h-40 transform -rotate-90">
+<circle class="text-white/5" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="2"></circle>
+<circle class="text-primary-container drop-shadow-[0_0_8px_rgba(0,242,255,0.8)]" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="110" stroke-width="2"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-3xl font-display-lg text-primary">75%</span>
+<span class="text-[10px] font-data-mono text-on-surface-variant/40">FLEET UPTIME</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- System Telemetry Table -->
+<section class="mt-gutter glass-panel rounded-xl p-8 overflow-hidden">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-md text-headline-md text-primary">Environmental Telemetry</h2>
+<div class="flex gap-4">
+<button class="bg-white/5 hover:bg-white/10 text-on-surface-variant px-4 py-2 rounded font-data-mono text-[10px] flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-sm">download</span> EXPORT DATA
+                    </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-data-mono text-sm">
+<thead class="text-on-surface-variant/50 border-b border-white/10">
+<tr>
+<th class="py-4 font-normal px-4">MODULE_ID</th>
+<th class="py-4 font-normal">DEPTH (M)</th>
+<th class="py-4 font-normal">TEMP (°C)</th>
+<th class="py-4 font-normal">LOAD (%)</th>
+<th class="py-4 font-normal">STATUS</th>
+<th class="py-4 font-normal text-right">TREND</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-primary">BETA-01</td>
+<td class="py-4">-4,120</td>
+<td class="py-4">1.2</td>
+<td class="py-4">76.4</td>
+<td class="py-4"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary-fixed"></span> NOMINAL</span></td>
+<td class="py-4 text-right"><span class="text-secondary-fixed">↑ 0.5%</span></td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-primary">BETA-02</td>
+<td class="py-4">-4,150</td>
+<td class="py-4">1.1</td>
+<td class="py-4">88.2</td>
+<td class="py-4"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary-fixed"></span> NOMINAL</span></td>
+<td class="py-4 text-right"><span class="text-secondary-fixed">↑ 1.2%</span></td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-primary">GAMMA-09</td>
+<td class="py-4">-4,500</td>
+<td class="py-4">0.9</td>
+<td class="py-4">92.0</td>
+<td class="py-4"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span> MAX_FLOW</span></td>
+<td class="py-4 text-right"><span class="text-primary-fixed">~ 0.0%</span></td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-primary">DELTA-04</td>
+<td class="py-4">-3,900</td>
+<td class="py-4">1.8</td>
+<td class="py-4">42.1</td>
+<td class="py-4"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-on-surface-variant/40"></span> STANDBY</span></td>
+<td class="py-4 text-right"><span class="text-on-surface-variant/40">↓ 4.0%</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden px-4 bg-surface-container-high/60 backdrop-blur-[40px] border-t border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-primary-container scale-110" href="#">
+<span class="material-symbols-outlined">public</span>
+<span class="font-label-xs text-label-xs">Earth</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-label-xs text-label-xs">Projects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">deployed_code</span>
+<span class="font-label-xs text-label-xs">Objects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">eco</span>
+<span class="font-label-xs text-label-xs">Ecosystem</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-label-xs text-label-xs">Market</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for depth value oscillation
+        const depthElement = document.querySelector('p.font-display-lg.text-headline-md.text-primary-fixed');
+        if (depthElement) {
+            setInterval(() => {
+                const currentDepth = parseInt(depthElement.innerText.replace(',', '').replace('m', ''));
+                const fluctuation = Math.floor(Math.random() * 5) - 2;
+                const newDepth = currentDepth + fluctuation;
+                depthElement.innerHTML = `${newDepth.toLocaleString()}<span class="text-xl ml-1">m</span>`;
+            }, 3000);
+        }
+
+        // Atmosphere: Random flicker on status dots
+        const dots = document.querySelectorAll('.rounded-full.bg-secondary-fixed');
+        dots.forEach(dot => {
+            if(Math.random() > 0.5) dot.classList.add('flicker');
+        });
+    </script>
+</body></html>

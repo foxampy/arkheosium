@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARKHEOSIUM — UI/UX Стили</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0d0d14;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .style-card {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .style-card:hover { transform: translateY(-4px); }
+  .style-card.selected { border-color: #00d4ff; box-shadow: 0 0 0 3px rgba(0,212,255,0.2); }
+  .style-card .label-bar {
+    position: absolute;
+    top: 12px; right: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    z-index: 10;
+  }
+  .choice-indicator {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #00d4ff;
+    color: #000;
+    padding: 10px 28px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+    display: none;
+    z-index: 100;
+  }
+  .choice-indicator.show { display: block; }
+
+  /* ─── STYLE A: Glassmorphism Cosmic ─── */
+  .style-a {
+    background: linear-gradient(135deg, #06071a 0%, #0d1b3e 50%, #0a0f2a 100%);
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+  }
+  .a-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(0,212,255,0.15);
+  }
+  .a-logo { font-size: 13px; font-weight: 800; color: #00d4ff; letter-spacing: 3px; }
+  .a-nav { display: flex; gap: 16px; }
+  .a-nav span { font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; }
+  .a-nav span.active { color: #00d4ff; }
+  .a-status { display: flex; gap: 8px; align-items: center; }
+  .a-dot { width: 6px; height: 6px; border-radius: 50%; background: #00ff88; }
+  .a-status-text { font-size: 10px; color: #00ff88; }
+  .a-body { display: flex; flex: 1; overflow: hidden; }
+  .a-sidebar {
+    width: 52px;
+    background: rgba(255,255,255,0.02);
+    border-right: 1px solid rgba(0,212,255,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 16px;
+  }
+  .a-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+    cursor: pointer;
+  }
+  .a-icon.active { background: rgba(0,212,255,0.15); color: #00d4ff; }
+  .a-main { flex: 1; position: relative; overflow: hidden; }
+  .a-globe {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #1a3a6e, #040d26);
+    box-shadow:
+      0 0 0 1px rgba(0,212,255,0.2),
+      0 0 40px rgba(0,100,255,0.3),
+      inset 0 0 60px rgba(0,30,100,0.8);
+    overflow: hidden;
+  }
+  .a-globe-grid {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 17px, rgba(0,212,255,0.06) 18px),
+      repeating-linear-gradient(90deg, transparent, transparent 17px, rgba(0,212,255,0.06) 18px);
+    border-radius: 50%;
+  }
+  .a-globe-glow {
+    position: absolute;
+    top: 10%; left: 10%;
+    width: 40%; height: 40%;
+    background: radial-gradient(circle, rgba(0,150,255,0.4), transparent);
+    border-radius: 50%;
+  }
+  .a-panel {
+    position: absolute;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 10px;
+  }
+  .a-panel-tl { top: 16px; left: 16px; width: 130px; }
+  .a-panel-tr { top: 16px; right: 16px; width: 100px; }
+  .a-panel-bl { bottom: 16px; left: 16px; width: 120px; }
+  .a-panel-br { bottom: 16px; right: 16px; width: 140px; }
+  .a-panel-title { color: #00d4ff; font-weight: 700; margin-bottom: 6px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+  .a-metric { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .a-metric span:first-child { color: rgba(255,255,255,0.4); }
+  .a-metric span:last-child { color: #fff; font-weight: 600; }
+  .a-bar { height: 2px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+  .a-bar-fill { height: 100%; background: linear-gradient(90deg, #00d4ff, #0066ff); border-radius: 2px; }
+  .a-node {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #00d4ff;
+    box-shadow: 0 0 8px #00d4ff;
+  }
+  .a-node::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,212,255,0.3);
+    animation: pulse-a 2s infinite;
+  }
+  @keyframes pulse-a { 0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1)} 50%{opacity:0;transform:translate(-50%,-50%) scale(2)} }
+  .a-label-bar { background: rgba(0,212,255,0.15); color: #00d4ff; border: 1px solid rgba(0,212,255,0.3); }
+
+  /* ─── STYLE B: Industrial Command ─── */
+  .style-b {
+    background: #0a0f0a;
+    height: 380px;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #1a2a1a;
+  }
+  .b-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: #0d140d;
+    border-bottom: 1px solid #1e3a1e;
+  }
+  .b-logo { font-size: 12px; font-weight: 700; color: #00ff41; letter-spacing: 4px; }
+  .b-status-row { display: flex; gap: 16px; margin-left: auto; }
+  .b-status-item { font-size: 10px; color: #3a5a3a; }
+  .b-status-item span { color: #00ff41; }
+  .b-body { display: flex; flex: 1; overflow: hidden; }
+  .b-nav {
+    width: 120px;
+    background: #0a0f0a;
+    border-right: 1px solid #1e3a1e;
+    padding: 8px 0;
+  }
+  .b-nav-item {
+    padding: 6px 12px;
+    font-size: 10px;
+    color: #3a5a3a;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+  .b-nav-item.active { color: #00ff41; border-left-color: #00ff41; background: rgba(0,255,65,0.05); }
+  .b-main { flex: 1; padding: 12px; display: grid; grid-template-rows: 1fr auto; gap: 8px; }
+  .b-map {
+    background: #0a0f0a;
+    border: 1px solid #1e3a1e;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .b-map-grid {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(0,255,65,0.05) 20px),
+      repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(0,255,65,0.05) 20px);
+  }
+  .b-map-content {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 4px;
+  }
+  .b-map-label { font-size: 9px; color: #3a5a3a; letter-spacing: 2px; }
+  .b-target {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,255,65,0.3);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .b-target::before {
+    content: '';
+    position: absolute;
+    width: 100%; height: 1px;
+    background: rgba(0,255,65,0.3);
+  }
+  .b-target::after {
+    content: '';
+    position: absolute;
+    height: 100%; width: 1px;
+    background: rgba(0,255,65,0.3);
+  }
+  .b-target-dot { width: 6px; height: 6px; background: #00ff41; border-radius: 50%; z-index: 1; }
+  .b-map-node {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #00ff41;
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+  .b-stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .b-stat {
+    border: 1px solid #1e3a1e;
+    padding: 8px;
+    border-radius: 2px;
+  }
+  .b-stat-label { font-size: 8px; color: #3a5a3a; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .b-stat-value { font-size: 16px; font-weight: 700; color: #00ff41; }
+  .b-stat-sub { font-size: 8px; color: #2a4a2a; }
+  .b-scanline {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,255,65,0.3), transparent);
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan { 0%{top:0} 100%{top:100%} }
+  .b-label-bar { background: rgba(0,255,65,0.1); color: #00ff41; border: 1px solid rgba(0,255,65,0.3); }
+
+  /* ─── STYLE C: Enterprise Clean ─── */
+  .style-c {
+    background: #f8fafc;
+    height: 380px;
+    color: #1e293b;
+    display: flex;
+    flex-direction: column;
+  }
+  .c-topbar {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 48px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    gap: 24px;
+  }
+  .c-logo { font-size: 14px; font-weight: 800; color: #1e40af; letter-spacing: 1px; }
+  .c-nav { display: flex; gap: 4px; }
+  .c-nav-item { padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; color: #64748b; }
+  .c-nav-item.active { background: #eff6ff; color: #1e40af; font-weight: 600; }
+  .c-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .c-btn { padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .c-btn-primary { background: #1e40af; color: #fff; }
+  .c-btn-ghost { background: transparent; color: #64748b; border: 1px solid #e2e8f0; }
+  .c-body { display: flex; flex: 1; overflow: hidden; }
+  .c-sidebar {
+    width: 180px;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+    padding: 12px 0;
+  }
+  .c-section-label { padding: 4px 16px; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .c-sidebar-item { padding: 7px 16px; font-size: 12px; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .c-sidebar-item.active { background: #eff6ff; color: #1e40af; font-weight: 600; }
+  .c-sidebar-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .c-main { flex: 1; padding: 16px; overflow: hidden; display: grid; grid-template-columns: 1fr 220px; gap: 12px; }
+  .c-map-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .c-card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .c-card-title { font-size: 13px; font-weight: 700; color: #1e293b; }
+  .c-card-sub { font-size: 11px; color: #94a3b8; }
+  .c-map-body {
+    position: absolute;
+    top: 44px; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%);
+    overflow: hidden;
+  }
+  .c-map-region {
+    position: absolute;
+    border-radius: 4px;
+    opacity: 0.6;
+  }
+  .c-map-pin { position: absolute; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; }
+  .c-right-col { display: flex; flex-direction: column; gap: 10px; }
+  .c-stat-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .c-stat-card-label { font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .c-stat-card-value { font-size: 22px; font-weight: 800; color: #1e293b; margin: 2px 0; }
+  .c-stat-card-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .c-label-bar { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+
+  /* ─── STYLE D: Neural Dark ─── */
+  .style-d {
+    background: #080812;
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .d-topbar {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 20px;
+    background: #0c0c1e;
+    border-bottom: 1px solid rgba(139,92,246,0.2);
+  }
+  .d-logo { font-size: 14px; font-weight: 900; background: linear-gradient(90deg, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
+  .d-nav { display: flex; gap: 20px; }
+  .d-nav span { font-size: 11px; color: rgba(255,255,255,0.3); cursor: pointer; letter-spacing: 0.5px; }
+  .d-nav span.active { color: #8b5cf6; }
+  .d-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .d-ai-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: linear-gradient(90deg, rgba(139,92,246,0.3), rgba(236,72,153,0.3));
+    color: #c084fc;
+    border: 1px solid rgba(139,92,246,0.3);
+  }
+  .d-body { display: flex; flex: 1; overflow: hidden; }
+  .d-sidebar {
+    width: 48px;
+    background: #0c0c1e;
+    border-right: 1px solid rgba(139,92,246,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 14px;
+  }
+  .d-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: rgba(255,255,255,0.2); }
+  .d-icon.active { background: rgba(139,92,246,0.2); color: #a78bfa; }
+  .d-main { flex: 1; padding: 12px; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 180px; gap: 10px; }
+  .d-center { position: relative; display: flex; align-items: center; justify-content: center; }
+  .d-graph {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+  .d-graph svg { width: 100%; height: 100%; opacity: 0.15; }
+  .d-globe-wrap {
+    position: relative;
+    width: 160px; height: 160px;
+  }
+  .d-globe {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #2d1b69, #0c0522);
+    box-shadow:
+      0 0 0 1px rgba(139,92,246,0.3),
+      0 0 60px rgba(139,92,246,0.2),
+      0 0 120px rgba(236,72,153,0.1);
+  }
+  .d-globe-lines {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(139,92,246,0.08) 16px),
+      repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(139,92,246,0.08) 16px);
+  }
+  .d-orb {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid;
+    top: 50%; left: 50%;
+  }
+  .d-orb-1 { width: 200px; height: 200px; margin: -100px; border-color: rgba(139,92,246,0.1); animation: orbit 20s linear infinite; }
+  .d-orb-2 { width: 260px; height: 260px; margin: -130px; border-color: rgba(236,72,153,0.07); animation: orbit 35s linear infinite reverse; }
+  @keyframes orbit { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .d-node { position: absolute; width: 6px; height: 6px; background: #8b5cf6; border-radius: 50%; box-shadow: 0 0 8px #8b5cf6; }
+  .d-node-pink { background: #ec4899; box-shadow: 0 0 8px #ec4899; }
+  .d-right { display: flex; flex-direction: column; gap: 8px; }
+  .d-card {
+    background: rgba(139,92,246,0.05);
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .d-card-title { font-size: 9px; color: #7c3aed; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .d-metric { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .d-metric span:first-child { font-size: 10px; color: rgba(255,255,255,0.3); }
+  .d-metric span:last-child { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 600; }
+  .d-graph-mini { height: 30px; position: relative; overflow: hidden; margin-top: 6px; }
+  .d-graph-mini svg { width: 100%; height: 100%; }
+  .d-label-bar { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+
+  /* Selection overlay */
+  .selected-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,212,255,0.04);
+    border-radius: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .style-card.selected .selected-overlay { opacity: 1; }
+  .check-icon {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #00d4ff;
+    color: #000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 900;
+    z-index: 20;
+  }
+  .style-card.selected .check-icon { display: flex; }
+
+  .style-name {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .style-name-text { font-size: 15px; font-weight: 700; }
+  .style-name-desc { font-size: 12px; opacity: 0.5; margin-top: 2px; }
+  .style-name-tags { display: flex; gap: 6px; }
+  .tag { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+
+  .hint { text-align: center; margin-top: 24px; font-size: 12px; color: #555; }
+
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<h1>ARKHEOSIUM — Выбор дизайна</h1>
+<p class="subtitle">Нажми на стиль который нравится (можно выбрать несколько)</p>
+
+<div class="grid">
+
+  <!-- ═══ A: COSMIC GLASSMORPHISM ═══ -->
+  <div class="style-card" id="card-a" onclick="select('a')" style="background:#06071a; border-radius:16px;">
+    <div class="check-icon">✓</div>
+    <div class="label-bar a-label-bar" style="position:absolute;top:60px;right:12px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;z-index:10;">A</div>
+    <div class="selected-overlay"></div>
+
+    <!-- Mockup A -->
+    <div class="style-a">
+      <div class="a-topbar">
+        <div class="a-logo">ARKHEOSIUM</div>
+        <div class="a-nav">
+          <span class="active">Earth</span>
+          <span>Atlas</span>
+          <span>Projects</span>
+          <span>AI</span>
+          <span>DAO</span>
+        </div>
+        <div class="a-status">
+          <div class="a-dot"></div>
+          <div class="a-status-text">LIVE</div>
+        </div>
+      </div>
+      <div class="a-body">
+        <div class="a-sidebar">
+          <div class="a-icon active">🌍</div>
+          <div class="a-icon">🏗️</div>
+          <div class="a-icon">💡</div>
+          <div class="a-icon">📊</div>
+          <div class="a-icon">🤖</div>
+          <div class="a-icon">⚡</div>
+        </div>
+        <div class="a-main">
+          <!-- Globe -->
+          <div class="a-globe" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+            <div class="a-globe-grid"></div>
+            <div class="a-globe-glow"></div>
+          </div>
+          <!-- Orbiting nodes -->
+          <div class="a-node" style="top:30px;left:120px;"></div>
+          <div class="a-node" style="top:60px;right:80px;background:#00ff88;box-shadow:0 0 8px #00ff88;"></div>
+          <div class="a-node" style="bottom:40px;left:90px;background:#ff6b35;box-shadow:0 0 8px #ff6b35;"></div>
+          <!-- Panels -->
+          <div class="a-panel a-panel-tl">
+            <div class="a-panel-title">Объекты</div>
+            <div class="a-metric"><span>Активных</span><span>1,247</span></div>
+            <div class="a-metric"><span>Регионов</span><span>47</span></div>
+            <div class="a-bar"><div class="a-bar-fill" style="width:73%"></div></div>
+          </div>
+          <div class="a-panel a-panel-tr">
+            <div class="a-panel-title">Статус</div>
+            <div class="a-metric"><span>Online</span><span style="color:#00ff88">●</span></div>
+            <div class="a-metric"><span>AI</span><span style="color:#00d4ff">●</span></div>
+          </div>
+          <div class="a-panel a-panel-bl">
+            <div class="a-panel-title">Проекты</div>
+            <div class="a-metric"><span>Активных</span><span>84</span></div>
+            <div class="a-metric"><span>В плане</span><span>156</span></div>
+          </div>
+          <div class="a-panel a-panel-br">
+            <div class="a-panel-title">Genesis Engine</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-bottom:4px;">AI готов к генерации</div>
+            <div style="font-size:9px;color:#00d4ff;cursor:pointer;">→ Создать проект</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="style-name" style="background:#06071a;border-top:1px solid rgba(0,212,255,0.1);">
+      <div>
+        <div class="style-name-text" style="color:#00d4ff;">Cosmic Glassmorphism</div>
+        <div class="style-name-desc" style="color:rgba(255,255,255,0.3);">Тёмный, стеклянные панели, 3D-глобус</div>
+      </div>
+      <div class="style-name-tags">
+        <span class="tag">Премиум</span>
+        <span class="tag">Иммерсивный</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ B: INDUSTRIAL COMMAND ═══ -->
+  <div class="style-card" id="card-b" onclick="select('b')" style="background:#0a0f0a;border-radius:16px;">
+    <div class="check-icon" style="background:#00ff41;color:#000;">✓</div>
+    <div class="label-bar b-label-bar" style="position:absolute;top:60px;right:12px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;z-index:10;">B</div>
+    <div class="selected-overlay" style="background:rgba(0,255,65,0.04);"></div>
+
+    <div class="style-b" style="border:none;">
+      <div class="b-topbar">
+        <div class="b-logo">ARKHEOSIUM</div>
+        <div class="b-status-row">
+          <div class="b-status-item">SYS <span>ONLINE</span></div>
+          <div class="b-status-item">AI <span>ACTIVE</span></div>
+          <div class="b-status-item">NODES <span>1,247</span></div>
+        </div>
+      </div>
+      <div class="b-body">
+        <div class="b-nav">
+          <div class="b-nav-item active">> EARTH</div>
+          <div class="b-nav-item">  ATLAS</div>
+          <div class="b-nav-item">  OBJECTS</div>
+          <div class="b-nav-item">  PROJECTS</div>
+          <div class="b-nav-item">  RESEARCH</div>
+          <div class="b-nav-item">  AI/GEN</div>
+          <div class="b-nav-item">  DAO</div>
+          <div class="b-nav-item">  INVEST</div>
+        </div>
+        <div class="b-main">
+          <div class="b-map">
+            <div class="b-scanline"></div>
+            <div class="b-map-grid"></div>
+            <div class="b-map-content">
+              <div class="b-map-label">PLANETARY SCAN ACTIVE</div>
+              <div class="b-target">
+                <div class="b-target-dot"></div>
+              </div>
+              <div class="b-map-label" style="font-size:8px;margin-top:4px;">LAT 40.1° N  LNG 62.3° E</div>
+            </div>
+            <div class="b-map-node" style="top:25%;left:35%;"></div>
+            <div class="b-map-node" style="top:40%;left:60%;opacity:0.5;"></div>
+            <div class="b-map-node" style="top:55%;left:45%;"></div>
+            <div class="b-map-node" style="top:30%;left:70%;opacity:0.3;"></div>
+          </div>
+          <div class="b-stats-row">
+            <div class="b-stat">
+              <div class="b-stat-label">Objects</div>
+              <div class="b-stat-value">1247</div>
+              <div class="b-stat-sub">+12 TODAY</div>
+            </div>
+            <div class="b-stat">
+              <div class="b-stat-label">Projects</div>
+              <div class="b-stat-value">084</div>
+              <div class="b-stat-sub">ACTIVE</div>
+            </div>
+            <div class="b-stat">
+              <div class="b-stat-label">AI Status</div>
+              <div class="b-stat-value" style="font-size:12px;">READY</div>
+              <div class="b-stat-sub">GENESIS ON</div>
+            </div>
+            <div class="b-stat">
+              <div class="b-stat-label">DAO</div>
+              <div class="b-stat-value">47</div>
+              <div class="b-stat-sub">PROPOSALS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="style-name" style="background:#0a0f0a;border-top:1px solid #1e3a1e;">
+      <div>
+        <div class="style-name-text" style="color:#00ff41;font-family:'Courier New',monospace;">Industrial Command</div>
+        <div class="style-name-desc" style="color:#3a5a3a;font-family:'Courier New',monospace;">Командный центр, терминальный стиль</div>
+      </div>
+      <div class="style-name-tags">
+        <span class="tag" style="background:rgba(0,255,65,0.08);color:#3a5a3a;">Технический</span>
+        <span class="tag" style="background:rgba(0,255,65,0.08);color:#3a5a3a;">Брутальный</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ C: ENTERPRISE CLEAN ═══ -->
+  <div class="style-card" id="card-c" onclick="select('c')" style="background:#f8fafc;border-radius:16px;">
+    <div class="check-icon" style="background:#1e40af;">✓</div>
+    <div class="label-bar c-label-bar" style="position:absolute;top:60px;right:12px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;z-index:10;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;">C</div>
+    <div class="selected-overlay" style="background:rgba(30,64,175,0.04);"></div>
+
+    <div class="style-c">
+      <div class="c-topbar">
+        <div class="c-logo">ARKHEOSIUM</div>
+        <div class="c-nav">
+          <div class="c-nav-item active">Earth</div>
+          <div class="c-nav-item">Projects</div>
+          <div class="c-nav-item">Technologies</div>
+          <div class="c-nav-item">AI</div>
+          <div class="c-nav-item">Analytics</div>
+        </div>
+        <div class="c-actions">
+          <div class="c-btn c-btn-ghost">Genesis Engine</div>
+          <div class="c-btn c-btn-primary">+ Проект</div>
+        </div>
+      </div>
+      <div class="c-body">
+        <div class="c-sidebar">
+          <div class="c-section-label">Навигация</div>
+          <div class="c-sidebar-item active"><div class="c-sidebar-dot" style="background:#1e40af;"></div>Карта мира</div>
+          <div class="c-sidebar-item"><div class="c-sidebar-dot" style="background:#0891b2;"></div>Объекты (1247)</div>
+          <div class="c-sidebar-item"><div class="c-sidebar-dot" style="background:#059669;"></div>Проекты (84)</div>
+          <div class="c-sidebar-item"><div class="c-sidebar-dot" style="background:#7c3aed;"></div>Технологии</div>
+          <div class="c-sidebar-item"><div class="c-sidebar-dot" style="background:#dc2626;"></div>Исследования</div>
+          <div class="c-section-label" style="margin-top:8px;">AI Модули</div>
+          <div class="c-sidebar-item"><div class="c-sidebar-dot" style="background:#ea580c;"></div>Genesis Engine</div>
+          <div class="c-sidebar-item"><div class="c-sidebar-dot" style="background:#0284c7;"></div>Симулятор</div>
+        </div>
+        <div class="c-main">
+          <div class="c-map-card">
+            <div class="c-card-header">
+              <div>
+                <div class="c-card-title">Планетарная карта</div>
+              </div>
+              <div class="c-card-sub">Центральная Азия · 47 регионов</div>
+            </div>
+            <div class="c-map-body">
+              <div class="c-map-region" style="top:20%;left:15%;width:180px;height:80px;background:#1e40af;border-radius:8px;opacity:0.15;"></div>
+              <div class="c-map-region" style="top:35%;left:40%;width:120px;height:100px;background:#059669;border-radius:8px;opacity:0.15;"></div>
+              <div class="c-map-pin" style="top:30%;left:25%;background:#1e40af;"></div>
+              <div class="c-map-pin" style="top:45%;left:55%;background:#059669;"></div>
+              <div class="c-map-pin" style="top:60%;left:35%;background:#dc2626;"></div>
+              <div class="c-map-pin" style="top:25%;left:65%;background:#7c3aed;"></div>
+            </div>
+          </div>
+          <div class="c-right-col">
+            <div class="c-stat-card">
+              <div class="c-stat-card-label">Объекты</div>
+              <div class="c-stat-card-value" style="color:#1e40af;">1,247</div>
+              <div class="c-stat-card-badge badge-green">↑ +12 сегодня</div>
+            </div>
+            <div class="c-stat-card">
+              <div class="c-stat-card-label">Инвестиции</div>
+              <div class="c-stat-card-value" style="color:#059669;font-size:18px;">$4.2B</div>
+              <div class="c-stat-card-badge badge-blue">84 активных</div>
+            </div>
+            <div class="c-stat-card">
+              <div class="c-stat-card-label">Genesis AI</div>
+              <div style="font-size:12px;color:#1e293b;font-weight:600;margin:4px 0;">Готов к запуску</div>
+              <div style="width:100%;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;">
+                <div style="width:87%;height:100%;background:#1e40af;border-radius:2px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="style-name" style="background:#fff;border-top:1px solid #e2e8f0;">
+      <div>
+        <div class="style-name-text" style="color:#1e293b;">Enterprise Clean</div>
+        <div class="style-name-desc" style="color:#94a3b8;">Светлый, профессиональный, привычный</div>
+      </div>
+      <div class="style-name-tags">
+        <span class="tag" style="background:#f1f5f9;color:#64748b;">B2B</span>
+        <span class="tag" style="background:#f1f5f9;color:#64748b;">Доступный</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ D: NEURAL DARK ═══ -->
+  <div class="style-card" id="card-d" onclick="select('d')" style="background:#080812;border-radius:16px;">
+    <div class="check-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;">✓</div>
+    <div class="label-bar d-label-bar" style="position:absolute;top:60px;right:12px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;z-index:10;background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);">D</div>
+    <div class="selected-overlay" style="background:rgba(139,92,246,0.04);"></div>
+
+    <div class="style-d">
+      <div class="d-topbar">
+        <div class="d-logo">ARKHEOSIUM</div>
+        <div class="d-nav">
+          <span class="active">Earth</span>
+          <span>Atlas</span>
+          <span>Graph</span>
+          <span>Genesis</span>
+          <span>DAO</span>
+        </div>
+        <div class="d-actions">
+          <div class="d-ai-btn">✦ AI Navigator</div>
+        </div>
+      </div>
+      <div class="d-body">
+        <div class="d-sidebar">
+          <div class="d-icon active">🌐</div>
+          <div class="d-icon">🏛</div>
+          <div class="d-icon">⚗️</div>
+          <div class="d-icon">🧬</div>
+          <div class="d-icon">💎</div>
+          <div class="d-icon">🔭</div>
+        </div>
+        <div class="d-main">
+          <div class="d-center">
+            <!-- Background graph connections -->
+            <div class="d-graph">
+              <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet">
+                <line x1="80" y1="60" x2="150" y2="100" stroke="rgba(139,92,246,0.2)" stroke-width="1"/>
+                <line x1="150" y1="100" x2="220" y2="60" stroke="rgba(236,72,153,0.2)" stroke-width="1"/>
+                <line x1="150" y1="100" x2="120" y2="160" stroke="rgba(139,92,246,0.2)" stroke-width="1"/>
+                <line x1="150" y1="100" x2="200" y2="150" stroke="rgba(139,92,246,0.15)" stroke-width="1"/>
+                <line x1="80" y1="60" x2="40" y2="110" stroke="rgba(139,92,246,0.1)" stroke-width="1"/>
+              </svg>
+            </div>
+            <!-- Orbital rings -->
+            <div class="d-orb d-orb-1" style="top:50%;left:50%;"></div>
+            <div class="d-orb d-orb-2" style="top:50%;left:50%;"></div>
+            <!-- Globe -->
+            <div class="d-globe-wrap">
+              <div class="d-globe">
+                <div class="d-globe-lines"></div>
+              </div>
+              <!-- Nodes on orbit -->
+              <div class="d-node" style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);"></div>
+              <div class="d-node d-node-pink" style="position:absolute;right:-5px;top:50%;transform:translateY(-50%);"></div>
+              <div class="d-node" style="position:absolute;bottom:-5px;left:40%;"></div>
+            </div>
+          </div>
+          <div class="d-right">
+            <div class="d-card">
+              <div class="d-card-title">Graph Engine</div>
+              <div class="d-metric"><span>Сущностей</span><span>12,847</span></div>
+              <div class="d-metric"><span>Связей</span><span>84,291</span></div>
+              <div class="d-graph-mini">
+                <svg viewBox="0 0 140 30" preserveAspectRatio="none">
+                  <polyline points="0,25 20,18 40,20 60,10 80,14 100,6 120,8 140,3" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+                  <polyline points="0,25 20,18 40,20 60,10 80,14 100,6 120,8 140,3 140,30 0,30" fill="rgba(139,92,246,0.1)"/>
+                </svg>
+              </div>
+            </div>
+            <div class="d-card">
+              <div class="d-card-title">AI Агенты</div>
+              <div class="d-metric"><span>Engineer</span><span style="color:#8b5cf6;">●</span></div>
+              <div class="d-metric"><span>Ecologist</span><span style="color:#ec4899;">●</span></div>
+              <div class="d-metric"><span>Investor</span><span style="color:#8b5cf6;">●</span></div>
+            </div>
+            <div class="d-card">
+              <div class="d-card-title">Genesis</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:4px;">Проектов создано</div>
+              <div style="font-size:20px;font-weight:800;background:linear-gradient(90deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">247</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="style-name" style="background:#080812;border-top:1px solid rgba(139,92,246,0.15);">
+      <div>
+        <div class="style-name-text" style="background:linear-gradient(90deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Neural Dark</div>
+        <div class="style-name-desc" style="color:rgba(255,255,255,0.25);">Граф знаний, AI-нейросеть, пурпур+розовый</div>
+      </div>
+      <div class="style-name-tags">
+        <span class="tag" style="background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.7);">Web3</span>
+        <span class="tag" style="background:rgba(139,92,246,0.1);color:rgba(139,92,246,0.7);">Футурист</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="hint">Можно выбрать несколько · или описать что нравится в каждом</p>
+
+<div class="choice-indicator" id="choice-indicator">Выбрано: <span id="chosen-text">—</span></div>
+
+<script>
+const selected = new Set();
+function select(id) {
+  const card = document.getElementById('card-' + id);
+  if (selected.has(id)) {
+    selected.delete(id);
+    card.classList.remove('selected');
+  } else {
+    selected.add(id);
+    card.classList.add('selected');
+  }
+  const indicator = document.getElementById('choice-indicator');
+  const chosenText = document.getElementById('chosen-text');
+  if (selected.size > 0) {
+    const names = {a:'Cosmic Glass', b:'Industrial', c:'Enterprise', d:'Neural Dark'};
+    chosenText.textContent = [...selected].map(x => names[x]).join(', ');
+    indicator.classList.add('show');
+    // send to superpowers if available
+    if (window.__sp_select) window.__sp_select([...selected].join(','), chosenText.textContent);
+  } else {
+    indicator.classList.remove('show');
+  }
+}
+// Also emit custom events for the server
+document.querySelectorAll('.style-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const choice = card.id.replace('card-', '');
+    const evt = new CustomEvent('sp-choice', {detail: {choice}});
+    document.dispatchEvent(evt);
+  });
+});
+</script>
+</body>
+</html>

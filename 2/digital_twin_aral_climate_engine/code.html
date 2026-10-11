@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ArkheOS | Aral Nexus Digital Twin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --cyan-glow: rgba(0, 219, 231, 0.3);
+            --emerald-glow: rgba(0, 227, 139, 0.2);
+        }
+        body {
+            background-color: #081421;
+            color: #d7e3f5;
+            overflow-x: hidden;
+            font-family: 'Sora', sans-serif;
+        }
+        .hyper-glass {
+            background: rgba(4, 15, 27, 0.4);
+            backdrop-filter: blur(40px);
+            border: 0.5px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+        .active-glow {
+            box-shadow: 0 0 20px var(--cyan-glow);
+            border-color: #00dbe7;
+        }
+        .noise-grain {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.02;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline-effect::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent, rgba(0, 219, 231, 0.05), transparent);
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002110",
+                        "surface-tint": "#00dbe7",
+                        "tertiary": "#fcf5ff",
+                        "surface-container-low": "#101c29",
+                        "on-surface": "#d7e3f5",
+                        "error": "#ffb4ab",
+                        "secondary": "#f5fff4",
+                        "primary-fixed-dim": "#00dbe7",
+                        "on-surface-variant": "#b9cacb",
+                        "background": "#081421",
+                        "surface-container-highest": "#2a3643",
+                        "tertiary-container": "#e3d4ff",
+                        "on-primary-container": "#006a71",
+                        "error-container": "#93000a",
+                        "surface-bright": "#2e3a48",
+                        "surface-container-high": "#1f2b38",
+                        "on-primary-fixed": "#002022",
+                        "surface-container-lowest": "#040f1b",
+                        "outline": "#849495",
+                        "surface-container": "#15202d",
+                        "secondary-container": "#16ff9e",
+                        "outline-variant": "#3a494b",
+                        "tertiary-fixed": "#e9ddff",
+                        "inverse-surface": "#d7e3f5",
+                        "primary": "#e1fdff",
+                        "on-tertiary-container": "#7318ff",
+                        "secondary-fixed": "#56ffa8",
+                        "on-background": "#d7e3f5",
+                        "secondary-fixed-dim": "#00e38b",
+                        "on-tertiary-fixed-variant": "#5700c9",
+                        "inverse-on-surface": "#26313f",
+                        "primary-container": "#00f2ff",
+                        "on-tertiary": "#3c0090",
+                        "surface-variant": "#2a3643",
+                        "primary-fixed": "#74f5ff",
+                        "on-tertiary-fixed": "#23005b",
+                        "on-secondary": "#00391f",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#081421",
+                        "on-secondary-fixed-variant": "#00522f",
+                        "inverse-primary": "#00696f",
+                        "on-primary-fixed-variant": "#004f54",
+                        "on-secondary-container": "#007243",
+                        "on-primary": "#00363a",
+                        "tertiary-fixed-dim": "#d1bcff",
+                        "surface": "#081421"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-edge": "40px",
+                        "gutter": "24px",
+                        "panel-gap": "16px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Sora"],
+                        "label-xs": ["JetBrains Mono"],
+                        "headline-md": ["Sora"],
+                        "body-md": ["Sora"],
+                        "display-lg-mobile": ["Sora"],
+                        "data-mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-xs": ["11px", {"lineHeight": "1", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-mono": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="antialiased select-none">
+<div class="noise-grain"></div>
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-edge h-20 bg-surface-container-lowest/40 backdrop-blur-[60px] border-b border-white/10 shadow-[0_0_40px_rgba(0,219,231,0.1)]">
+<div class="flex items-center gap-8">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg tracking-tighter text-primary-container">ArkheOS</h1>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-primary border-b-2 border-primary-fixed font-data-mono text-data-mono py-2" href="#">Ecosystem Twin</a>
+<a class="text-on-surface-variant hover:text-primary transition-all duration-300 font-data-mono text-data-mono py-2" href="#">Simulations</a>
+<a class="text-on-surface-variant hover:text-primary transition-all duration-300 font-data-mono text-data-mono py-2" href="#">Governance</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-white/5 rounded-full px-4 py-1.5 gap-3 border border-white/10">
+<span class="material-symbols-outlined text-primary-fixed-dim text-sm" style="font-variation-settings: 'FILL' 1;">satellite_alt</span>
+<span class="font-data-mono text-xs text-primary-fixed-dim tracking-widest uppercase">Satellite Monitoring Center: ACTIVE</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-primary-container/20 border border-primary-fixed-dim overflow-hidden p-0.5">
+<img class="w-full h-full object-cover rounded-full" data-alt="A highly detailed 3D render of a futuristic cyborg administrator's avatar. The face is composed of polished obsidian and glowing cyan fiber optics, reflecting a high-tech planetary management interface. The lighting is dramatic and moody, set against a deep blue atmospheric background. The aesthetic is clean, sharp, and intensely professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHGbmKn0L4mIYsb7VUlflH0ftZinEXblKQaserA5yFU39F--swwQKKjDWPSOPPmtNF8h3Gd0MSL-YhfTf5w6CuNp3iKJ20dLqdSrH4eT9eAWzZRel3hFZiCRkeTyUahsQi_IEig_h0TNM7xiAeSFbcwdfIOOiX5u96LIC-8NKXNq_yaUIEo1tS-0-sTvUfo83rwHQkPw7obYfeLAoErW6r34z5HzgoL8J4qVCuyuGVfDbzElRtizgr"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="fixed left-0 top-20 bottom-0 z-40 flex flex-col w-[280px] bg-surface-dim/20 backdrop-blur-[80px] border-r border-white/5 shadow-2xl hidden md:flex">
+<div class="p-6 border-b border-white/5">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse shadow-[0_0_8px_#00dbe7]"></div>
+<span class="font-headline-md text-headline-md text-primary">Aral Nexus</span>
+</div>
+<p class="font-data-mono text-data-mono text-on-surface-variant/70">Mega-Project Status: Active</p>
+</div>
+<nav class="flex-1 py-6 overflow-y-auto custom-scrollbar">
+<div class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/40 font-bold">Primary Vectors</div>
+<a class="text-on-surface-variant/70 px-4 py-3 flex items-center gap-3 hover:bg-white/10 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined">public</span>
+<span class="font-data-mono text-data-mono">Earth</span>
+</a>
+<a class="bg-primary-container/20 text-primary-fixed border-l-2 border-primary-fixed-dim px-4 py-3 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="font-data-mono text-data-mono">Ecosystem</span>
+</a>
+<a class="text-on-surface-variant/70 px-4 py-3 flex items-center gap-3 hover:bg-white/10 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-data-mono text-data-mono">Projects</span>
+</a>
+<a class="text-on-surface-variant/70 px-4 py-3 flex items-center gap-3 hover:bg-white/10 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined">deployed_code</span>
+<span class="font-data-mono text-data-mono">Objects</span>
+</a>
+<a class="text-on-surface-variant/70 px-4 py-3 flex items-center gap-3 hover:bg-white/10 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-data-mono text-data-mono">Marketplace</span>
+</a>
+</nav>
+<div class="p-4 border-t border-white/5">
+<button class="w-full py-3 bg-primary-container/10 border border-primary-container text-primary-container font-headline-md text-sm rounded transition-all hover:bg-primary-container hover:text-on-primary-container active:scale-95">
+                Deploy Resource
+            </button>
+</div>
+<div class="p-4 bg-white/5">
+<div class="flex gap-4">
+<a class="flex flex-col items-center gap-1 flex-1 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="text-[10px] font-data-mono uppercase">Diagnostics</span>
+</a>
+<a class="flex flex-col items-center gap-1 flex-1 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-[10px] font-data-mono uppercase">Terminal</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-[280px] pt-20 pb-16 md:pb-0 min-h-screen px-margin-edge overflow-hidden relative">
+<!-- Background Animation -->
+
+<div class="relative z-10 grid grid-cols-12 gap-gutter py-8">
+<!-- Left Panel: Scenario & Visualization Control -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-panel-gap">
+<section class="hyper-glass p-6 rounded-xl relative overflow-hidden scanline-effect">
+<h3 class="font-headline-md text-headline-md text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">settings_input_component</span>
+                        Scenario Engine
+                    </h3>
+<div class="flex flex-col gap-3">
+<button class="w-full text-left p-4 rounded bg-primary-fixed-dim/20 border border-primary-fixed-dim group active-glow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-data-mono text-sm text-primary-fixed-dim font-bold">Accelerated Reforestation</span>
+<span class="material-symbols-outlined text-primary-fixed-dim">check_circle</span>
+</div>
+<p class="text-[11px] text-on-surface-variant leading-relaxed">Aggressive planting of saxaul belts and salt-tolerant species. Priority 01 mandate.</p>
+</button>
+<button class="w-full text-left p-4 rounded bg-white/5 border border-white/5 hover:border-white/20 transition-all group">
+<div class="flex justify-between items-start mb-1">
+<span class="font-data-mono text-sm text-on-surface-variant group-hover:text-primary transition-colors">Current Trajectory</span>
+<span class="material-symbols-outlined text-white/10 group-hover:text-primary/40">radio_button_unchecked</span>
+</div>
+<p class="text-[11px] text-on-surface-variant/60 leading-relaxed">Status quo modeling based on current diplomatic and environmental agreements.</p>
+</button>
+</div>
+</section>
+<section class="hyper-glass p-6 rounded-xl">
+<h3 class="font-headline-md text-headline-md text-primary mb-4">Telemetry Layers</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-2 rounded hover:bg-white/5 cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-cyan-400">water_drop</span>
+<span class="font-data-mono text-sm">Water Saturation</span>
+</div>
+<div class="w-10 h-5 bg-primary-container/40 rounded-full p-1 relative flex items-center justify-end">
+<div class="w-3 h-3 bg-primary-container rounded-full shadow-[0_0_8px_#00dbe7]"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-white/5 cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-emerald-400">forest</span>
+<span class="font-data-mono text-sm">Vegetation Density</span>
+</div>
+<div class="w-10 h-5 bg-emerald-500/40 rounded-full p-1 relative flex items-center justify-end">
+<div class="w-3 h-3 bg-emerald-400 rounded-full shadow-[0_0_8px_#00e38b]"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-white/5 cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-purple-400">air</span>
+<span class="font-data-mono text-sm">Atmospheric Quality</span>
+</div>
+<div class="w-10 h-5 bg-white/10 rounded-full p-1 relative flex items-center justify-start">
+<div class="w-3 h-3 bg-white/40 rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Center: The Digital Twin Viewport -->
+<div class="col-span-12 lg:col-span-6 flex flex-col gap-panel-gap min-h-[600px]">
+<div class="flex-1 hyper-glass rounded-2xl relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<div class="absolute top-6 left-6 z-20 flex flex-col gap-2">
+<div class="bg-black/60 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-lg">
+<div class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-1">Observation Sector</div>
+<div class="font-headline-md text-xl text-primary">Aral Sea | Node-Gamma-07</div>
+</div>
+<div class="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+<span class="font-data-mono text-[10px] text-white">LIVE FEED: SATELLITE 4-B</span>
+</div>
+</div>
+<!-- Map Visualization -->
+<div class="absolute inset-0 flex items-center justify-center p-8">
+<div class="w-full h-full rounded-xl border border-white/5 relative overflow-hidden" data-alt="A highly detailed, top-down satellite view of the Aral Sea basin transformed into a digital twin. The map features hyper-glass overlays of neon cyan water reservoirs and emerald green reforestation belts. Transparent UI elements and data points float over the landscape. The atmosphere is crisp with sharp textures, highlighting the stark contrast between the desert and the new ecosystems." data-location="Aral Sea, Uzbekistan/Kazakhstan" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnqlAp5gFyHei0ogjRqmSPmDX7Arb4omjUwk-11O3bjDrFWtyDDtritXuG2lFQw9rpm7irJwTnRkN2x8ZZHyHmeK1SxdiF1U_nsoLlwFu9IEMi8WEqC4oTW-zSulZUhs1om75hTUHGn8lQcOvfv5qnXcZu5z9zW1t8m7RJ6FfSYJXKhjEt-fp9wzMPL2A3_OWb0r_qZTMIIgbEiYnbCbCuWdkIbnhhHgKtMgVkYa6kZsSmmpuvKQVd')">
+<div class="absolute inset-0 bg-primary/10 mix-blend-overlay"></div>
+<!-- HUD Overlays -->
+<div class="absolute top-1/4 left-1/3 w-24 h-24 border border-primary/40 rounded-full animate-spin-slow flex items-center justify-center">
+<div class="w-1 h-12 bg-primary-container absolute top-0 origin-bottom"></div>
+</div>
+</div>
+</div>
+<!-- Bottom Scrubbing Interface -->
+<div class="absolute bottom-8 left-8 right-8 hyper-glass p-6 rounded-xl border border-primary/20 backdrop-blur-3xl">
+<div class="flex justify-between items-center mb-6">
+<span class="font-data-mono text-xs text-on-surface-variant tracking-tighter">TEMPORAL PROJECTION SCRUBBER</span>
+<span class="font-data-mono text-xs text-primary bg-primary/10 px-3 py-1 rounded">PREDICTION CONFIDENCE: 94.2%</span>
+</div>
+<div class="relative w-full h-12 flex items-center">
+<div class="absolute w-full h-[1px] bg-white/10"></div>
+<div class="flex justify-between w-full relative z-10">
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-3 h-3 rounded-full bg-white/20 group-hover:bg-primary transition-colors border-4 border-background"></div>
+<span class="font-data-mono text-[11px] text-on-surface-variant group-hover:text-white">2024</span>
+</div>
+<div class="flex flex-col items-center gap-2 group cursor-pointer translate-y-[-4px]">
+<div class="w-5 h-5 rounded-full bg-primary-container shadow-[0_0_12px_#00dbe7] border-4 border-background"></div>
+<span class="font-headline-md text-sm text-primary">2030</span>
+</div>
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-3 h-3 rounded-full bg-white/20 group-hover:bg-primary transition-colors border-4 border-background"></div>
+<span class="font-data-mono text-[11px] text-on-surface-variant group-hover:text-white">2040</span>
+</div>
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-3 h-3 rounded-full bg-white/20 group-hover:bg-primary transition-colors border-4 border-background"></div>
+<span class="font-data-mono text-[11px] text-on-surface-variant group-hover:text-white">2050</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Technical Breakdown -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-panel-gap">
+<section class="hyper-glass p-6 rounded-xl">
+<h3 class="font-headline-md text-headline-md text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">waves</span>
+                        Water Recovery System
+                    </h3>
+<div class="space-y-6">
+<div class="relative pl-6 border-l border-primary/30">
+<div class="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_#00dbe7]"></div>
+<h4 class="font-data-mono text-sm text-primary mb-1">Atmospheric Harvesting Nodes</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Extracting moisture from Caspian air currents via condensation lattices. Efficiency +12% YoY.</p>
+<div class="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[78%]"></div>
+</div>
+</div>
+<div class="relative pl-6 border-l border-white/10">
+<div class="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-white/20"></div>
+<h4 class="font-data-mono text-sm text-on-surface-variant mb-1">Amu Darya Diversion Management</h4>
+<p class="text-xs text-on-surface-variant/60 leading-relaxed">Automated floodgate array optimizing seasonal flow to the North Aral Basin.</p>
+<div class="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed-dim/40 w-[42%]"></div>
+</div>
+</div>
+<div class="relative pl-6 border-l border-white/10">
+<div class="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-white/20"></div>
+<h4 class="font-data-mono text-sm text-on-surface-variant mb-1">Desalination Micro-Plants</h4>
+<p class="text-xs text-on-surface-variant/60 leading-relaxed">Modular salt filtration units powered by integrated solar farms.</p>
+<div class="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed-dim/40 w-[65%]"></div>
+</div>
+</div>
+</div>
+</section>
+<section class="hyper-glass p-6 rounded-xl flex-1">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-md text-headline-md text-primary">Node Telemetry</h3>
+<span class="font-data-mono text-[10px] text-emerald-400">ALL SYSTEMS NOMINAL</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-white/5 rounded border border-white/5">
+<div class="text-[10px] text-on-surface-variant uppercase mb-1">Saturation</div>
+<div class="text-xl font-headline-md text-primary">24.5%</div>
+</div>
+<div class="p-3 bg-white/5 rounded border border-white/5">
+<div class="text-[10px] text-on-surface-variant uppercase mb-1">Salinity</div>
+<div class="text-xl font-headline-md text-red-400">114 g/L</div>
+</div>
+<div class="p-3 bg-white/5 rounded border border-white/5">
+<div class="text-[10px] text-on-surface-variant uppercase mb-1">Vegetation</div>
+<div class="text-xl font-headline-md text-emerald-400">1.2M Ha</div>
+</div>
+<div class="p-3 bg-white/5 rounded border border-white/5">
+<div class="text-[10px] text-on-surface-variant uppercase mb-1">Air Quality</div>
+<div class="text-xl font-headline-md text-primary">AQI 42</div>
+</div>
+</div>
+<div class="mt-6">
+<div class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mb-4">Live Analysis Stream</div>
+<div class="space-y-3">
+<div class="flex items-center gap-3 py-2 border-b border-white/5">
+<div class="w-1.5 h-1.5 rounded-full bg-primary animate-flicker"></div>
+<span class="font-data-mono text-[11px] text-on-surface-variant">NODE-07: Soil alkaline level decrease detected</span>
+</div>
+<div class="flex items-center gap-3 py-2 border-b border-white/5">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-flicker"></div>
+<span class="font-data-mono text-[11px] text-on-surface-variant">BELT-C: Photosynthesis peak at 08:00 UTC</span>
+</div>
+<div class="flex items-center gap-3 py-2 border-b border-white/5">
+<div class="w-1.5 h-1.5 rounded-full bg-primary animate-flicker"></div>
+<span class="font-data-mono text-[11px] text-on-surface-variant">SATELLITE: Imaging pass complete in 4m 12s</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden px-4 bg-surface-container-high/60 backdrop-blur-[40px] border-t border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed group transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">public</span>
+<span class="font-label-xs text-label-xs">Earth</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed group transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-label-xs text-label-xs">Projects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary-container scale-110 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="font-label-xs text-label-xs">Nexus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed group transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">deployed_code</span>
+<span class="font-label-xs text-label-xs">Objects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed group transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-label-xs text-label-xs">Market</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for the scrubber
+        document.querySelectorAll('.cursor-pointer').forEach(el => {
+            el.addEventListener('click', function() {
+                // Remove active styling from others
+                document.querySelectorAll('.cursor-pointer div').forEach(dot => {
+                    dot.classList.remove('bg-primary-container', 'shadow-[0_0_12px_#00dbe7]', 'w-5', 'h-5');
+                    dot.classList.add('bg-white/20', 'w-3', 'h-3');
+                });
+                document.querySelectorAll('.cursor-pointer span').forEach(txt => {
+                    txt.classList.remove('font-headline-md', 'text-sm', 'text-primary');
+                    txt.classList.add('font-data-mono', 'text-[11px]', 'text-on-surface-variant');
+                });
+                
+                // Add active styling to clicked
+                const dot = this.querySelector('div');
+                const txt = this.querySelector('span');
+                dot.classList.remove('bg-white/20', 'w-3', 'h-3');
+                dot.classList.add('bg-primary-container', 'shadow-[0_0_12px_#00dbe7]', 'w-5', 'h-5');
+                txt.classList.remove('font-data-mono', 'text-[11px]', 'text-on-surface-variant');
+                txt.classList.add('font-headline-md', 'text-sm', 'text-primary');
+            });
+        });
+
+        // Animation for flickers
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes flicker {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+            .animate-flicker {
+                animation: flicker 2s infinite;
+            }
+            @keyframes spin-slow {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            .animate-spin-slow {
+                animation: spin-slow 20s linear infinite;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body></html>

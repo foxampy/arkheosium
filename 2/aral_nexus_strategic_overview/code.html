@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ArkheOS | Aral Nexus Strategic Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#002110",
+                    "surface-tint": "#00dbe7",
+                    "tertiary": "#fcf5ff",
+                    "surface-container-low": "#101c29",
+                    "on-surface": "#d7e3f5",
+                    "error": "#ffb4ab",
+                    "secondary": "#f5fff4",
+                    "primary-fixed-dim": "#00dbe7",
+                    "on-surface-variant": "#b9cacb",
+                    "background": "#081421",
+                    "surface-container-highest": "#2a3643",
+                    "tertiary-container": "#e3d4ff",
+                    "on-primary-container": "#006a71",
+                    "error-container": "#93000a",
+                    "surface-bright": "#2e3a48",
+                    "surface-container-high": "#1f2b38",
+                    "on-primary-fixed": "#002022",
+                    "surface-container-lowest": "#040f1b",
+                    "outline": "#849495",
+                    "surface-container": "#15202d",
+                    "secondary-container": "#16ff9e",
+                    "outline-variant": "#3a494b",
+                    "tertiary-fixed": "#e9ddff",
+                    "inverse-surface": "#d7e3f5",
+                    "primary": "#e1fdff",
+                    "on-tertiary-container": "#7318ff",
+                    "secondary-fixed": "#56ffa8",
+                    "on-background": "#d7e3f5",
+                    "secondary-fixed-dim": "#00e38b",
+                    "on-tertiary-fixed-variant": "#5700c9",
+                    "inverse-on-surface": "#26313f",
+                    "primary-container": "#00f2ff",
+                    "on-tertiary": "#3c0090",
+                    "surface-variant": "#2a3643",
+                    "primary-fixed": "#74f5ff",
+                    "on-tertiary-fixed": "#23005b",
+                    "on-secondary": "#00391f",
+                    "on-error": "#690005",
+                    "on-error-container": "#ffdad6",
+                    "surface-dim": "#081421",
+                    "on-secondary-fixed-variant": "#00522f",
+                    "inverse-primary": "#00696f",
+                    "on-primary-fixed-variant": "#004f54",
+                    "on-secondary-container": "#007243",
+                    "on-primary": "#00363a",
+                    "tertiary-fixed-dim": "#d1bcff",
+                    "surface": "#081421"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-edge": "40px",
+                    "gutter": "24px",
+                    "panel-gap": "16px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Sora"],
+                    "label-xs": ["JetBrains Mono"],
+                    "headline-md": ["Sora"],
+                    "body-md": ["Sora"],
+                    "display-lg-mobile": ["Sora"],
+                    "data-mono": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-xs": ["11px", {"lineHeight": "1", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-mono": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #000814;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 219, 231, 0.05) 0%, transparent 70%);
+            overflow-x: hidden;
+        }
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.02;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+        .active-glow {
+            box-shadow: 0 0 20px rgba(0, 219, 231, 0.2);
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline-effect::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(to right, transparent, rgba(0, 219, 231, 0.5), transparent);
+            animation: scanline 4s linear infinite;
+        }
+        .conic-gauge {
+            background: conic-gradient(from 180deg at 50% 50%, #00dbe7 74%, transparent 74%);
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased">
+<div class="noise-overlay"></div>
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-edge h-20 bg-surface-container-lowest/40 backdrop-blur-[60px] border-b border-white/10 shadow-[0_0_40px_rgba(0,219,231,0.1)]">
+<div class="flex items-center gap-4">
+<span class="font-display-lg text-display-lg-mobile md:text-display-lg tracking-tighter text-primary-container">ArkheOS</span>
+<div class="hidden md:flex h-8 w-px bg-white/10 mx-2"></div>
+<nav class="hidden md:flex gap-8">
+<a class="font-data-mono text-data-mono text-primary border-b-2 border-primary-fixed py-1 transition-all" href="#">STRATEGIC_MAP</a>
+<a class="font-data-mono text-data-mono text-on-surface-variant hover:text-primary transition-all" href="#">SYSTEM_LOGS</a>
+<a class="font-data-mono text-data-mono text-on-surface-variant hover:text-primary transition-all" href="#">NODES</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<input class="bg-white/5 border-none rounded-full px-6 py-2 w-64 text-sm font-data-mono focus:ring-1 focus:ring-primary-container text-primary placeholder-on-surface-variant/50" placeholder="QUERY_SYSTEM..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-2 text-on-surface-variant text-lg">search</span>
+</div>
+<div class="flex gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors active:scale-95">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors active:scale-95">settings</button>
+<div class="w-10 h-10 rounded-full border border-primary-fixed/30 p-0.5">
+<img class="w-full h-full rounded-full object-cover" data-alt="A high-resolution futuristic UI profile avatar of a system administrator, showing a translucent holographic silhouette with neural interface patterns, glowing cyan highlights against a dark crystalline background, professional and high-tech OS aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-TVXGNHabTHTTaduR-rPHj2wsEL4ydd8SiZ9XhljFTv-CzfSILzCYn6yywXlB327x6J-Dd7dymVv_nPx8yALEfEwsDoFU32okHGnrrr9a0Se359TTTptoBDI7ZIBULZMbSiSyEWB6nRK2AQWv41UcmpG2-eldvjMA19V18b01D5P9uJFf1yMzqO7UPpaPhbyMGMn-fQ2st4yIHgQ0_qk88TFcLlaSo6Y0nVXHsGQFlwF_Z7bH2Xtt"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-20 bottom-0 z-40 flex flex-col bg-surface-dim/20 backdrop-blur-[80px] border-r border-white/5 shadow-2xl w-[280px] transition-all">
+<div class="p-8 border-b border-white/5">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed shadow-[0_0_8px_#00e38b]"></div>
+<h2 class="font-headline-md text-headline-md text-primary">Aral Nexus</h2>
+</div>
+<p class="font-data-mono text-[10px] text-on-surface-variant/60 uppercase tracking-widest">Mega-Project Status: Active</p>
+</div>
+<nav class="flex-1 py-6">
+<div class="px-6 mb-4 font-data-mono text-[10px] text-on-surface-variant/40 tracking-widest">CORE_MODULES</div>
+<a class="bg-primary-container/20 text-primary-fixed border-l-2 border-primary-fixed-dim px-6 py-4 flex items-center gap-4 group hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+<span class="font-data-mono text-data-mono">Earth</span>
+</a>
+<a class="text-on-surface-variant/70 px-6 py-4 flex items-center gap-4 group hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-data-mono text-data-mono">Projects</span>
+</a>
+<a class="text-on-surface-variant/70 px-6 py-4 flex items-center gap-4 group hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="deployed_code">deployed_code</span>
+<span class="font-data-mono text-data-mono">Objects</span>
+</a>
+<a class="text-on-surface-variant/70 px-6 py-4 flex items-center gap-4 group hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="eco">eco</span>
+<span class="font-data-mono text-data-mono">Ecosystem</span>
+</a>
+<a class="text-on-surface-variant/70 px-6 py-4 flex items-center gap-4 group hover:bg-white/10 hover:text-primary transition-all hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-data-mono text-data-mono">Marketplace</span>
+</a>
+<div class="px-6 mt-10 mb-4 font-data-mono text-[10px] text-on-surface-variant/40 tracking-widest">SUB_PROJECTS</div>
+<div class="space-y-1">
+<div class="px-6 py-3 flex flex-col gap-1 border-l-2 border-transparent hover:border-surface-tint group cursor-pointer transition-all">
+<div class="flex justify-between items-center">
+<span class="font-data-mono text-xs text-on-surface">AI CORE</span>
+<span class="text-[10px] text-secondary-fixed">STABLE</span>
+</div>
+<div class="w-full bg-white/5 h-0.5 mt-1">
+<div class="bg-surface-tint w-4/5 h-full"></div>
+</div>
+</div>
+<div class="px-6 py-3 flex flex-col gap-1 border-l-2 border-transparent hover:border-surface-tint group cursor-pointer transition-all">
+<div class="flex justify-between items-center">
+<span class="font-data-mono text-xs text-on-surface">QUANTUM CTR</span>
+<span class="text-[10px] text-surface-tint">SYNCING</span>
+</div>
+<div class="w-full bg-white/5 h-0.5 mt-1">
+<div class="bg-surface-tint w-2/3 h-full animate-pulse"></div>
+</div>
+</div>
+<div class="px-6 py-3 flex flex-col gap-1 border-l-2 border-transparent hover:border-surface-tint group cursor-pointer transition-all">
+<div class="flex justify-between items-center">
+<span class="font-data-mono text-xs text-on-surface">WATER RECOVERY</span>
+<span class="text-[10px] text-secondary-fixed">OPTIMAL</span>
+</div>
+<div class="w-full bg-white/5 h-0.5 mt-1">
+<div class="bg-surface-tint w-full h-full"></div>
+</div>
+</div>
+</div>
+</nav>
+<div class="p-6 border-t border-white/5 space-y-4">
+<button class="w-full py-3 bg-primary-container text-on-primary-container font-data-mono text-xs flex items-center justify-center gap-2 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="bolt">bolt</span>
+                Deploy Resource
+            </button>
+<div class="flex justify-between px-2">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="query_stats">query_stats</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="terminal">terminal</button>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-[280px] pt-20 p-margin-edge min-h-screen">
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Strategic Header -->
+<div class="col-span-12 flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+<div>
+<h1 class="font-display-lg text-display-lg text-primary leading-none mb-2">ARAL NEXUS_01</h1>
+<div class="flex items-center gap-4 font-data-mono text-sm text-on-surface-variant">
+<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary-fixed"></span> SYSTEM_NOMINAL</span>
+<span class="text-white/20">|</span>
+<span>LAT: 45.0000° N, LONG: 59.0000° E</span>
+<span class="text-white/20">|</span>
+<span class="text-surface-tint">PHASE: RECLAMATION_IV</span>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="glass-panel px-6 py-4 rounded-xl flex flex-col items-center justify-center min-w-[140px]">
+<span class="font-data-mono text-[10px] text-on-surface-variant/60 tracking-widest uppercase">Global Stability</span>
+<span class="font-display-lg text-3xl text-secondary-fixed">99.2%</span>
+</div>
+<div class="glass-panel px-6 py-4 rounded-xl flex flex-col items-center justify-center min-w-[140px] border-primary/20">
+<span class="font-data-mono text-[10px] text-on-surface-variant/60 tracking-widest uppercase">Local Time</span>
+<span class="font-display-lg text-3xl text-primary" id="system-clock">14:22:04</span>
+</div>
+</div>
+</div>
+<!-- Central 3D Map Viewport -->
+<section class="col-span-12 lg:col-span-8 h-[600px] relative rounded-2xl overflow-hidden glass-panel border-white/20 scanline-effect">
+<!-- Map Content Placeholder -->
+<div class="absolute inset-0 bg-[#00101a]">
+
+</div>
+<!-- Map Overlay UI -->
+<div class="absolute top-6 left-6 flex flex-col gap-4">
+<div class="glass-panel p-4 rounded-lg bg-surface-container-lowest/60 border-primary/30">
+<h3 class="font-data-mono text-xs text-primary-fixed-dim mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">filter_center_focus</span>
+                            SMART_ISLAND_ALPHA
+                        </h3>
+<div class="space-y-2">
+<div class="flex justify-between items-center gap-8">
+<span class="font-data-mono text-[10px] text-on-surface-variant">POPULATION</span>
+<span class="font-data-mono text-xs text-on-surface">1.2M UNITS</span>
+</div>
+<div class="flex justify-between items-center gap-8">
+<span class="font-data-mono text-[10px] text-on-surface-variant">THERMAL_SIG</span>
+<span class="font-data-mono text-xs text-secondary-fixed">STABLE</span>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-6 right-6 flex gap-2">
+<button class="w-12 h-12 glass-rounded flex items-center justify-center rounded-full bg-surface-container-highest/60 hover:bg-primary-container hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-12 h-12 glass-rounded flex items-center justify-center rounded-full bg-surface-container-highest/60 hover:bg-primary-container hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<button class="w-12 h-12 glass-rounded flex items-center justify-center rounded-full bg-surface-container-highest/60 hover:bg-primary-container hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined">layers</span>
+</button>
+</div>
+<!-- Coordinates HUD -->
+<div class="absolute bottom-6 left-6 font-data-mono text-[10px] text-primary/40 pointer-events-none">
+                    X: 429.22 | Y: 110.05 | Z: 12.00 | GRID_REF: AR-09
+                </div>
+</section>
+<!-- Key Metrics Panel -->
+<aside class="col-span-12 lg:col-span-4 flex flex-col gap-panel-gap">
+<!-- Ecosystem Recovery Gauge -->
+<div class="glass-panel p-8 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="relative w-48 h-48 flex items-center justify-center">
+<!-- Conic Gauge -->
+<div class="absolute inset-0 rounded-full border border-white/5"></div>
+<div class="absolute inset-2 rounded-full conic-gauge opacity-30 blur-sm"></div>
+<div class="absolute inset-4 rounded-full border-[0.5px] border-primary-fixed/40"></div>
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-5xl text-primary leading-none">74<span class="text-2xl text-on-surface-variant">%</span></span>
+<span class="font-data-mono text-[10px] text-on-surface-variant uppercase tracking-widest mt-2">RECOVERY_INDEX</span>
+</div>
+</div>
+<div class="w-full mt-8 grid grid-cols-2 gap-4">
+<div class="text-center">
+<div class="font-data-mono text-[10px] text-on-surface-variant/60">YIELD_DELTA</div>
+<div class="font-data-mono text-sm text-secondary-fixed">+4.2%</div>
+</div>
+<div class="text-center">
+<div class="font-data-mono text-[10px] text-on-surface-variant/60">BIOMASS_DENS</div>
+<div class="font-data-mono text-sm text-on-surface">12.4kg/m³</div>
+</div>
+</div>
+</div>
+<!-- Desalination Efficiency -->
+<div class="glass-panel p-6 rounded-2xl">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-data-mono text-xs text-on-surface tracking-widest">DESALINATION_CORE</h3>
+<span class="material-symbols-outlined text-surface-tint text-lg">water_drop</span>
+</div>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>THROUGHPUT</span>
+<span>890ML/DAY</span>
+</div>
+<div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-surface-tint w-[85%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-data-mono text-on-surface-variant">
+<span>PURITY_LEVEL</span>
+<span>99.98%</span>
+</div>
+<div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed w-[99%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Power Grid Stability -->
+<div class="glass-panel p-6 rounded-2xl flex-1 relative overflow-hidden">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-data-mono text-xs text-on-surface tracking-widest">ENERGY_RING</h3>
+<div class="flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-fixed animate-pulse"></div>
+<span class="text-[10px] font-data-mono text-secondary-fixed">NOMINAL</span>
+</div>
+</div>
+<div class="h-24 w-full relative">
+<!-- Sparkline/Waveform Simulation -->
+<div class="absolute inset-0 flex items-end gap-1 px-2">
+<div class="bg-primary/20 w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-primary/20 w-full h-[45%] rounded-t-sm"></div>
+<div class="bg-primary/40 w-full h-[75%] rounded-t-sm"></div>
+<div class="bg-primary/20 w-full h-[55%] rounded-t-sm"></div>
+<div class="bg-primary-container w-full h-[90%] rounded-t-sm"></div>
+<div class="bg-primary/20 w-full h-[65%] rounded-t-sm"></div>
+<div class="bg-primary/20 w-full h-[40%] rounded-t-sm"></div>
+<div class="bg-primary/20 w-full h-[80%] rounded-t-sm"></div>
+</div>
+</div>
+<div class="mt-4 flex justify-between items-end">
+<div>
+<div class="font-display-lg text-2xl text-primary">4.2 GW</div>
+<div class="font-data-mono text-[10px] text-on-surface-variant">CURRENT_OUTPUT</div>
+</div>
+<div class="text-right">
+<div class="font-data-mono text-xs text-on-surface">RENEWABLE_RING</div>
+<div class="font-data-mono text-[10px] text-on-surface-variant">ACTIVE_NODES: 124/124</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Bottom Data Row -->
+<section class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Data Point 1 -->
+<div class="glass-panel p-6 rounded-2xl flex items-center gap-6">
+<div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+<span class="material-symbols-outlined text-3xl">biotech</span>
+</div>
+<div>
+<div class="font-data-mono text-[10px] text-on-surface-variant tracking-widest mb-1">BIOLUMINESCENT_NODES</div>
+<div class="font-display-lg text-2xl text-primary">8.4k</div>
+<div class="text-[10px] font-data-mono text-secondary-fixed flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> +12% SYNC
+                        </div>
+</div>
+</div>
+<!-- Data Point 2 -->
+<div class="glass-panel p-6 rounded-2xl flex items-center gap-6">
+<div class="w-14 h-14 rounded-full bg-secondary-fixed/10 flex items-center justify-center text-secondary-fixed border border-secondary-fixed/20">
+<span class="material-symbols-outlined text-3xl">psychology</span>
+</div>
+<div>
+<div class="font-data-mono text-[10px] text-on-surface-variant tracking-widest mb-1">NEURAL_DENSITY</div>
+<div class="font-display-lg text-2xl text-primary">124 PetaFLOPS</div>
+<div class="text-[10px] font-data-mono text-on-surface-variant flex items-center gap-1">
+                            LATENCY: 0.04ms
+                        </div>
+</div>
+</div>
+<!-- Data Point 3 -->
+<div class="glass-panel p-6 rounded-2xl flex items-center gap-6">
+<div class="w-14 h-14 rounded-full bg-surface-tint/10 flex items-center justify-center text-surface-tint border border-surface-tint/20">
+<span class="material-symbols-outlined text-3xl">landscape</span>
+</div>
+<div>
+<div class="font-data-mono text-[10px] text-on-surface-variant tracking-widest mb-1">ARABLE_CONVERSION</div>
+<div class="font-display-lg text-2xl text-primary">15,400 Hectares</div>
+<div class="text-[10px] font-data-mono text-secondary-fixed flex items-center gap-1">
+                            PH_LEVEL: 6.8 (STABLE)
+                        </div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar Shell (Mobile only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden bg-surface-container-high/60 backdrop-blur-[40px] border-t border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] rounded-t-xl px-4">
+<button class="flex flex-col items-center justify-center text-primary-container scale-110">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+<span class="font-label-xs text-label-xs">Earth</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-label-xs text-label-xs">Projects</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="deployed_code">deployed_code</span>
+<span class="font-label-xs text-label-xs">Objects</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="eco">eco</span>
+<span class="font-label-xs text-label-xs">Ecosystem</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-label-xs text-label-xs">Market</span>
+</button>
+</nav>
+<script>
+        // Micro-interactions and Clock
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('system-clock').textContent = `${h}:${m}:${s}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Atmospheric flicker effect for certain status dots
+        const statuses = document.querySelectorAll('.bg-secondary-fixed');
+        setInterval(() => {
+            statuses.forEach(dot => {
+                if (Math.random() > 0.95) {
+                    dot.style.opacity = '0.5';
+                    setTimeout(() => dot.style.opacity = '1', 50);
+                }
+            });
+        }, 2000);
+    </script>
+</body></html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ArkheOScapital | Planetary Investment Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .glass-panel {
+            background: rgba(8, 11, 26, 0.6);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(226, 232, 240, 0.1);
+        }
+        .glow-cyan {
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+        }
+        .glow-border-cyan:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            border-color: rgba(0, 242, 255, 0.5);
+        }
+        .hud-line {
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.3), transparent);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #031427; }
+        ::-webkit-scrollbar-thumb { background: #00dbe7; border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#031427",
+                        "inverse-on-surface": "#213145",
+                        "error": "#ffb4ab",
+                        "on-secondary": "#003827",
+                        "background": "#031427",
+                        "error-container": "#93000a",
+                        "space-void": "#05070F",
+                        "surface-container-lowest": "#000f21",
+                        "on-tertiary": "#2d2f40",
+                        "secondary": "#ffffff",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed-variant": "#434657",
+                        "primary": "#e1fdff",
+                        "solar-gold": "#FFD700",
+                        "surface-container": "#102034",
+                        "surface-bright": "#2a3a4f",
+                        "primary-container": "#00f2ff",
+                        "on-surface-variant": "#b9cacb",
+                        "secondary-fixed": "#3cffc0",
+                        "on-surface": "#d3e4fe",
+                        "on-primary": "#00363a",
+                        "tertiary-container": "#d8d9ef",
+                        "on-secondary-container": "#007353",
+                        "tertiary-fixed-dim": "#c3c5db",
+                        "on-primary-fixed": "#002022",
+                        "on-secondary-fixed": "#002115",
+                        "secondary-fixed-dim": "#00e1a6",
+                        "outline": "#849495",
+                        "infrastructure-silver": "#E2E8F0",
+                        "tertiary-fixed": "#e0e1f7",
+                        "outline-variant": "#3a494b",
+                        "on-primary-fixed-variant": "#004f54",
+                        "primary-fixed-dim": "#00dbe7",
+                        "tertiary": "#f8f6ff",
+                        "surface-tint": "#00dbe7",
+                        "on-primary-container": "#006a71",
+                        "secondary-container": "#3cffc0",
+                        "on-tertiary-fixed": "#181b2a",
+                        "surface-variant": "#26364a",
+                        "inverse-primary": "#00696f",
+                        "warning-red": "#FF4D4D",
+                        "on-secondary-fixed-variant": "#00513a",
+                        "on-tertiary-container": "#5c5e71",
+                        "surface-container-highest": "#26364a",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#1b2b3f",
+                        "surface-container-low": "#0b1c30",
+                        "on-background": "#d3e4fe",
+                        "primary-fixed": "#74f5ff",
+                        "trust-blue": "#007AFF",
+                        "surface-dim": "#031427",
+                        "inverse-surface": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "panel-padding": "20px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Sora"],
+                        "display-xl": ["Sora"],
+                        "data-mono": ["JetBrains Mono"],
+                        "label-xs": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Sora"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "display-xl": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "label-xs": ["11px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar Navigation Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface/60 backdrop-blur-xl border-b border-infrastructure-silver/20 shadow-[0_0_15px_rgba(0,219,231,0.1)]">
+<div class="flex items-center gap-4">
+<span class="font-display-xl text-headline-lg tracking-tighter text-surface-tint">ArkheOScapital</span>
+</div>
+<nav class="hidden md:flex gap-8 items-center h-full">
+<a class="font-label-xs text-label-xs text-primary-fixed border-b-2 border-primary-fixed h-full flex items-center hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80" href="#">OVERVIEW</a>
+<a class="font-label-xs text-label-xs text-on-surface-variant h-full flex items-center hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80" href="#">PORTFOLIO</a>
+<a class="font-label-xs text-label-xs text-on-surface-variant h-full flex items-center hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80" href="#">MARKETPLACE</a>
+<a class="font-label-xs text-label-xs text-on-surface-variant h-full flex items-center hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80" href="#">RESEARCH</a>
+</nav>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-surface-tint cursor-pointer">water_drop</span>
+<span class="material-symbols-outlined text-surface-tint cursor-pointer">bolt</span>
+<span class="material-symbols-outlined text-surface-tint cursor-pointer">neurology</span>
+<span class="material-symbols-outlined text-surface-tint cursor-pointer" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+</header>
+<!-- SideNavBar Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-20 w-64 bg-surface-container-lowest/80 backdrop-blur-2xl border-r border-infrastructure-silver/10 shadow-2xl hidden md:flex">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-primary-fixed flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A futuristic, high-tech digital avatar representing a planetary intelligence engine. The design uses complex geometric patterns in cyan and silver over a deep space-void background. Cinematic lighting suggests a core processing unit of a global operating system, emphasizing authority and scientific precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPi-Hq2WfDpF0YICQYbxjt7rvp-4hVJgcCgUanvrYUtb2pTwUTDNG77oydCFSzTJoW_6K8Bo3BvhyOuHqvFouE0YOgP92RRzg1QUSfuZnM9j-MDHlaMERhMYqqFSv-WIWpTeTcyucj1UCtoPTbbybvY-Dca1PlwMwtaJHLXY8OmML3L_jqjoqO_DikO48A11WohpJ5MmsUugvXUP__Ls7S4Ga5Bu8YseERUuQM6m5O-u6MDw26ihIj"/>
+</div>
+<div>
+<p class="font-label-xs text-[10px] text-surface-tint tracking-widest uppercase">ArkheOS</p>
+<p class="font-body-md text-xs text-on-surface-variant">v4.0 Planetary OS</p>
+</div>
+</div>
+<nav class="flex-grow">
+<div class="bg-primary-container/20 text-primary-fixed border-r-2 border-primary-fixed flex items-center gap-3 px-4 py-3 font-label-xs text-label-xs uppercase tracking-widest cursor-pointer transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined">public</span> Earth
+            </div>
+<div class="text-on-surface-variant flex items-center gap-3 px-4 py-3 font-label-xs text-label-xs uppercase tracking-widest cursor-pointer hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined">map</span> Atlas
+            </div>
+<div class="text-on-surface-variant flex items-center gap-3 px-4 py-3 font-label-xs text-label-xs uppercase tracking-widest cursor-pointer hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined">account_tree</span> Projects
+            </div>
+<div class="text-on-surface-variant flex items-center gap-3 px-4 py-3 font-label-xs text-label-xs uppercase tracking-widest cursor-pointer hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined">biotech</span> Technologies
+            </div>
+<div class="text-on-surface-variant flex items-center gap-3 px-4 py-3 font-label-xs text-label-xs uppercase tracking-widest cursor-pointer hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined">science</span> Research
+            </div>
+<div class="text-on-surface-variant flex items-center gap-3 px-4 py-3 font-label-xs text-label-xs uppercase tracking-widest cursor-pointer hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined">smart_toy</span> AI Agents
+            </div>
+<div class="text-on-surface-variant flex items-center gap-3 px-4 py-3 font-label-xs text-label-xs uppercase tracking-widest cursor-pointer hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined">storefront</span> Marketplace
+            </div>
+</nav>
+<div class="p-6 border-t border-infrastructure-silver/10">
+<button class="w-full py-3 bg-primary text-on-primary font-label-xs text-xs uppercase tracking-widest rounded-sm hover:opacity-90 active:scale-95 transition-all">Genesis Engine</button>
+<div class="mt-6 space-y-4">
+<div class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer text-[10px] uppercase font-label-xs">
+<span class="material-symbols-outlined text-sm">settings</span> Settings
+                </div>
+<div class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer text-[10px] uppercase font-label-xs">
+<span class="material-symbols-outlined text-sm">help</span> Support
+                </div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 px-gutter pb-12 min-h-screen relative overflow-hidden">
+<!-- Atmospheric Background Layer -->
+
+<div class="max-w-7xl mx-auto space-y-8 relative z-10">
+<!-- Section 1: Investment Overview Header -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass-panel p-panel-padding flex flex-col justify-between min-h-[160px] relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-primary-container/10 blur-2xl rounded-full"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-widest">Global Portfolio Value</span>
+<div class="mt-2">
+<span class="font-display-xl text-5xl md:text-6xl text-primary-container glow-cyan">$1.2T</span>
+<span class="font-data-mono text-label-xs text-on-surface-variant block mt-1">ASSETS UNDER MANAGEMENT</span>
+</div>
+<div class="hud-line h-[1px] w-full mt-4"></div>
+</div>
+<div class="glass-panel p-panel-padding flex flex-col justify-between min-h-[160px] relative overflow-hidden group">
+<span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-widest">Average Yield (YTD)</span>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-display-xl text-5xl md:text-6xl text-secondary-fixed glow-cyan">8.4%</span>
+<span class="material-symbols-outlined text-secondary-fixed text-3xl animate-pulse">trending_up</span>
+</div>
+<div class="font-data-mono text-label-xs text-on-surface-variant mt-1">+1.2% RELATIVE TO INDEX</div>
+<div class="hud-line h-[1px] w-full mt-4"></div>
+</div>
+<div class="glass-panel p-panel-padding flex flex-col justify-between min-h-[160px] relative overflow-hidden group">
+<span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-widest">ESG Impact Score</span>
+<div class="mt-2">
+<span class="font-display-xl text-5xl md:text-6xl text-surface-tint glow-cyan">98<span class="text-3xl text-on-surface-variant">/100</span></span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<div class="flex gap-1">
+<div class="w-4 h-1 bg-surface-tint"></div>
+<div class="w-4 h-1 bg-surface-tint"></div>
+<div class="w-4 h-1 bg-surface-tint"></div>
+<div class="w-4 h-1 bg-surface-tint"></div>
+<div class="w-4 h-1 bg-surface-tint/20"></div>
+</div>
+<span class="font-data-mono text-label-xs text-on-surface-variant">PLANETARY NEUTRALITY</span>
+</div>
+<div class="hud-line h-[1px] w-full mt-4"></div>
+</div>
+</section>
+<!-- Section 2: Main Visualization Area -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Performance Chart -->
+<div class="lg:col-span-2 glass-panel p-panel-padding relative">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h2 class="font-headline-lg text-xl text-on-surface uppercase tracking-tight">Real-time Performance</h2>
+<p class="font-label-xs text-xs text-on-surface-variant opacity-60">Planetary ROI vs Global Market Index</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-primary-container rounded-full shadow-[0_0_8px_rgba(0,242,255,0.8)]"></div>
+<span class="font-label-xs text-[10px]">ARKHE ROI</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-outline rounded-full"></div>
+<span class="font-label-xs text-[10px]">GLOBAL INDEX</span>
+</div>
+</div>
+</div>
+<div class="h-80 w-full relative">
+<!-- Chart Mockup -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1000 300">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="rgba(0, 242, 255, 0.2)"></stop>
+<stop offset="100%" stop-color="rgba(0, 242, 255, 0)"></stop>
+</lineargradient>
+</defs>
+<!-- Grid Lines -->
+<line stroke="rgba(226, 232, 240, 0.05)" x1="0" x2="1000" y1="50" y2="50"></line>
+<line stroke="rgba(226, 232, 240, 0.05)" x1="0" x2="1000" y1="150" y2="150"></line>
+<line stroke="rgba(226, 232, 240, 0.05)" x1="0" x2="1000" y1="250" y2="250"></line>
+<!-- Index Line -->
+<path d="M0,250 Q100,240 200,245 T400,230 T600,240 T800,225 T1000,235" fill="none" stroke="#849495" stroke-dasharray="4" stroke-width="1.5"></path>
+<!-- Arkhe Line -->
+<path class="drop-shadow-[0_0_8px_rgba(0,242,255,0.6)]" d="M0,280 L100,240 L200,255 L300,180 L400,190 L500,110 L600,140 L700,60 L800,90 L900,30 L1000,40" fill="none" stroke="#00f2ff" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,280 L100,240 L200,255 L300,180 L400,190 L500,110 L600,140 L700,60 L800,90 L900,30 L1000,40 V300 H0 Z" fill="url(#chartGradient)"></path>
+<!-- Tech Annotations -->
+<circle class="animate-ping" cx="700" cy="60" fill="#00f2ff" r="4"></circle>
+<text fill="#00f2ff" font-family="JetBrains Mono" font-size="10" font-weight="bold" x="715" y="55">PHASE II DEPLOYMENT</text>
+<line stroke="#00f2ff" stroke-dasharray="2" stroke-width="0.5" x1="700" x2="700" y1="60" y2="300"></line>
+</svg>
+<!-- Legend/Labels -->
+<div class="absolute bottom-0 left-0 right-0 flex justify-between font-label-xs text-[10px] text-on-surface-variant pt-2">
+<span>Q1 2024</span>
+<span>Q2 2024</span>
+<span>Q3 2024</span>
+<span>Q4 2024</span>
+<span>CURRENT</span>
+</div>
+</div>
+</div>
+<!-- Strategic Allocation Sidebar -->
+<div class="glass-panel p-panel-padding flex flex-col">
+<div class="mb-6 flex items-center justify-between">
+<h3 class="font-headline-lg text-lg text-on-surface uppercase tracking-tight">Strategic Allocation</h3>
+<span class="material-symbols-outlined text-surface-tint">account_balance_wallet</span>
+</div>
+<div class="space-y-4 flex-grow">
+<!-- Mechanism Item 1 -->
+<div class="p-4 bg-surface-container/40 border border-infrastructure-silver/5 hover:border-primary-container/30 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<p class="font-label-xs text-xs text-on-surface tracking-wider">Green Bonds</p>
+<span class="text-[10px] font-data-mono text-secondary-fixed-dim px-2 py-0.5 bg-on-secondary/30 rounded-full">ACTIVE</span>
+</div>
+<div class="h-1 bg-surface-variant/50 w-full rounded-full overflow-hidden mb-2">
+<div class="h-full bg-secondary-fixed-dim" style="width: 65%;"></div>
+</div>
+<div class="flex justify-between font-data-mono text-[10px] text-on-surface-variant">
+<span>34.2B LIQUIDITY</span>
+<span>4.2% APY</span>
+</div>
+</div>
+<!-- Mechanism Item 2 -->
+<div class="p-4 bg-surface-container/40 border border-infrastructure-silver/5 hover:border-primary-container/30 transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<p class="font-label-xs text-xs text-on-surface tracking-wider">Infrastructure Tokens</p>
+<span class="text-[10px] font-data-mono text-surface-tint px-2 py-0.5 bg-on-primary/30 rounded-full">STAKED</span>
+</div>
+<div class="h-1 bg-surface-variant/50 w-full rounded-full overflow-hidden mb-2">
+<div class="h-full bg-surface-tint" style="width: 82%;"></div>
+</div>
+<div class="flex justify-between font-data-mono text-[10px] text-on-surface-variant">
+<span>112.5B TVL</span>
+<span>12.8% APY</span>
+</div>
+</div>
+<!-- Mechanism Item 3 -->
+<div class="p-4 bg-surface-container/40 border border-infrastructure-silver/5 hover:border-primary-container/30 transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<p class="font-label-xs text-xs text-on-surface tracking-wider">Institutional Pools</p>
+<span class="text-[10px] font-data-mono text-on-surface-variant px-2 py-0.5 bg-surface-variant rounded-full">LOCKED</span>
+</div>
+<div class="h-1 bg-surface-variant/50 w-full rounded-full overflow-hidden mb-2">
+<div class="h-full bg-infrastructure-silver/30" style="width: 25%;"></div>
+</div>
+<div class="flex justify-between font-data-mono text-[10px] text-on-surface-variant">
+<span>890B POOLED</span>
+<span>9.5% APY</span>
+</div>
+</div>
+</div>
+<!-- Trust Verification Widget -->
+<div class="mt-8 pt-6 border-t border-infrastructure-silver/10 space-y-3">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-sm text-secondary-fixed">verified</span>
+<span class="font-label-xs text-[10px] text-on-surface-variant uppercase tracking-widest">Asset Integrity Verified</span>
+</div>
+<div class="font-data-mono text-[9px] text-on-surface-variant bg-space-void p-2 rounded-sm overflow-hidden whitespace-nowrap opacity-70">
+<div class="animate-[pulse_2s_infinite]">HASH_0x7f4e...9a21_SYNCED</div>
+<div class="text-surface-tint">FOXAMPYFORGE_TELEMETRY::STATUS_OK</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Project Portfolio Grid -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-2xl text-on-surface uppercase tracking-tight">Active Opportunities</h2>
+<p class="font-label-xs text-xs text-on-surface-variant">High-Yield Planetary Infrastructure generated by the Genesis Engine</p>
+</div>
+<button class="font-label-xs text-xs text-surface-tint flex items-center gap-2 border-b border-surface-tint pb-1 hover:opacity-70 transition-opacity">
+                        VIEW ALL VENTURES <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Project Card 1 -->
+<div class="glass-panel hover:bg-surface-container-high transition-all group overflow-hidden flex flex-col border border-infrastructure-silver/10 glow-border-cyan">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A cinematic, large-scale ecological restoration project showing a vast, revitalized lake system with lush greenery surrounding deep blue waters. Futuristic irrigation drones and water management stations are visible, set under a dramatic sunrise with golden and cyan light. Architectural high-fidelity aesthetic, planetary scale." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7JF6xOfG9-afn1pI3TtqrWq4Y8Eyj7q8hYslJzmFmC7qUqEkENOln_LIr3hXf_-kfLdzP-erBbpNl4E617XXrEqpZTDT-6Wvrcrh_jlXS45QXtewYy6bmJRIB2O_JNXamVXHbEsZ_pxQ6k3xpfpnyOIqUX2XqA8aQ0vo3-QL5dcsFnBJ2NVH72NUxBUTgup5Ur70s6Wgc-tfF1l9igklBRRam4d-0yFTZqIO_emitWmMC3IY6iyjR"/>
+<div class="absolute top-4 left-4 px-3 py-1 bg-surface/80 backdrop-blur-md rounded-full">
+<span class="font-label-xs text-[10px] text-surface-tint">WATER / CLIMATE</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-surface to-transparent"></div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h3 class="font-headline-lg text-lg text-on-surface mb-2 leading-tight">Aral Sea Restoration Phase III</h3>
+<div class="flex justify-between mb-4 font-data-mono text-xs">
+<div class="text-on-surface-variant">Risk: <span class="text-secondary-fixed">AAA</span></div>
+<div class="text-on-surface-variant">Projected IRR: <span class="text-primary-container">12.4%</span></div>
+</div>
+<div class="mt-auto pt-6 flex gap-4">
+<button class="flex-grow py-3 bg-primary-container text-on-primary-container font-label-xs text-xs uppercase tracking-widest rounded-sm hover:bg-primary-fixed-dim active:scale-95 transition-all">Invest</button>
+<button class="w-12 h-12 flex items-center justify-center border border-infrastructure-silver/20 text-on-surface hover:bg-surface-variant transition-all">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="glass-panel hover:bg-surface-container-high transition-all group overflow-hidden flex flex-col border border-infrastructure-silver/10 glow-border-cyan">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Massive solar farm in a desert landscape, featuring hyper-advanced, glowing hexagonal solar collectors. The sand is deep orange, contrasted with the cyan luminescence of the technology. Atmospheric satellite-eye-view, showing the scale of the energy infrastructure against the vast Sahara. High-contrast engineering blueprint style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7bRJbHOrytf1sgX3N5k8lGLW_UoVomvmAsttsqJ50BJ1J2JXO5745Sz5OTOQ2_worgZR31bL1yhMrFL7hZyQXEi7O0LJyRAWWyfWnj0nBisAzow_q_ZW8n6PqjAudK3GXf6GUPp_24_1dLng8GYjVOPE9zgAvZzor6u1RcrAY0MdB7-ZRNlj5UMk_RboidYnMXWn8wq24CK4gsvOs7ACbxhO5dz5hSreudwdJJCwi8TEL9Zw3f99A"/>
+<div class="absolute top-4 left-4 px-3 py-1 bg-surface/80 backdrop-blur-md rounded-full">
+<span class="font-label-xs text-[10px] text-solar-gold">ENERGY</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-surface to-transparent"></div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h3 class="font-headline-lg text-lg text-on-surface mb-2 leading-tight">Sahara Solar Grid Alpha</h3>
+<div class="flex justify-between mb-4 font-data-mono text-xs">
+<div class="text-on-surface-variant">Risk: <span class="text-secondary-fixed">AAA</span></div>
+<div class="text-on-surface-variant">Projected IRR: <span class="text-primary-container">15.8%</span></div>
+</div>
+<div class="mt-auto pt-6 flex gap-4">
+<button class="flex-grow py-3 bg-primary-container text-on-primary-container font-label-xs text-xs uppercase tracking-widest rounded-sm hover:bg-primary-fixed-dim active:scale-95 transition-all">Invest</button>
+<button class="w-12 h-12 flex items-center justify-center border border-infrastructure-silver/20 text-on-surface hover:bg-surface-variant transition-all">
+<span class="material-symbols-outlined">bolt</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="glass-panel hover:bg-surface-container-high transition-all group overflow-hidden flex flex-col border border-infrastructure-silver/10 glow-border-cyan">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A subterranean data center in the Arctic, illuminated by cold blue LED strips. Massive server banks are integrated into icy caverns, with visible cooling pipes circulating frigid air. The environment is dark and industrial, emphasizing extreme technological precision and infrastructure. Cinematic HUD lighting and 0.5px silver line detailing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYI2YY0fP4W6ZHQb2qzUPlOvyrvOErSbX9cno7zd4o1FDpIClUH6W2VxMC89gEXMRKn6Bw75-mePWKhxVIFqfk-NHofyHpTPiF7iiANbDaTPf8B04YlBN56kLl6bxqSHgyAqzMeFP5g5_LIrIUFJGxynanr_k1eDr0_Kuutm2Wecud9zvktnCBi9gZ2R2lelpHKXf0lAEClklz6mk3YE2LOGw3H-0VVhiykmue_A2uxl39JIrt4WcE"/>
+<div class="absolute top-4 left-4 px-3 py-1 bg-surface/80 backdrop-blur-md rounded-full">
+<span class="font-label-xs text-[10px] text-on-secondary-container">INFRASTRUCTURE</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-surface to-transparent"></div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h3 class="font-headline-lg text-lg text-on-surface mb-2 leading-tight">Arctic Data Core</h3>
+<div class="flex justify-between mb-4 font-data-mono text-xs">
+<div class="text-on-surface-variant">Risk: <span class="text-secondary-fixed">AAA</span></div>
+<div class="text-on-surface-variant">Projected IRR: <span class="text-primary-container">9.2%</span></div>
+</div>
+<div class="mt-auto pt-6 flex gap-4">
+<button class="flex-grow py-3 bg-primary-container text-on-primary-container font-label-xs text-xs uppercase tracking-widest rounded-sm hover:bg-primary-fixed-dim active:scale-95 transition-all">Invest</button>
+<button class="w-12 h-12 flex items-center justify-center border border-infrastructure-silver/20 text-on-surface hover:bg-surface-variant transition-all">
+<span class="material-symbols-outlined">cloud</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer / Mobile Nav (Suppressed per task guidelines for desktop focus, but available for responsive) -->
+<div class="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-low/90 backdrop-blur-xl h-16 flex items-center justify-around z-50 border-t border-infrastructure-silver/10">
+<span class="material-symbols-outlined text-primary-container">public</span>
+<span class="material-symbols-outlined text-on-surface-variant">account_tree</span>
+<span class="material-symbols-outlined text-on-surface-variant">biotech</span>
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</div>
+<script>
+        // Micro-interaction for hover glow updates
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            panel.addEventListener('mousemove', (e) => {
+                const rect = panel.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                panel.style.setProperty('--mouse-x', `${x}px`);
+                panel.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // Simulating real-time data pulses
+        setInterval(() => {
+            const hashes = document.querySelectorAll('.font-data-mono div');
+            hashes.forEach(h => {
+                if(Math.random() > 0.7) {
+                    h.classList.toggle('opacity-50');
+                }
+            });
+        }, 1000);
+    </script>
+</body></html>

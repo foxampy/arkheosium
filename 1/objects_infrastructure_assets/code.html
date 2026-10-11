@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ArkheOS | Digital Passport - FoxampyForge IoT-X</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary-glow: rgba(0, 219, 231, 0.15);
+        }
+        body {
+            background-color: #081421;
+            color: #d7e3f5;
+            overflow-x: hidden;
+            font-family: 'Sora', sans-serif;
+        }
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.02;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .glow-sm { text-shadow: 0 0 10px rgba(0, 219, 231, 0.5); }
+        .hyper-glass {
+            background: rgba(21, 32, 45, 0.4);
+            backdrop-filter: blur(40px);
+            border: 0.5px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+        .hyper-glass:hover {
+            border-color: rgba(0, 219, 231, 0.3);
+            box-shadow: 0 0 30px rgba(0, 219, 231, 0.05);
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .scanline {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(0, 219, 231, 0.2), transparent);
+            animation: scanline 8s linear infinite;
+        }
+        .flicker {
+            animation: flicker 2s infinite;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+            52% { opacity: 1; }
+            54% { opacity: 0.8; }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#007243",
+                        "on-tertiary-fixed-variant": "#5700c9",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#00dbe7",
+                        "inverse-primary": "#00696f",
+                        "error-container": "#93000a",
+                        "secondary": "#f5fff4",
+                        "surface-dim": "#081421",
+                        "tertiary-fixed-dim": "#d1bcff",
+                        "secondary-fixed-dim": "#00e38b",
+                        "on-secondary-fixed-variant": "#00522f",
+                        "on-background": "#d7e3f5",
+                        "surface-variant": "#2a3643",
+                        "on-tertiary-fixed": "#23005b",
+                        "background": "#081421",
+                        "surface-container": "#15202d",
+                        "on-primary-fixed-variant": "#004f54",
+                        "surface": "#081421",
+                        "outline": "#849495",
+                        "surface-container-highest": "#2a3643",
+                        "on-tertiary-container": "#7318ff",
+                        "on-secondary-fixed": "#002110",
+                        "on-primary-fixed": "#002022",
+                        "primary-container": "#00f2ff",
+                        "outline-variant": "#3a494b",
+                        "tertiary-container": "#e3d4ff",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#d7e3f5",
+                        "on-surface": "#d7e3f5",
+                        "surface-tint": "#00dbe7",
+                        "primary-fixed": "#74f5ff",
+                        "on-secondary": "#00391f",
+                        "on-surface-variant": "#b9cacb",
+                        "surface-bright": "#2e3a48",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "#16ff9e",
+                        "on-primary": "#00363a",
+                        "surface-container-lowest": "#040f1b",
+                        "tertiary": "#fcf5ff",
+                        "primary": "#e1fdff",
+                        "on-tertiary": "#3c0090",
+                        "on-primary-container": "#006a71",
+                        "surface-container-low": "#101c29",
+                        "inverse-on-surface": "#26313f",
+                        "surface-container-high": "#1f2b38",
+                        "secondary-fixed": "#56ffa8",
+                        "tertiary-fixed": "#e9ddff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "panel-gap": "16px",
+                        "margin-edge": "40px",
+                        "gutter": "24px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Sora"],
+                        "data-mono": ["JetBrains Mono"],
+                        "headline-md": ["Sora"],
+                        "body-md": ["Sora"],
+                        "label-xs": ["JetBrains Mono"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface">
+<div class="noise-overlay"></div>
+<!-- Header / TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface-container/60 backdrop-blur-3xl border-b border-white/10 shadow-[0_0_40px_rgba(0,219,231,0.05)] flex justify-between items-center px-margin-edge h-16">
+<div class="flex items-center gap-8">
+<h1 class="font-display-lg text-display-lg text-primary-fixed-dim tracking-tighter">ArkheOS</h1>
+<nav class="hidden md:flex gap-6">
+<a class="font-data-mono text-label-xs uppercase tracking-widest text-primary-fixed font-bold glow-sm" href="#">Asset ID: FXP-9921</a>
+<a class="font-data-mono text-label-xs uppercase tracking-widest text-on-surface-variant/70 hover:text-primary-fixed transition-all" href="#">Network</a>
+<a class="font-data-mono text-label-xs uppercase tracking-widest text-on-surface-variant/70 hover:text-primary-fixed transition-all" href="#">Governance</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-primary-fixed-dim text-[18px]">verified_user</span>
+<span class="material-symbols-outlined text-primary-fixed-dim text-[18px]">thermostat</span>
+<span class="material-symbols-outlined text-primary-fixed-dim text-[18px]">schedule</span>
+</div>
+<div class="h-8 w-px bg-white/10 mx-2"></div>
+<div class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed-dim animate-pulse"></div>
+<span class="font-data-mono text-[10px] text-primary-fixed-dim">SYSTEM OPTIMAL</span>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-surface-container-lowest/40 backdrop-blur-2xl border-r border-white/5 flex flex-col py-20 hidden lg:flex">
+<div class="px-6 mb-10">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-10 h-10 rounded-sm bg-primary/20 border border-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-fixed-dim">precision_manufacturing</span>
+</div>
+<div>
+<div class="font-display-lg text-primary-fixed text-sm">ArkheOS v1.0</div>
+<div class="text-[10px] font-data-mono text-on-surface-variant/60 uppercase">Planetary Admin</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-on-surface-variant/50 px-6 py-4 flex items-center gap-4 hover:bg-surface-variant/30 hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">public</span>
+<span class="font-body-md text-body-md">Earth</span>
+</a>
+<a class="text-on-surface-variant/50 px-6 py-4 flex items-center gap-4 hover:bg-surface-variant/30 hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-body-md text-body-md">Projects</span>
+</a>
+<a class="bg-primary-container/20 text-primary-fixed-dim border-l-2 border-primary-fixed-dim px-6 py-4 flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+<span class="font-body-md text-body-md">Objects</span>
+</a>
+<a class="text-on-surface-variant/50 px-6 py-4 flex items-center gap-4 hover:bg-surface-variant/30 hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-body-md text-body-md">Ecosystem</span>
+</a>
+<a class="text-on-surface-variant/50 px-6 py-4 flex items-center gap-4 hover:bg-surface-variant/30 hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-body-md text-body-md">Marketplace</span>
+</a>
+</nav>
+<footer class="mt-auto space-y-1 pb-6">
+<a class="text-on-surface-variant/50 px-6 py-3 flex items-center gap-4 hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<a class="text-on-surface-variant/50 px-6 py-3 flex items-center gap-4 hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">help_center</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+</footer>
+</aside>
+<!-- Main Canvas -->
+<main class="lg:pl-64 pt-16 min-h-screen">
+<div class="p-margin-edge">
+<!-- Asset Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="px-2 py-0.5 bg-secondary-container/20 text-secondary-fixed text-[10px] font-data-mono rounded-sm border border-secondary-fixed/30">ACTIVE</span>
+<span class="font-data-mono text-label-xs text-on-surface-variant/60 tracking-widest uppercase">Infrastructure Node // Class-A</span>
+</div>
+<h2 class="font-display-lg text-primary-fixed text-4xl md:text-5xl tracking-tighter">FoxampyForge IoT-X</h2>
+<p class="font-data-mono text-on-surface-variant/60 mt-2 max-w-xl">Deep-crust geological monitoring unit deployed at Sector 7G. Encrypted via Quantum-Resistant Web3 Ledger.</p>
+</div>
+<div class="flex gap-4">
+<button class="hyper-glass px-6 py-3 font-data-mono text-sm text-primary-fixed-dim hover:bg-primary/10 transition-all flex items-center gap-2 group">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                        PASSPORT.PDF
+                    </button>
+<button class="bg-primary-container text-on-primary-container px-6 py-3 font-bold text-sm flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+                        VERIFY ON-CHAIN
+                    </button>
+</div>
+</div>
+<!-- Bento Layout -->
+<div class="grid grid-cols-12 gap-gutter h-full">
+<!-- Left Panel: Integrity & Energy -->
+<div class="col-span-12 lg:col-span-3 space-y-gutter">
+<!-- Hardware Integrity -->
+<section class="hyper-glass p-6 relative overflow-hidden">
+<div class="scanline"></div>
+<h3 class="font-data-mono text-xs text-primary-fixed mb-4 flex items-center justify-between">
+                            HARDWARE INTEGRITY
+                            <span class="material-symbols-outlined text-[16px]">verified</span>
+</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-end border-b border-white/5 pb-2">
+<span class="font-data-mono text-[10px] text-on-surface-variant/60">CHASSIS SEAL</span>
+<span class="font-data-mono text-sm text-secondary-fixed">SECURE</span>
+</div>
+<div class="flex justify-between items-end border-b border-white/5 pb-2">
+<span class="font-data-mono text-[10px] text-on-surface-variant/60">BIOS ATTES.</span>
+<span class="font-data-mono text-sm text-secondary-fixed">VERIFIED</span>
+</div>
+<div class="flex justify-between items-end border-b border-white/5 pb-2">
+<span class="font-data-mono text-[10px] text-on-surface-variant/60">TEMP. RANGE</span>
+<span class="font-data-mono text-sm text-primary-fixed-dim">38.4°C</span>
+</div>
+</div>
+<div class="mt-6 flex flex-col gap-1">
+<div class="text-[9px] font-data-mono text-on-surface-variant/40">WEB3 HASH: 0x82f...a12c</div>
+<div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed-dim w-[94%]" id="integrity-bar"></div>
+</div>
+</div>
+</section>
+<!-- Energy Efficiency -->
+<section class="hyper-glass p-6">
+<h3 class="font-data-mono text-xs text-primary-fixed mb-4 flex items-center justify-between">
+                            ENERGY EFFICIENCY
+                            <span class="material-symbols-outlined text-[16px]">bolt</span>
+</h3>
+<div class="flex items-center justify-center py-4">
+<div class="relative w-32 h-32">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle class="text-white/5" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" stroke-width="2"></circle>
+<circle class="text-primary-fixed-dim" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" stroke-dasharray="283" stroke-dashoffset="30" stroke-width="2"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-lg text-2xl text-primary-fixed">A++</span>
+<span class="font-data-mono text-[9px] text-on-surface-variant/60">RATING</span>
+</div>
+</div>
+</div>
+<div class="mt-2 space-y-2">
+<div class="flex justify-between text-[11px] font-data-mono">
+<span class="text-on-surface-variant/60">Current Draw</span>
+<span>14.2W</span>
+</div>
+<div class="flex justify-between text-[11px] font-data-mono">
+<span class="text-on-surface-variant/60">Peak Efficiency</span>
+<span class="text-secondary-fixed">98.4%</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Center Panel: 3D Schematic -->
+<div class="col-span-12 lg:col-span-6 relative group h-[400px] lg:h-auto">
+<div class="absolute inset-0 hyper-glass flex flex-col">
+<!-- Controls Overlays -->
+<div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
+<button class="w-8 h-8 hyper-glass flex items-center justify-center hover:bg-primary/20"><span class="material-symbols-outlined text-xs">add</span></button>
+<button class="w-8 h-8 hyper-glass flex items-center justify-center hover:bg-primary/20"><span class="material-symbols-outlined text-xs">remove</span></button>
+<button class="w-8 h-8 hyper-glass flex items-center justify-center hover:bg-primary/20"><span class="material-symbols-outlined text-xs">sync</span></button>
+</div>
+<div class="absolute top-4 right-4 z-10">
+<div class="px-2 py-1 bg-surface-container/80 backdrop-blur border border-white/10 rounded flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim flicker"></div>
+<span class="font-data-mono text-[10px]">LIVE RENDER</span>
+</div>
+</div>
+<!-- 3D Schematic View Placeholder -->
+<div class="flex-1 w-full h-full relative overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle, #00dbe7 0.5px, transparent 0.5px); background-size: 24px 24px;"></div>
+<!-- This would be the 3D Scene -->
+
+<!-- Fallback/UI Markers -->
+<div class="relative w-64 h-64 pointer-events-none">
+<div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary-fixed-dim/40"></div>
+<div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary-fixed-dim/40"></div>
+<div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary-fixed-dim/40"></div>
+<div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary-fixed-dim/40"></div>
+<div class="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-primary-container shadow-[0_0_10px_#00f2ff] animate-pulse"></div>
+<div class="absolute top-[20%] left-[20%] font-data-mono text-[9px] text-primary-fixed bg-surface-dim/80 px-2 py-1 border border-primary-fixed/20">MODULE_CORE_A</div>
+</div>
+</div>
+<!-- Footer Telemetry Overlay -->
+<div class="p-6 border-t border-white/10 bg-surface-container-low/60 flex justify-between items-center">
+<div class="flex gap-12">
+<div>
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Lat/Long</div>
+<div class="text-xs font-data-mono">45.523° N, 122.676° W</div>
+</div>
+<div>
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Altitude</div>
+<div class="text-xs font-data-mono">-1,422.00m MSL</div>
+</div>
+<div>
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Uptime</div>
+<div class="text-xs font-data-mono">14,202:11:04</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30">qr_code_2</span>
+</div>
+</div>
+</div>
+<!-- Right Panel: Lifecycle & Telemetry -->
+<div class="col-span-12 lg:col-span-3 space-y-gutter">
+<!-- Life Cycle Analysis -->
+<section class="hyper-glass p-6">
+<h3 class="font-data-mono text-xs text-primary-fixed mb-4 flex items-center justify-between">
+                            LIFE CYCLE ANALYSIS
+                            <span class="material-symbols-outlined text-[16px]">history</span>
+</h3>
+<div class="space-y-6">
+<div class="relative pl-6 border-l border-white/10">
+<div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-primary-fixed-dim"></div>
+<div class="font-data-mono text-[10px] text-on-surface-variant/40">2021.05.12</div>
+<div class="text-xs font-bold">Commissioned</div>
+</div>
+<div class="relative pl-6 border-l border-white/10">
+<div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-white/20"></div>
+<div class="font-data-mono text-[10px] text-on-surface-variant/40">2022.11.20</div>
+<div class="text-xs font-bold text-on-surface-variant/70">Routine Maintenance</div>
+</div>
+<div class="relative pl-6 border-l border-white/10">
+<div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-white/20"></div>
+<div class="font-data-mono text-[10px] text-on-surface-variant/40">2023.08.05</div>
+<div class="text-xs font-bold text-on-surface-variant/70">Core Expansion</div>
+</div>
+<div class="relative pl-6">
+<div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-primary-fixed-dim shadow-[0_0_8px_#00dbe7]"></div>
+<div class="font-data-mono text-[10px] text-on-surface-variant/40">NEXT CYCLE</div>
+<div class="text-xs font-bold">2025.05.12</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/5">
+<div class="text-[10px] font-data-mono text-on-surface-variant/60 mb-2">END-OF-LIFE RECOVERY</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed text-sm">recycling</span>
+<span class="text-xs font-bold">92% Recyclable Materials</span>
+</div>
+</div>
+</section>
+<!-- Real-time Telemetry -->
+<section class="hyper-glass p-0 overflow-hidden h-[300px]">
+<div class="p-6 pb-0">
+<h3 class="font-data-mono text-xs text-primary-fixed flex items-center justify-between">
+                                LIVE TELEMETRY
+                                <span class="material-symbols-outlined text-[16px] text-secondary-fixed animate-pulse">broadcast_on_personal</span>
+</h3>
+</div>
+<div class="mt-4 h-full bg-surface-container-highest/20 overflow-y-auto font-data-mono text-[9px] p-4 space-y-2 scrollbar-hide" id="telemetry-log">
+<div class="flex gap-2 text-on-surface-variant/40"><span class="text-primary-fixed-dim">[14:02:11]</span> SYNCHRONIZING CORE_A...</div>
+<div class="flex gap-2 text-on-surface-variant/40"><span class="text-primary-fixed-dim">[14:02:12]</span> PKT_RECVD: 0x2213FF2</div>
+<div class="flex gap-2 text-on-surface-variant/40"><span class="text-primary-fixed-dim">[14:02:14]</span> TEMP_CHK: 38.4C - OPTIMAL</div>
+<div class="flex gap-2 text-on-surface-variant/40"><span class="text-primary-fixed-dim">[14:02:15]</span> ENERGY_RATING: HIGH_EFFICIENCY</div>
+<div class="flex gap-2 text-on-surface-variant/40"><span class="text-primary-fixed-dim">[14:02:18]</span> ENCRYPTION_ACTIVE: SHA-512_SEC</div>
+<div class="flex gap-2 text-on-surface-variant/40"><span class="text-primary-fixed-dim">[14:02:22]</span> RELAY_HEARTBEAT: OK</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Bottom Data Strip -->
+<div class="mt-gutter grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+<div class="hyper-glass p-4 border-l-2 border-l-primary-fixed-dim">
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Serial</div>
+<div class="text-sm font-data-mono">FF-IOTX-9921-X</div>
+</div>
+<div class="hyper-glass p-4 border-l-2 border-l-secondary-fixed">
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Status</div>
+<div class="text-sm font-data-mono text-secondary-fixed">NOMINAL</div>
+</div>
+<div class="hyper-glass p-4">
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Protocol</div>
+<div class="text-sm font-data-mono">ARKHE-MESH 2.0</div>
+</div>
+<div class="hyper-glass p-4">
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Owner</div>
+<div class="text-sm font-data-mono">TERRA_DEPT_A</div>
+</div>
+<div class="hyper-glass p-4 hidden md:block">
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Location</div>
+<div class="text-sm font-data-mono">SECTOR_7G</div>
+</div>
+<div class="hyper-glass p-4 hidden md:block">
+<div class="text-[9px] font-data-mono text-on-surface-variant/50 uppercase">Last Ping</div>
+<div class="text-sm font-data-mono">2ms ago</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB (Suppressed on Details Page based on logic, but added here if context shifted to 'Dashboard' view) -->
+<!-- We follow "Contextual FAB Suppression" for details pages as per instructions -->
+<script>
+        // Micro-interactions and real-time feel
+        const logs = [
+            "PKT_RECVD: 0x4421AA1",
+            "RELAY_NODE_ESTABLISHED",
+            "SENS_GRID_STABLE: 100%",
+            "ENTROPY_LVL: 0.002",
+            "HEARTBEAT_ACK: 200ms",
+            "CORE_SYNC_COMPLETED",
+            "BUFFER_FLUSH_SUCCESS",
+            "QUANTUM_LINK_STABLE"
+        ];
+
+        const logContainer = document.getElementById('telemetry-log');
+
+        setInterval(() => {
+            const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            const logEntry = document.createElement('div');
+            logEntry.className = 'flex gap-2 text-on-surface-variant/40 animate-pulse';
+            logEntry.innerHTML = `<span class="text-primary-fixed-dim">[${time}]</span> ${logs[Math.floor(Math.random() * logs.length)]}`;
+            logContainer.prepend(logEntry);
+            
+            if (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }, 3000);
+
+        // Integrity bar micro-jitter
+        const bar = document.getElementById('integrity-bar');
+        setInterval(() => {
+            const noise = (Math.random() * 2) - 1;
+            const currentWidth = 94;
+            bar.style.width = `${currentWidth + noise}%`;
+        }, 500);
+    </script>
+</body></html>

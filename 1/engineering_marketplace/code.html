@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ArkheOS - Technologies Marketplace</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Sora:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#d3e4fe",
+                    "tertiary": "#f8f6ff",
+                    "outline-variant": "#3a494b",
+                    "surface-variant": "#26364a",
+                    "surface-container-high": "#1b2b3f",
+                    "infrastructure-silver": "#E2E8F0",
+                    "secondary-container": "#3cffc0",
+                    "surface": "#031427",
+                    "secondary-fixed": "#3cffc0",
+                    "on-primary-container": "#006a71",
+                    "surface-tint": "#00dbe7",
+                    "surface-container-low": "#0b1c30",
+                    "surface-container-highest": "#26364a",
+                    "on-surface": "#d3e4fe",
+                    "secondary-fixed-dim": "#00e1a6",
+                    "on-primary-fixed-variant": "#004f54",
+                    "inverse-primary": "#00696f",
+                    "space-void": "#05070F",
+                    "primary-fixed-dim": "#00dbe7",
+                    "on-error-container": "#ffdad6",
+                    "surface-bright": "#2a3a4f",
+                    "tertiary-fixed": "#e0e1f7",
+                    "on-background": "#d3e4fe",
+                    "inverse-on-surface": "#213145",
+                    "tertiary-fixed-dim": "#c3c5db",
+                    "primary-container": "#00f2ff",
+                    "on-tertiary-fixed": "#181b2a",
+                    "background": "#031427",
+                    "on-primary": "#00363a",
+                    "on-tertiary": "#2d2f40",
+                    "on-tertiary-fixed-variant": "#434657",
+                    "outline": "#849495",
+                    "error": "#ffb4ab",
+                    "error-container": "#93000a",
+                    "surface-dim": "#031427",
+                    "primary": "#e1fdff",
+                    "tertiary-container": "#d8d9ef",
+                    "warning-red": "#FF4D4D",
+                    "on-surface-variant": "#b9cacb",
+                    "on-primary-fixed": "#002022",
+                    "secondary": "#ffffff",
+                    "trust-blue": "#007AFF",
+                    "on-tertiary-container": "#5c5e71",
+                    "solar-gold": "#FFD700",
+                    "on-secondary": "#003827",
+                    "on-error": "#690005",
+                    "on-secondary-container": "#007353",
+                    "surface-container-lowest": "#000f21",
+                    "surface-container": "#102034",
+                    "on-secondary-fixed": "#002115",
+                    "on-secondary-fixed-variant": "#00513a",
+                    "primary-fixed": "#74f5ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "gutter": "24px",
+                    "panel-padding": "20px",
+                    "margin-desktop": "64px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "display-xl": ["Sora"],
+                    "headline-lg": ["Sora"],
+                    "body-md": ["Inter"],
+                    "label-xs": ["JetBrains Mono"],
+                    "headline-lg-mobile": ["Sora"],
+                    "data-mono": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "display-xl": ["64px", { "lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                    "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                    "label-xs": ["11px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                    "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                    "data-mono": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { background-color: #031427; color: #d3e4fe; }
+        .foxampy-corner { position: absolute; width: 8px; height: 8px; border-color: #00dbe7; }
+        .tl { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
+        .tr { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
+        .bl { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
+        .br { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
+        .hud-grid { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(226, 232, 240, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(226, 232, 240, 0.05) 1px, transparent 1px); }
+    </style>
+</head>
+<body class="h-screen w-full overflow-hidden font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container flex bg-surface relative">
+<!-- Ambient Background -->
+<div class="absolute inset-0 z-0 hud-grid opacity-50 pointer-events-none"></div>
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface/60 backdrop-blur-xl border-b border-infrastructure-silver/20 shadow-[0_0_15px_rgba(0,219,231,0.1)] hidden md:flex">
+<div class="flex items-center gap-4">
+<span class="font-display-xl text-headline-lg tracking-tighter text-surface-tint">ArkheOScapital</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container/50 border border-infrastructure-silver/20 rounded-full py-1.5 pl-4 pr-10 text-label-xs font-label-xs text-on-surface focus:outline-none focus:border-primary-fixed focus:shadow-[0_0_10px_rgba(116,245,255,0.3)] transition-all w-64" placeholder="Search marketplace..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+</div>
+<div class="flex items-center gap-4 text-primary-fixed font-label-xs text-label-xs">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed-dim transition-colors active:opacity-80" data-weight="fill" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed-dim transition-colors active:opacity-80">bolt</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed-dim transition-colors active:opacity-80">neurology</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed-dim transition-colors active:opacity-80" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-64 z-40 flex flex-col pt-20 bg-surface-container-lowest/80 backdrop-blur-2xl border-r border-infrastructure-silver/10 shadow-2xl hidden md:flex">
+<div class="px-6 mb-8 flex flex-col gap-1">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center border border-primary-fixed/30 mb-2">
+<img alt="Genesis Engine Core" class="w-full h-full object-cover rounded-full opacity-80" data-alt="A highly detailed 3D render of a futuristic AI core glowing with cyan and blue energy lines, set against a dark vacuum void background. The aesthetic is clean, cinematic, and reminiscent of a high-end sci-fi planetary operating system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANW4pHY-OSMm7l2zvIRNk59ZPbq5OjTIv3ESjeSHqTKt8DXNLDZXdkel2AekSSqaEpGTqVGdV7y9zv_KfuZs7DW5rMmQLYLw8F55SeoXbVsAKQXJim6dcYGRAcH_kRvnqLd8LAhFATmtXFj9wdM1X2W4ytUUjZzLP6JgvjYDGl3IGAXNgN5KJG9m785duY1QJ9d9KPodnzKGxgGAR7y0vbZM57Q-J--m0KvH67cY1WeizlnCPyhRZ7"/>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-surface">ArkheOS</span>
+<span class="font-label-xs text-label-xs text-primary-fixed uppercase tracking-widest">v4.0 Planetary OS</span>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-2 font-label-xs text-label-xs uppercase tracking-widest">
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">public</span> Earth
+            </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">map</span> Atlas
+            </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">account_tree</span> Projects
+            </a>
+<a class="bg-primary-container/20 text-primary-fixed border-r-2 border-primary-fixed flex items-center gap-3 px-4 py-3 rounded-l-DEFAULT" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">biotech</span> Technologies
+            </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">science</span> Research
+            </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">smart_toy</span> AI Agents
+            </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">storefront</span> Marketplace
+            </a>
+</div>
+<div class="px-6 mb-6">
+<button class="w-full py-2 bg-primary-fixed/10 border border-primary-fixed text-primary-fixed font-label-xs text-label-xs uppercase tracking-widest rounded-DEFAULT hover:bg-primary-fixed/20 hover:shadow-[0_0_15px_rgba(116,245,255,0.2)] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">memory</span> Genesis Engine
+            </button>
+</div>
+<div class="mt-auto flex flex-col gap-1 px-2 pb-4 font-label-xs text-label-xs uppercase tracking-widest border-t border-infrastructure-silver/10 pt-4">
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">help</span> Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 pt-16 flex flex-col lg:flex-row h-full relative z-10">
+<!-- Grid Section -->
+<section class="flex-1 p-gutter overflow-y-auto custom-scrollbar flex flex-col gap-6">
+<header class="flex justify-between items-end border-b border-infrastructure-silver/20 pb-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-1 shadow-surface-tint">Engineering Solutions</h1>
+<p class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-widest">Global Marketplace / Hardware &amp; Software Deployment</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 border border-infrastructure-silver/20 rounded-DEFAULT text-label-xs font-label-xs text-on-surface bg-surface-container/50 hover:border-primary-fixed transition-colors">FILTER</button>
+<button class="px-3 py-1.5 border border-infrastructure-silver/20 rounded-DEFAULT text-label-xs font-label-xs text-on-surface bg-surface-container/50 hover:border-primary-fixed transition-colors">SORT</button>
+</div>
+</header>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+<!-- Product Card 1 -->
+<div class="bg-surface-container/40 backdrop-blur-md border border-infrastructure-silver/10 rounded-lg p-5 flex flex-col gap-4 relative group hover:border-primary-fixed/50 transition-all cursor-pointer">
+<div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none"></div>
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-DEFAULT bg-surface border border-infrastructure-silver/20 flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-2xl">water_ec</span>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-trust-blue/10 border border-trust-blue/30 text-trust-blue font-label-xs text-[9px] uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">verified</span> 99.8% Trust
+                            </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-bright border border-infrastructure-silver/20 text-on-surface-variant font-label-xs text-[9px] uppercase tracking-wider">
+                                AI: GEN-4
+                            </span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-lg text-body-md font-semibold text-on-surface">Osmotic Desalination Matrix</h3>
+<p class="font-body-md text-sm text-on-surface-variant mt-1 line-clamp-2">High-efficiency saltwater conversion node designed for coastal megacity deployment. Integrates seamlessly with local grid telemetry.</p>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="bg-surface-container/40 backdrop-blur-md border border-infrastructure-silver/10 rounded-lg p-5 flex flex-col gap-4 relative group hover:border-primary-fixed/50 transition-all cursor-pointer">
+<div class="absolute inset-0 bg-gradient-to-br from-solar-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none"></div>
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-DEFAULT bg-surface border border-infrastructure-silver/20 flex items-center justify-center text-solar-gold">
+<span class="material-symbols-outlined text-2xl">solar_power</span>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-trust-blue/10 border border-trust-blue/30 text-trust-blue font-label-xs text-[9px] uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">verified</span> 97.2% Trust
+                            </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-bright border border-infrastructure-silver/20 text-on-surface-variant font-label-xs text-[9px] uppercase tracking-wider">
+                                AI: GEN-3
+                            </span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-lg text-body-md font-semibold text-on-surface">Orbital Solar Concentrator (Ground Relay)</h3>
+<p class="font-body-md text-sm text-on-surface-variant mt-1 line-clamp-2">Microwave receiving station for orbital power platforms. Features autonomous beam tracking and weather compensation algorithms.</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-surface-container/40 backdrop-blur-md border border-infrastructure-silver/10 rounded-lg p-5 flex flex-col gap-4 relative group hover:border-primary-fixed/50 transition-all cursor-pointer">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-DEFAULT bg-surface border border-infrastructure-silver/20 flex items-center justify-center text-secondary-container">
+<span class="material-symbols-outlined text-2xl">memory_alt</span>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-trust-blue/10 border border-trust-blue/30 text-trust-blue font-label-xs text-[9px] uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">verified</span> 100% Trust
+                            </span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container/10 border border-secondary-container/30 text-secondary-container font-label-xs text-[9px] uppercase tracking-wider">
+                                AI: GEN-5
+                            </span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-lg text-body-md font-semibold text-on-surface">Benthic Quantum Node</h3>
+<p class="font-body-md text-sm text-on-surface-variant mt-1 line-clamp-2">Underwater deployed quantum processing unit. Utilizes deep ocean temperatures for natural cryogenic cooling. High latency tolerance required.</p>
+</div>
+</div>
+<!-- Product Card 4 (Active/Selected) -->
+<div class="bg-surface-container-high/60 backdrop-blur-xl border border-primary-fixed shadow-[0_0_20px_rgba(116,245,255,0.05)] rounded-lg p-5 flex flex-col gap-4 relative cursor-default">
+<div class="foxampy-corner tl"></div><div class="foxampy-corner tr"></div>
+<div class="foxampy-corner bl"></div><div class="foxampy-corner br"></div>
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-DEFAULT bg-primary-fixed/10 border border-primary-fixed/50 flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-2xl">sensors</span>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-trust-blue/20 border border-trust-blue/50 text-trust-blue font-label-xs text-[9px] uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">verified</span> 99.9% Trust
+                            </span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed/20 border border-primary-fixed/50 text-primary-fixed font-label-xs text-[9px] uppercase tracking-wider">
+                                AI: GEN-4
+                            </span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-lg text-body-md font-semibold text-primary-fixed">FoxampyForge IoT-X</h3>
+<p class="font-body-md text-sm text-on-surface-variant mt-1 line-clamp-2">Ruggedized environmental sensor suite for extreme conditions. Monitors seismic, atmospheric, and local mesh-network integrity.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Detail Panel (Right Sidebar) -->
+<aside class="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-infrastructure-silver/20 bg-surface-container-low/80 backdrop-blur-2xl flex flex-col h-full z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)]">
+<div class="p-5 border-b border-infrastructure-silver/10 flex justify-between items-center bg-surface/40">
+<div class="flex items-center gap-3 text-primary-fixed">
+<span class="material-symbols-outlined">view_in_ar</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Asset Schematic</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col gap-6">
+<!-- Hero Image/Blueprint -->
+<div class="relative w-full h-48 border border-primary-fixed/30 rounded-DEFAULT bg-surface overflow-hidden group">
+<div class="absolute inset-0 bg-primary-fixed/5 mix-blend-overlay"></div>
+<img alt="FoxampyForge Blueprint" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="A highly technical blueprint-style wireframe rendering of a rugged industrial IoT sensor unit, codenamed FoxampyForge. The rendering is displayed on a dark background with thin cyan grid lines and glowing structural nodes, conveying a precise, engineering-grade aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNLV85tr7SiSVvn1qUvs6uepzFey45IOeiHk2gFg0sOlBlDYPHQw_N9pPoxqha486-MtZ0dCL6jymaJ6KpDQIoeNaOig8-pszDx6lPjRQJAp4Bsxh4sMFkIJxvo4t5wFNvfc1rnGYb69dDKjJFLf0Y5Emi-IOFH--JktoMikignqsfWFUc6EjFWW61t6nCq7X_D6oj_uCgbBGLKk_TdcPw8hhCkCBY9XrPROn2GVLP74gSE7cTEKM1"/>
+<div class="absolute bottom-2 left-2 px-2 py-1 bg-surface/80 backdrop-blur border border-infrastructure-silver/20 font-data-mono text-[10px] text-primary-fixed flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse"></span> LIVE TELEMETRY
+                     </div>
+</div>
+<!-- Specs -->
+<div>
+<h2 class="font-headline-lg text-headline-lg-mobile text-on-surface mb-2">FoxampyForge IoT-X</h2>
+<p class="font-body-md text-sm text-on-surface-variant leading-relaxed">Industrial-grade multispectral sensor module. Designed for autonomous deployment in hostile environments, featuring self-healing mesh networking protocols.</p>
+</div>
+<div class="grid grid-cols-2 gap-3 border-y border-infrastructure-silver/10 py-4">
+<div class="flex flex-col gap-1">
+<span class="font-label-xs text-[10px] text-on-surface-variant uppercase tracking-wider">Manufacturer</span>
+<span class="font-data-mono text-xs text-on-surface">Foxampy Heavy Ind.</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-xs text-[10px] text-on-surface-variant uppercase tracking-wider">Blockchain Auth</span>
+<span class="font-data-mono text-xs text-trust-blue break-all">0x7F...3B92</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-xs text-[10px] text-on-surface-variant uppercase tracking-wider">Power Draw</span>
+<span class="font-data-mono text-xs text-secondary-container">0.5W (Standby)</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-xs text-[10px] text-on-surface-variant uppercase tracking-wider">Lifespan</span>
+<span class="font-data-mono text-xs text-on-surface">15 Years (MTBF)</span>
+</div>
+</div>
+<!-- Lifecycle Analysis -->
+<div>
+<div class="flex justify-between items-end mb-3">
+<span class="font-label-xs text-label-xs text-on-surface uppercase tracking-widest">Lifecycle Cost Analysis</span>
+<span class="font-data-mono text-[10px] text-primary-fixed">PROJECTION</span>
+</div>
+<div class="h-24 flex items-end gap-2 border-b border-l border-infrastructure-silver/20 p-2 pt-0">
+<div class="w-1/4 bg-surface-variant relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-surface border border-infrastructure-silver/20 px-2 py-1 text-[10px] font-data-mono rounded">Deploy</div>
+<div class="h-[80%] bg-outline-variant w-full border-t border-infrastructure-silver/30"></div>
+</div>
+<div class="w-1/4 bg-surface-variant relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-surface border border-infrastructure-silver/20 px-2 py-1 text-[10px] font-data-mono rounded">Yr 1-5</div>
+<div class="h-[20%] bg-primary-fixed/40 w-full border-t border-primary-fixed"></div>
+</div>
+<div class="w-1/4 bg-surface-variant relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-surface border border-infrastructure-silver/20 px-2 py-1 text-[10px] font-data-mono rounded">Yr 6-10</div>
+<div class="h-[25%] bg-primary-fixed/40 w-full border-t border-primary-fixed"></div>
+</div>
+<div class="w-1/4 bg-surface-variant relative group">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-surface border border-infrastructure-silver/20 px-2 py-1 text-[10px] font-data-mono rounded">Yr 11-15</div>
+<div class="h-[40%] bg-warning-red/40 w-full border-t border-warning-red"></div>
+</div>
+</div>
+<div class="flex justify-between text-[9px] font-label-xs text-on-surface-variant mt-1 px-2 uppercase">
+<span>Capex</span>
+<span>Opex</span>
+<span>Opex</span>
+<span>Maint</span>
+</div>
+</div>
+<button class="w-full mt-4 py-3 bg-primary-fixed text-on-primary-fixed font-label-xs text-label-xs uppercase tracking-widest rounded-DEFAULT hover:bg-primary-fixed-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_cart</span> Initiate Procurement
+                </button>
+</div>
+</aside>
+</main>
+</body></html>

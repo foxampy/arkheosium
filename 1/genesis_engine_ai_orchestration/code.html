@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Genesis Engine - ArkheOS</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Sora:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#d3e4fe", "tertiary": "#f8f6ff", "outline-variant": "#3a494b",
+                        "surface-variant": "#26364a", "surface-container-high": "#1b2b3f", "infrastructure-silver": "#E2E8F0",
+                        "secondary-container": "#3cffc0", "surface": "#031427", "secondary-fixed": "#3cffc0",
+                        "on-primary-container": "#006a71", "surface-tint": "#00dbe7", "surface-container-low": "#0b1c30",
+                        "surface-container-highest": "#26364a", "on-surface": "#d3e4fe", "secondary-fixed-dim": "#00e1a6",
+                        "on-primary-fixed-variant": "#004f54", "inverse-primary": "#00696f", "space-void": "#05070F",
+                        "primary-fixed-dim": "#00dbe7", "on-error-container": "#ffdad6", "surface-bright": "#2a3a4f",
+                        "tertiary-fixed": "#e0e1f7", "on-background": "#d3e4fe", "inverse-on-surface": "#213145",
+                        "tertiary-fixed-dim": "#c3c5db", "primary-container": "#00f2ff", "on-tertiary-fixed": "#181b2a",
+                        "background": "#031427", "on-primary": "#00363a", "on-tertiary": "#2d2f40",
+                        "on-tertiary-fixed-variant": "#434657", "outline": "#849495", "error": "#ffb4ab",
+                        "error-container": "#93000a", "surface-dim": "#031427", "primary": "#e1fdff",
+                        "tertiary-container": "#d8d9ef", "warning-red": "#FF4D4D", "on-surface-variant": "#b9cacb",
+                        "on-primary-fixed": "#002022", "secondary": "#ffffff", "trust-blue": "#007AFF",
+                        "on-tertiary-container": "#5c5e71", "solar-gold": "#FFD700", "on-secondary": "#003827",
+                        "on-error": "#690005", "on-secondary-container": "#007353", "surface-container-lowest": "#000f21",
+                        "surface-container": "#102034", "on-secondary-fixed": "#002115", "on-secondary-fixed-variant": "#00513a",
+                        "primary-fixed": "#74f5ff"
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                    spacing: { "unit": "4px", "gutter": "24px", "panel-padding": "20px", "margin-desktop": "64px", "margin-mobile": "16px" },
+                    fontFamily: { "display-xl": ["Sora"], "headline-lg": ["Sora"], "body-md": ["Inter"], "label-xs": ["JetBrains Mono"], "headline-lg-mobile": ["Sora"], "data-mono": ["JetBrains Mono"] },
+                    fontSize: {
+                        "display-xl": ["64px", { lineHeight: "72px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "label-xs": ["11px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "700" }],
+                        "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "data-mono": ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .hud-border { border: 0.5px solid rgba(226, 232, 240, 0.2); }
+        .glass-panel { background: rgba(8, 11, 26, 0.6); backdrop-filter: blur(20px); }
+        .glow-active { box-shadow: 0 0 15px rgba(0, 219, 231, 0.3); }
+        .pulse-border { animation: pulseBorder 2s infinite; }
+        @keyframes pulseBorder {
+            0% { border-color: rgba(0, 219, 231, 0.3); }
+            50% { border-color: rgba(0, 219, 231, 0.8); }
+            100% { border-color: rgba(0, 219, 231, 0.3); }
+        }
+    </style>
+</head>
+<body class="bg-space-void text-on-surface font-body-md min-h-screen overflow-x-hidden selection:bg-surface-tint selection:text-surface-container-lowest">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface/60 backdrop-blur-xl border-b border-infrastructure-silver/20 shadow-[0_0_15px_rgba(0,219,231,0.1)] hidden md:flex">
+<div class="flex items-center gap-4">
+<span class="font-display-xl text-headline-lg tracking-tighter text-surface-tint">ArkheOS<span class="text-on-surface-variant font-label-xs text-label-xs ml-2 uppercase">capital</span></span>
+</div>
+<div class="flex flex-1 justify-end items-center gap-6">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80">water_drop</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80">bolt</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80">neurology</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer active:opacity-80">verified_user</span>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-20 bg-surface-container-lowest/80 backdrop-blur-2xl border-r border-infrastructure-silver/10 shadow-2xl docked left-0 h-full w-64 hidden md:flex">
+<div class="px-6 mb-8 flex flex-col gap-1">
+<h2 class="font-display-xl text-headline-lg text-primary-fixed">ArkheOS</h2>
+<span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-widest">v4.0 Planetary OS</span>
+</div>
+<div class="flex-1 overflow-y-auto px-2 space-y-1">
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined font-label-xs text-label-xs uppercase tracking-widest">public</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Earth</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined font-label-xs text-label-xs uppercase tracking-widest">map</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Atlas</span>
+</a>
+<a class="bg-primary-container/20 text-primary-fixed border-r-2 border-primary-fixed flex items-center gap-3 px-4 py-3 active:scale-95 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined font-label-xs text-label-xs uppercase tracking-widest">account_tree</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Projects</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined font-label-xs text-label-xs uppercase tracking-widest">biotech</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Technologies</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined font-label-xs text-label-xs uppercase tracking-widest">science</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Research</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined font-label-xs text-label-xs uppercase tracking-widest">smart_toy</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">AI Agents</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-variant/30 hover:text-on-surface transition-all active:scale-95 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined font-label-xs text-label-xs uppercase tracking-widest">storefront</span>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Marketplace</span>
+</a>
+</div>
+<div class="mt-auto p-4 border-t border-infrastructure-silver/10">
+<button class="w-full py-2 px-4 bg-surface-variant/50 border border-surface-tint/30 text-surface-tint font-label-xs text-label-xs hover:bg-surface-variant transition-colors rounded">
+                Genesis Engine
+            </button>
+<div class="flex justify-between mt-4 px-2">
+<a class="text-on-surface-variant flex items-center gap-2 hover:text-on-surface" href="#">
+<span class="material-symbols-outlined text-[16px]">settings</span>
+<span class="font-label-xs text-label-xs uppercase">Settings</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-2 hover:text-on-surface" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span>
+<span class="font-label-xs text-label-xs uppercase">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="md:ml-64 pt-20 px-gutter pb-gutter min-h-screen flex flex-col gap-6 relative z-10">
+<!-- Ambient Background Glow -->
+<div class="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,rgba(0,219,231,0.05)_0%,transparent_50%)]"></div>
+<!-- Header Area -->
+<header class="flex flex-col gap-2 z-10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-surface-tint animate-pulse">memory</span>
+<h1 class="font-headline-lg text-headline-lg text-inverse-surface tracking-wide">Genesis Engine Core</h1>
+</div>
+<p class="font-data-mono text-data-mono text-on-surface-variant text-sm">Awaiting directive for global infrastructure modeling.</p>
+</header>
+<!-- Command Input -->
+<section class="glass-panel hud-border p-6 rounded-xl flex flex-col gap-4 z-10 glow-active">
+<div class="relative">
+<span class="absolute left-4 top-4 material-symbols-outlined text-surface-tint">terminal</span>
+<textarea class="w-full bg-surface-container-low/50 hud-border rounded-lg py-4 pl-12 pr-4 font-data-mono text-data-mono text-primary-fixed focus:outline-none focus:ring-1 focus:ring-surface-tint transition-all pulse-border placeholder:text-surface-tint/30 resize-none h-24" placeholder="Describe your global infrastructure goal...">Initiate scenario: Restoring the Aral Sea Region via autonomous water desalination and solar pumping grids.</textarea>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-container border border-surface-tint/20 font-label-xs text-label-xs text-surface-tint uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] animate-spin">sync</span> Processing
+                    </span>
+<span class="px-3 py-1 rounded-full bg-trust-blue/10 border border-trust-blue/30 font-label-xs text-label-xs text-trust-blue uppercase">Web3 Verification Active</span>
+</div>
+<button class="px-6 py-2 bg-surface-tint/10 border border-surface-tint text-surface-tint font-label-xs text-label-xs hover:bg-surface-tint/20 transition-all rounded shadow-[0_0_10px_rgba(0,219,231,0.2)]">
+                    Execute Simulation
+                </button>
+</div>
+</section>
+<!-- Bento Grid for Results -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 z-10 flex-1">
+<!-- Knowledge Graph Panel -->
+<section class="lg:col-span-7 glass-panel hud-border rounded-xl p-6 flex flex-col">
+<div class="flex justify-between items-center border-b border-infrastructure-silver/10 pb-4 mb-6">
+<h3 class="font-data-mono text-data-mono text-inverse-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed">hub</span>
+                        Semantic Infrastructure Topology
+                    </h3>
+<span class="font-label-xs text-label-xs text-secondary-fixed">Live Generation</span>
+</div>
+<div class="flex-1 relative min-h-[300px] flex items-center justify-center">
+<!-- Abstract representation of the graph -->
+<div class="absolute w-full h-full flex flex-col justify-between items-center py-8">
+<!-- Node: Water -->
+<div class="relative z-10 bg-surface-container border border-surface-tint p-4 rounded-lg shadow-[0_0_15px_rgba(0,219,231,0.2)] flex flex-col items-center w-48">
+<span class="material-symbols-outlined text-surface-tint mb-2">water</span>
+<span class="font-label-xs text-label-xs text-surface-tint uppercase">Aral Basin Extractor</span>
+</div>
+<!-- Connecting Line -->
+<div class="h-16 w-px bg-gradient-to-b from-surface-tint to-secondary-fixed relative">
+<div class="absolute inset-0 bg-white/50 animate-ping"></div>
+</div>
+<!-- Node Cluster -->
+<div class="flex gap-16 w-full justify-center">
+<!-- Node: Solar -->
+<div class="relative z-10 bg-surface-container border border-secondary-fixed p-4 rounded-lg flex flex-col items-center w-40">
+<span class="material-symbols-outlined text-secondary-fixed mb-2">solar_power</span>
+<span class="font-label-xs text-label-xs text-secondary-fixed uppercase">Photovoltaic Array</span>
+</div>
+<!-- Node: Pumps -->
+<div class="relative z-10 bg-surface-container border border-outline p-4 rounded-lg flex flex-col items-center w-40">
+<span class="material-symbols-outlined text-on-surface-variant mb-2">valve</span>
+<span class="font-label-xs text-label-xs text-on-surface-variant uppercase">Desalination Pumps</span>
+</div>
+</div>
+<!-- Connecting Lines from Cluster to Investor -->
+<div class="flex w-64 justify-between -mt-4 z-0">
+<div class="h-20 w-px bg-outline/50 rotate-[30deg] translate-x-8"></div>
+<div class="h-20 w-px bg-outline/50 -rotate-[30deg] -translate-x-8"></div>
+</div>
+<!-- Node: Investor -->
+<div class="relative z-10 bg-surface-container border border-solar-gold p-4 rounded-lg shadow-[0_0_10px_rgba(255,215,0,0.1)] flex flex-col items-center w-48 mt-[-10px]">
+<span class="material-symbols-outlined text-solar-gold mb-2">account_balance</span>
+<span class="font-label-xs text-label-xs text-solar-gold uppercase">Green Bond Investors</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Terrain Preview Panel -->
+<section class="lg:col-span-5 glass-panel hud-border rounded-xl p-1 flex flex-col relative overflow-hidden group">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center opacity-60 mix-blend-screen transition-transform duration-1000 group-hover:scale-105" data-alt="A highly detailed, cinematic top-down holographic 3D terrain map of a dried sea bed (Aral Sea region). The terrain is rendered in dark deep blues and blacks, intersected by glowing cyan and neon green grid lines indicating proposed infrastructure paths. The aesthetic is extremely technical, futuristic, and resembles a high-end military or scientific Heads-Up Display (HUD) in a dark room. Soft glowing light highlights topological features." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDoL6WixvewsLTpB4u7T2mWQibt1jpBlC73dxqdYFF7th5RTQPZH2I4youE0WG-bLQlwMZr1tELu2LFxo55jQ0i2f7HmgyYna3j3KBtm3SCfVObHicTZCYAolil_hoYlqF6t3kw9hauU6JoufaH0zvBjXKGNJ7V6iSzOi4xAPaki1a9_2h92Jdy4TdnJynmvq636KS2xQzHAgE4uMt3c12ACHseriWT6FG2n-KgJWqkF3oFNHcuLmKH')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-surface-container-lowest/50 pointer-events-none"></div>
+</div>
+<div class="relative z-10 p-5 flex flex-col h-full justify-between">
+<div class="flex justify-between items-start">
+<div class="bg-surface/80 backdrop-blur-md border border-surface-tint/30 px-3 py-1 rounded flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-surface-tint">satellite_alt</span>
+<span class="font-label-xs text-label-xs text-surface-tint">Terrain Model 4A</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-surface-tint">fullscreen</span>
+</div>
+<div class="bg-surface-container-highest/90 backdrop-blur border-l-2 border-secondary-fixed p-4 rounded-r mt-auto">
+<h4 class="font-data-mono text-data-mono text-inverse-surface mb-2">Simulated Impact</h4>
+<ul class="space-y-2">
+<li class="flex justify-between font-label-xs text-label-xs text-on-surface-variant">
+<span>Water Restored (Yr 1)</span>
+<span class="text-secondary-fixed">1.2B Cubic Meters</span>
+</li>
+<li class="flex justify-between font-label-xs text-label-xs text-on-surface-variant">
+<span>Energy Req.</span>
+<span class="text-warning-red">450 MW (Solar)</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>
