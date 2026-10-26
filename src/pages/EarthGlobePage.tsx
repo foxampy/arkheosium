@@ -19,7 +19,8 @@ import { DOMAIN_CONFIG, DOMAIN_ORDER, normalizeDomain, type DomainKey } from '@/
 import type { MapMarker } from '@/components/map/types';
 import MobileModules from '@/components/os/MobileModules';
 import OSDesktop from '@/components/os/OSDesktop';
-import { groupMarkersByGeography } from '@/lib/regionGrouping';
+import { groupMarkersByGeography, type GeoGroup } from '@/lib/regionGrouping';
+import RegionCard from '@/components/geo/RegionCard';
 import { useWorldBorders } from '@/lib/geo/useWorldBorders';
 import type { WorldBorders } from '@/lib/geo/worldBorders';
 import { GeoRegionMarker } from '@/components/geo/GeoRegionMarker';
@@ -231,11 +232,12 @@ function EarthMesh() {
 interface FlyTarget { camPos: THREE.Vector3; }
 
 function Scene({
-  markers, onHover, onSelect, controlsRef, graphEdges, showGraph, world,
+  markers, onHover, onSelect, onRegion, controlsRef, graphEdges, showGraph, world,
 }: {
   markers: MapMarker[];
   onHover: (h: boolean) => void;
   onSelect: (m: MapMarker) => void;
+  onRegion: (g: GeoGroup) => void;
   controlsRef: React.MutableRefObject<any>;
   graphEdges: GeoJSON.FeatureCollection;
   showGraph: boolean;
@@ -284,11 +286,8 @@ function Scene({
   // честное промежуточное состояние, а не пустой глобус.
   const regionsReady = showRegions && groups.length > 0;
 
-  const handleRegionZoom = (pos: THREE.Vector3) => {
-    // подлетаем так, чтобы пересечь порог и раскрыть следующий уровень
-    const next = camDist > 3.6 ? 3.2 : 2.4;
-    flyRef.current = { camPos: pos.clone().normalize().multiplyScalar(next) };
-  };
+  // Глобус без приближения: клик по региону открывает сводку региона, камера не подлетает.
+  const handleRegionZoom = (_pos: THREE.Vector3, g: GeoGroup) => onRegion(g);
 
   return (
     <>
@@ -375,6 +374,7 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
   const [autoRotate, setAutoRotate] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [selected, setSelected] = useState<MapMarker | null>(null);
+  const [region, setRegion] = useState<GeoGroup | null>(null);
   const [showGraph, setShowGraph] = useState(false);
   const controlsRef = useRef<any>(null);
 
@@ -388,16 +388,27 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
   // same entity never renders twice. The globe's existing clustering
   // (see Scene) consumes this combined array unchanged.
   const markers: MapMarker[] = useMemo(() => {
+    // Единый реестр: одна запись на сущность. Записи базы (с паспортом и мониторингом) идут первыми,
+    // данные кода добавляются, только если такой сущности ещё нет — по ключу, имени или точке на карте.
+    // Внутри одного источника объекты не схлопываются; между базой и кодом одна сущность узнаётся
+    // по ключу, по названию или по той же точке на карте (≈1 км).
     const seen = new Set<string>();
+    const dbPoints = new Set<string>();
     const out: MapMarker[] = [];
-    const push = (m: MapMarker) => {
-      const key = `${m.type}:${m.id}`;
-      if (seen.has(key)) return;
-      seen.add(key);
+    const norm = (t: string) => t.toLowerCase().replace(/[«»"'().,·—–-]/g, ' ').replace(/\s+/g, ' ').trim();
+    const pt = (m: MapMarker) => `${m.type}:${m.lat.toFixed(2)},${m.lng.toFixed(2)}`;
+    supabaseMarkers.forEach((m) => {
+      const k = `${m.type}:${m.id}`;
+      if (seen.has(k)) return;
+      seen.add(k); seen.add(`${m.type}:n:${norm(m.title || '')}`); dbPoints.add(pt(m));
       out.push(m);
-    };
-    getAllMapMarkers().forEach(push);
-    supabaseMarkers.forEach(push);
+    });
+    getAllMapMarkers().forEach((m) => {
+      const k = `${m.type}:${m.id}`, n = `${m.type}:n:${norm(m.title || '')}`;
+      if (seen.has(k) || seen.has(n) || dbPoints.has(pt(m))) return;
+      seen.add(k); seen.add(n);
+      out.push(m);
+    });
     return out;
   }, [supabaseMarkers]);
 
@@ -464,6 +475,7 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
         style={{ width: '100%', height: '100%' }}
       >
         <Scene
+          onRegion={(g) => { setSelected(null); setRegion(g); }}
           markers={visibleMarkers}
           onHover={setHovered}
           onSelect={setSelected}
@@ -474,7 +486,7 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
         />
         <OrbitControls
           ref={controlsRef}
-          enableZoom
+          enableZoom={false}
           enablePan={false}
           minDistance={2.4}
           maxDistance={9}
@@ -593,6 +605,19 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
 
       {/* ── Freeform draggable OS desktop (tiles + folders over the globe) ── */}
       {isPhone ? <MobileModules modules={OS_MODULES} onNavigate={setLocation} /> : <OSDesktop modules={OS_MODULES} onNavigate={setLocation} />}
+
+      {/* ── Сводка региона (вместо приближения) ─────────────────── */}
+      <AnimatePresence>
+        {region && (
+          <RegionCard
+            group={region}
+            markers={markers}
+            world={world}
+            onClose={() => setRegion(null)}
+            onOpen={(m) => { setRegion(null); setSelected(m); }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── Marker popup card ─────────────────────────────────── */}
       <AnimatePresence>
