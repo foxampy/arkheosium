@@ -29,6 +29,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // новая версия сразу заменяет старую у всех (иначе телефоны держат прежнюю сборку)
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         // The realistic-Earth textures (esp. clouds.png ~5 MB) are far too large
         // to precache into the service worker. Skip them at build time and cache
         // them on demand via the runtime rule below instead.
