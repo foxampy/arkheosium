@@ -10,12 +10,14 @@ import {
   FileText, Newspaper, X, ArrowRight,
   Sparkles, Satellite, Radio, Waves, Cloud, Zap, Truck, Bot,
   Sprout, Recycle, Telescope, Network,
+  Hammer, Package, Stethoscope, Landmark, Leaf, Fuel, Globe2,
 } from 'lucide-react';
 import { useSupabaseMarkers } from '@/hooks/useSupabaseMarkers';
 import { useSupabaseGraph } from '@/hooks/useSupabaseGraph';
 import { getAllMapMarkers } from '@/data/map-markers';
 import { DOMAIN_CONFIG, DOMAIN_ORDER, normalizeDomain, type DomainKey } from '@/lib/domains';
 import type { MapMarker } from '@/components/map/types';
+import MobileModules from '@/components/os/MobileModules';
 import OSDesktop from '@/components/os/OSDesktop';
 import { groupMarkersByGeography } from '@/lib/regionGrouping';
 import { useWorldBorders } from '@/lib/geo/useWorldBorders';
@@ -50,6 +52,14 @@ const OS_MODULES = [
   { Icon: Recycle,      label: 'Циркуляр',    path: '/circular',      color: '#4ade80' },
   { Icon: Telescope,    label: 'Обсерватория',path: '/observatory',   color: '#818cf8' },
   { Icon: FlaskConical, label: 'Откр.наука',  path: '/open-science',  color: '#8b7cff' },
+  // ── Продукты платформы (обновление 26.10.2026) ──
+  { Icon: Hammer,       label: 'Конструктор', path: '/constructor',   color: '#00e6c8' },
+  { Icon: Package,      label: 'Каталог',     path: '/catalog',       color: '#a78bfa' },
+  { Icon: Stethoscope,  label: 'Диагностика', path: '/diagnostics',   color: '#f59e0b' },
+  { Icon: Leaf,         label: 'Экология',    path: '/ecology',       color: '#4ade80' },
+  { Icon: Fuel,         label: 'Нефть и газ', path: '/oilgas',        color: '#fb923c' },
+  { Icon: Globe2,       label: 'Арал',        path: '/aral-nexus',    color: '#5ec8c6' },
+  { Icon: Landmark,     label: 'Фонд',        path: '/fund',          color: '#fbbf24' },
 ] as const;
 
 // ── Marker type metadata ───────────────────────────────────────
@@ -359,6 +369,8 @@ function Scene({
  * страница продолжается обычным потоком.
  */
 export default function EarthGlobePage({ embedded = false }: { embedded?: boolean }) {
+  // телефон: глобус дальше, модули — в выдвижной сетке вместо свободного рабочего стола
+  const isPhone = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
   const [, setLocation] = useLocation();
   const [autoRotate, setAutoRotate] = useState(true);
   const [hovered, setHovered] = useState(false);
@@ -448,7 +460,7 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
     >
       {/* ── 3D Globe canvas ──────────────────────────────────── */}
       <Canvas
-        camera={{ position: [0, 0.4, 4.3], fov: 42 }}
+        camera={{ position: [0, 0.4, isPhone ? 6.4 : 4.3], fov: 42 }}
         style={{ width: '100%', height: '100%' }}
       >
         <Scene
@@ -506,7 +518,7 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
             Домен, в котором нет ни одного объекта, показан приглушённо и
             не кликается: чип, который ничего не переключает, обманывает. */}
         <div className="px-3 pb-2 pointer-events-none">
-          <div className="flex flex-wrap justify-center gap-1.5 max-w-[560px] mx-auto">
+          <div className={isPhone ? "flex gap-1.5 overflow-x-auto pointer-events-auto px-1 [scrollbar-width:none]" : "flex flex-wrap justify-center gap-1.5 max-w-[560px] mx-auto"}>
             {DOMAIN_ORDER.map((d) => {
               const cfg = DOMAIN_CONFIG[d];
               const count = domainCounts[d] ?? 0;
@@ -580,7 +592,7 @@ export default function EarthGlobePage({ embedded = false }: { embedded?: boolea
       </div>
 
       {/* ── Freeform draggable OS desktop (tiles + folders over the globe) ── */}
-      <OSDesktop modules={OS_MODULES} onNavigate={setLocation} />
+      {isPhone ? <MobileModules modules={OS_MODULES} onNavigate={setLocation} /> : <OSDesktop modules={OS_MODULES} onNavigate={setLocation} />}
 
       {/* ── Marker popup card ─────────────────────────────────── */}
       <AnimatePresence>

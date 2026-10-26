@@ -609,10 +609,9 @@ export default function ProjectDetailPage() {
   const budget = proj.budget ?? proj.budget_total ?? 0;
   const irr = proj.expected_irr ?? proj.combined_irr;
 
-  const relatedSubjects = useMemo(() =>
-    SUBJECTS_DATA.filter(s => proj.related_subjects?.includes(s.id)), [proj]);
-  const relatedObjects = useMemo(() =>
-    OBJECTS_DATA.filter(o => proj.related_objects?.includes(o.id)), [proj]);
+  // связанные субъекты и объекты — без хуков: этот код идёт после условных return (иначе React #310)
+  const relatedSubjects = SUBJECTS_DATA.filter(s => proj.related_subjects?.includes(s.id));
+  const relatedObjects = OBJECTS_DATA.filter(o => proj.related_objects?.includes(o.id));
 
   const docCategories = ["all", "investment", "study", "ecology", "finance", "legal", "technical"];
   const filteredDocs = activeDocCat === "all" ? docs : docs.filter(d => d.category === activeDocCat);

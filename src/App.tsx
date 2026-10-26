@@ -155,10 +155,8 @@ function PageLoader() {
 
 export default function App() {
   // Show splash only on very first visit
-  const [showSplash, setShowSplash] = useState(() => {
-    const seen = localStorage.getItem('arkheosium-splash-seen');
-    return !seen;
-  });
+  // Заставка и приветствие отключены: среда открывается сразу (решение владельца, 2026-10-26)
+  const [showSplash, setShowSplash] = useState(false);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
@@ -183,7 +181,7 @@ export default function App() {
 
       {/* Platform-wide first-visit onboarding (after splash, before app use) */}
       <AnimatePresence>
-        {!showSplash && showOnboarding && (
+        {false && !showSplash && showOnboarding && (
           <PlatformOnboarding onComplete={handleOnboardingComplete} />
         )}
       </AnimatePresence>
@@ -571,7 +569,7 @@ export default function App() {
             </Switch>
           </Suspense>
           </ErrorBoundary>
-          <NotificationPermissionBanner onRequest={requestPermission} />
+          {false && <NotificationPermissionBanner onRequest={requestPermission} />}
           <MobileTabBar />
         </div>
       )}
